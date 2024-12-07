@@ -23,13 +23,12 @@ export default function Footer ()  {
       <div className={styles._footer_row}>
         <div className={styles._footer_col}>
           <img
-            srcSet="/icon.svg"
+            srcSet="/icon.png"
             className={styles._footer_logo}
             alt="favicon"
           />
           <p>
-            ONotes is an online platform to save your important notes in a
-            secure way.
+          Just wanna to analyse your text? Come here and start analysing.
           </p>
         </div>
         <div className={styles._footer_col}>

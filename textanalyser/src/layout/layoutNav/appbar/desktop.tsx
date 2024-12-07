@@ -16,7 +16,7 @@ import ThemeModeToggler from "./theme";
 import Search from "./searchbar";
 
 // ICON
-import { CallIcon, HomeIcon, PersonIcon, RssFeedIcon } from "@/icon";
+import { CallIcon, HomeIcon, PersonIcon } from "@/icon";
 
 // NAVBAR
 export default function DeskTopVersion() {
@@ -77,8 +77,8 @@ export default function DeskTopVersion() {
               cursor: "pointer",
             })]}
           >
-            <Image src="/icon.svg" width={32} height={32} alt="ONoteBook" />
-            ONotes
+            <Image src="/icon.png" width={32} height={32} alt="TextAnalyser" />
+            TextAnalyser
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
@@ -128,30 +128,6 @@ export default function DeskTopVersion() {
                   textAlign="center"
                 >
                   About
-                </Typography>
-              </Button>
-            </Link>
-            <Link href="/blog">
-              <Button
-                size="small"
-                key={"blog"}
-                variant="contained"
-                sx={{
-                  color: "white",
-                  display: "inline-flex",
-                  fontWeight: 600,
-                  mx: 2,
-                }}
-              >
-                <RssFeedIcon sx={{ fontSize: "0.81rem" }} />{" "}
-                <Typography
-                  sx={{ mx: 1 }}
-                  fontFamily={"sans-serif"}
-                  fontSize={"0.79rem"}
-                  fontWeight={600}
-                  textAlign="center"
-                >
-                  Blog
                 </Typography>
               </Button>
             </Link>

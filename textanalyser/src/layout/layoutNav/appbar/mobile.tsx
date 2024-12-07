@@ -9,7 +9,7 @@ import Image from "next/image";
 import ThemeModeToggler from "./theme";
 
 // MUI
-import { alpha, styled, useTheme, useMediaQuery } from "@mui/material";
+import { alpha, styled, useTheme, useMediaQuery, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
@@ -32,7 +32,6 @@ import {
   HomeIcon,
   MenuIcon,
   PersonIcon,
-  RssFeedIcon,
 } from "@/icon";
 
 // APPBAR
@@ -118,14 +117,15 @@ export default function MobileVersion() {
         <Container maxWidth="xs">
           <Toolbar sx={{ justifyContent: "space-between" }}>
             <Image
-              src="./icon.svg"
-              alt="ONoteBook"
+              src="/icon.png"
+              alt="TextAnalyser"
               width={imgWidth}
               height={imgHeight}
               onClick={() => {
                 router.push("/")
               }}
             />
+            <Typography variant="h1">TextAnalyser</Typography>
             <Box>
               <Button
                 variant="text"
@@ -186,13 +186,6 @@ export default function MobileVersion() {
               }}
             >
               <PersonIcon fontSize="small" /> About
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                router.push("/blog");
-              }}
-            >
-              <RssFeedIcon fontSize="small" /> Blog
             </MenuItem>
             <MenuItem
               onClick={() => {
