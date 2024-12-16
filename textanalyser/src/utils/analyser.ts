@@ -95,6 +95,7 @@ export namespace Tools {
     public count: number = 0;
     public alphacount: number = 0;
     public numericcount: number = 0;
+    public url : string = "";
     public operations: string[] = [];
     public output: string = "";
     public customOperations: { [key: string]: () => Promise<void> } = {};
@@ -181,7 +182,7 @@ export namespace Tools {
      */
     async extractURL(): Promise<void> {
       const urls = this.raw_text.match(ToolsConstant.regex.urls) || [];
-      this.raw_text = urls.join(", ");
+      this.url = urls.join(", ");
       this.logOperation("Extracted URLs");
     }
 
@@ -306,6 +307,7 @@ export namespace Tools {
           characterCount: this.count,
           alphabetCount: this.alphacount,
           numericCount: this.numericcount,
+          url: this.url
         },
       };
     }
