@@ -11,6 +11,9 @@ export default async function Home() {
   const result = await analyserEngine.main();
   const purpose = result["purpose"];
   const out = result["output"];
+  const eE = new Tools.Analyser("Sample Text", {charcount: true})
+  const r = await eE.main();
+  const mtd = r["metadata"].characterCount
   return (
     <div>
       <br />
@@ -20,6 +23,7 @@ export default async function Home() {
       <code>{out}</code>
       <br />
       <code>{purpose}</code> <br />
+      <code>Charcount for "Sample Text" is {mtd}</code> <br />
     </div>
   );
 }

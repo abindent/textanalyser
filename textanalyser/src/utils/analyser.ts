@@ -93,7 +93,8 @@ export namespace Tools {
   export class Analyser {
     public raw_text: string; // Declaring raw_text consistently as 'public'
     public count: number = 0;
-    public _count: number = 0;
+    public alphacount: number = 0;
+    public numericcount: number = 0;
     public operations: string[] = [];
     public output: string = "";
     public customOperations: { [key: string]: () => Promise<void> } = {};
@@ -234,10 +235,10 @@ export namespace Tools {
      * @summary Counts the number of alphabetic and numeric characters in the input text.
      */
     async countAlphaNumeric(): Promise<void> {
-      this.count = (
+      this.alphacount = (
         this.raw_text.match(ToolsConstant.regex.alphabets) || []
       ).length;
-      this._count = (
+      this.numericcount = (
         this.raw_text.match(ToolsConstant.regex.numbers) || []
       ).length;
       this.logOperation("Counted Alphabets and Numbers.");
@@ -303,7 +304,8 @@ export namespace Tools {
         output: this.raw_text,
         metadata: {
           characterCount: this.count,
-          numericCount: this._count,
+          alphabetCount: this.alphacount,
+          numericCount: this.numericcount,
         },
       };
     }
