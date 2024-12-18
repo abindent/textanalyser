@@ -62,8 +62,9 @@ export namespace Tools {
     CountAlphanumeric = "alphanumericcount",
   }
 
-  /** @type AnalyserOption */
-  type AnalyserOptions = Partial<Record<Operations | string, boolean>>;
+  /** @type AnalyserBuiltInOptions and BuiltInOptions */
+  type AnalyserBuiltInOptions = Partial<Record<Operations, boolean>>;
+  type BuiltInOptions = keyof typeof Operations;
 
   /**
    * @class Analyser
@@ -95,22 +96,61 @@ export namespace Tools {
     public count: number = 0;
     public alphacount: number = 0;
     public numericcount: number = 0;
-    public url : string = "";
+    public url: string = "";
     public operations: string[] = [];
     public output: string = "";
     public customOperations: { [key: string]: () => Promise<void> } = {};
+    private builtInOptions: AnalyserBuiltInOptions = {};
 
-    constructor(raw_text: string, public options: AnalyserOptions = {}) {
+    constructor(raw_text: string, options: AnalyserBuiltInOptions = {}) {
       // Ensure raw_text is set properly
       this.raw_text = raw_text || ""; // Fallback to empty string if raw_text is undefined or null
+      this.builtInOptions = options;
     }
+
+    /** @summary Fetching available operations.
+     */
+    public get availableOperations() {
+      return {
+        ...Operations,
+        ...Object.keys(this.customOperations),
+      };
+    }
+
+    /** @summary Gets the option constructor */
+    public get options() {
+      return this.builtInOptions;
+    }
+
+    /** Publicly sets the new options appended with externally registered commands. */
+    public set options(newOptions: Partial<Record<string, boolean>>) {
+      this.builtInOptions = newOptions as AnalyserBuiltInOptions;
+    }
+
+    /**
+     * @description It is a private class for operation handlers.
+     */
+    private operationHandlers: Record<string, () => Promise<void>> = {
+      [Operations.RemovePunctuations]: this.removePunctuations.bind(this),
+      [Operations.RemoveNumbers]: this.removeNumbers.bind(this),
+      [Operations.RemoveAlphabets]: this.removeAlphabets.bind(this),
+      [Operations.RemoveSpecialChars]: this.removeSpecialCharacters.bind(this),
+      [Operations.RemoveNewlines]: this.newLineRemover.bind(this),
+      [Operations.RemoveExtraSpaces]: this.extraSpaceRemover.bind(this),
+      [Operations.ExtractUrls]: this.extractURL.bind(this),
+      [Operations.ConvertToUppercase]: this.toFullUppercase.bind(this),
+      [Operations.ConvertToLowercase]: this.toFullLowercase.bind(this),
+      [Operations.CountCharacters]: this.countCharacters.bind(this),
+      [Operations.CountAlphabets]: this.countAlphas.bind(this),
+      [Operations.CountAlphanumeric]: this.countAlphaNumeric.bind(this),
+    };
 
     /**
      * @async
      * @function removeAlphabets
      * @summary Removes all alphabetic characters from the input text.
      */
-    async removeAlphabets(): Promise<void> {
+    private async removeAlphabets(): Promise<void> {
       this.raw_text = this.raw_text.replace(ToolsConstant.regex.alphabets, "");
       this.logOperation("Removed Alphabets");
     }
@@ -120,7 +160,7 @@ export namespace Tools {
      * @function removeNumbers
      * @summary Removes all numeric characters from the input text.
      */
-    async removeNumbers(): Promise<void> {
+    private async removeNumbers(): Promise<void> {
       this.raw_text = this.raw_text.replace(ToolsConstant.regex.numbers, "");
       this.logOperation("Removed Numbers");
     }
@@ -130,7 +170,7 @@ export namespace Tools {
      * @function removePunctuations
      * @summary Removes all punctuation characters from the input text.
      */
-    async removePunctuations(): Promise<void> {
+    private async removePunctuations(): Promise<void> {
       this.raw_text = this.raw_text.replace(
         ToolsConstant.regex.punctuations,
         ""
@@ -143,7 +183,7 @@ export namespace Tools {
      * @function removeSpecialCharacters
      * @summary Removes all special characters from the input text.
      */
-    async removeSpecialCharacters(): Promise<void> {
+    private async removeSpecialCharacters(): Promise<void> {
       this.raw_text = this.raw_text.replace(
         ToolsConstant.regex.specialCharacters,
         ""
@@ -156,7 +196,7 @@ export namespace Tools {
      * @function extraSpaceRemover
      * @summary Removes extra spaces and trims the input text.
      */
-    async extraSpaceRemover(): Promise<void> {
+    private async extraSpaceRemover(): Promise<void> {
       this.raw_text = this.raw_text
         .replace(ToolsConstant.regex.extraSpaces, " ")
         .trim();
@@ -168,7 +208,7 @@ export namespace Tools {
      * @function newLineRemover
      * @summary Removes newline characters from the input text.
      */
-    async newLineRemover(): Promise<void> {
+    private async newLineRemover(): Promise<void> {
       this.raw_text = this.raw_text
         .replace(ToolsConstant.regex.newlines, " ")
         .trim();
@@ -180,7 +220,7 @@ export namespace Tools {
      * @function extractURL
      * @summary Extracts all URLs from the input text and joins them with a comma.
      */
-    async extractURL(): Promise<void> {
+    private async extractURL(): Promise<void> {
       const urls = this.raw_text.match(ToolsConstant.regex.urls) || [];
       this.url = urls.join(", ");
       this.logOperation("Extracted URLs");
@@ -191,7 +231,7 @@ export namespace Tools {
      * @function toFullUppercase
      * @summary Converts all characters in the input text to uppercase.
      */
-    async toFullUppercase(): Promise<void> {
+    private async toFullUppercase(): Promise<void> {
       this.raw_text = this.raw_text.toUpperCase();
       this.logOperation("Changed to Uppercase");
     }
@@ -201,7 +241,7 @@ export namespace Tools {
      * @function toFullLowercase
      * @summary Converts all characters in the input text to lowercase.
      */
-    async toFullLowercase(): Promise<void> {
+    private async toFullLowercase(): Promise<void> {
       this.raw_text = this.raw_text.toLowerCase();
       this.logOperation("Changed to Lowercase");
     }
@@ -211,7 +251,7 @@ export namespace Tools {
      * @function countCharacters
      * @summary Counts the number of non-whitespace characters in the input text.
      */
-    async countCharacters(): Promise<void> {
+    private async countCharacters(): Promise<void> {
       this.count = this.raw_text.replace(
         ToolsConstant.regex.character,
         ""
@@ -224,7 +264,7 @@ export namespace Tools {
      * @function countAlphas
      * @summary Counts the number of alphabetic characters in the input text.
      */
-    async countAlphas(): Promise<void> {
+    private async countAlphas(): Promise<void> {
       this.count = (
         this.raw_text.match(ToolsConstant.regex.alphabets) || []
       ).length;
@@ -235,7 +275,7 @@ export namespace Tools {
      * @function countAlphaNumeric
      * @summary Counts the number of alphabetic and numeric characters in the input text.
      */
-    async countAlphaNumeric(): Promise<void> {
+    private async countAlphaNumeric(): Promise<void> {
       this.alphacount = (
         this.raw_text.match(ToolsConstant.regex.alphabets) || []
       ).length;
@@ -253,7 +293,8 @@ export namespace Tools {
      * The custom operation is applied to the current `raw_text` of the analyser instance.
      * Once the operation is executed, the `raw_text` is updated and logged with the operation name.
      *
-     * @param {string} name - The name of the custom operation to be registered.
+     * @param {string} commandName - The name of the custom operation to be registered.
+     * @param {string} logName - The logging name of the custom operation to be registered.
      * @param {(text: string) => string} operation - A function that performs the custom operation on the text.
      *        It takes the current text as input and returns the modified text.
      *
@@ -261,21 +302,67 @@ export namespace Tools {
      *
      * @example
      * const analyserEngine = new Tools.Analyser("Sample Text");
-     * await analyserEngine.addCustomOperation("reverseText", (text) => text.split("").reverse().join(""));
-     * await analyserEngine.reverseText(); // Executes the custom operation
+     * await analyserEngine.addCustomOperation("reverseText", "Reverse Text", (text) => text.split("").reverse().join(""), true); // Passing true to enable the command. 
+     * // By default the commands added are disabled.So without passing the third param {boolean} would not hamper the programme.
      * console.log(analyserEngine.raw_text); // Output: "txeT elpmaS"
      */
     public async addCustomOperation(
-      name: string,
-      operation: (text: string) => string
+      commandName: string,
+      logName: string,
+      operation: (text: string) => string,
+      isEnabled: boolean = false
     ): Promise<void> {
-      this.customOperations[name] = async () => {
+      if (Operations[commandName as BuiltInOptions]) {
+        throw new Error(
+          `Command "${commandName}" already exists in Operations.`
+        );
+      }
+      this.customOperations[commandName] = async () => {
         this.raw_text = operation(this.raw_text);
-        this.logOperation(`Performed Custom Operation: ${name}`);
+        this.logOperation(`Performed Custom Operation: ${logName}`);
       };
-      this.options[name] = true;
+      this.options[commandName] = isEnabled;
     }
 
+    /**
+     *  @function toggleOperation
+     * @summary Toggled an added custom text operation to the analyser dynamically.
+     *
+     * @description This method allows you to toggle (`enable` or `disable`) the operations the were added using `addCustomOperation` function.
+     *
+     * @param {string} commandName - The name of the custom operation to be registered.
+     * @param {boolean} isEnabled - Whether to enable the function or not.
+     *
+     * @returns {Promise<void>} Resolves when the custom operation is successfully enabled or disabled..
+     *
+     * @example
+     * const analyserEngine = new Tools.Analyser("Sample Text");
+     * await analyserEngine.addCustomOperation("reverseText", (text) => text.split("").reverse().join(""));
+     * await analyserEngine.toggleOperation("reverseText", true); // Toggles the custom operation
+     * console.log(analyserEngine.raw_text); // Output: "txeT elpmaS"
+     */
+    public async toggleOperation(
+      commandName: string,
+      isEnabled: boolean
+    ): Promise<void> {
+      if (!(commandName in this.options)) {
+        throw new Error(
+          `Custom operation "${commandName}" not found. Please add it first.`
+        );
+      }
+
+      // Prevent unnecessary state changes
+      if (this.options[commandName] === isEnabled) {
+        throw new Error(
+          `Operation "${commandName}" is already ${
+            isEnabled ? "enabled" : "disabled"
+          }.`
+        );
+        return;
+      }
+
+      this.options[commandName] = isEnabled;
+    }
     /**
      * @private
      * @function logOperation
@@ -307,7 +394,7 @@ export namespace Tools {
           characterCount: this.count,
           alphabetCount: this.alphacount,
           numericCount: this.numericcount,
-          url: this.url
+          url: this.url,
         },
       };
     }
@@ -324,29 +411,12 @@ export namespace Tools {
       output: string;
       metadata: { [key: string]: any };
     }> {
-      const operationHandlers: Record<
-        Operations | string,
-        () => Promise<void>
-      > = {
-        [Operations.RemovePunctuations]: this.removePunctuations.bind(this),
-        [Operations.RemoveNumbers]: this.removeNumbers.bind(this),
-        [Operations.RemoveAlphabets]: this.removeAlphabets.bind(this),
-        [Operations.RemoveSpecialChars]:
-          this.removeSpecialCharacters.bind(this),
-        [Operations.RemoveNewlines]: this.newLineRemover.bind(this),
-        [Operations.RemoveExtraSpaces]: this.extraSpaceRemover.bind(this),
-        [Operations.ExtractUrls]: this.extractURL.bind(this),
-        [Operations.ConvertToUppercase]: this.toFullUppercase.bind(this),
-        [Operations.ConvertToLowercase]: this.toFullLowercase.bind(this),
-        [Operations.CountCharacters]: this.countCharacters.bind(this),
-        [Operations.CountAlphabets]: this.countAlphas.bind(this),
-        [Operations.CountAlphanumeric]: this.countAlphaNumeric.bind(this),
-        ...this.customOperations, // Include custom operations dynamically
-      };
-
       for (const [operation, enabled] of Object.entries(this.options)) {
-        if (enabled && operationHandlers[operation]) {
-          await operationHandlers[operation]();
+        if (enabled) {
+          const handler =
+            this.operationHandlers[operation] ||
+            this.customOperations[operation];
+          if (handler) await handler();
         }
       }
 
