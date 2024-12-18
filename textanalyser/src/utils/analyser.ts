@@ -13,15 +13,10 @@ export namespace Tools {
    * @property {string} numbers - A string containing numeric digits from 0 to 9.
    */
   export class ToolsConstant {
-    static readonly punctuations: string = `!()-[]{};:'"\\,<>./?@#$%^&*_~`;
-    static readonly alphabets: string =
-      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    static readonly specialCharacters: string = ` !"#$%&'()*+,-./:‸⁁⎀;‱©†¤©‡(ɔ)<=>?@[\\]^_\`{|}~⟨⟩⁂±¶®℗™∴`;
-    static readonly numbers: string = "0123456789";
     static readonly regex = {
       alphabets: /[a-zA-Z]/g,
       numbers: /\d/g,
-      punctuations: new RegExp(`[${this.punctuations}]`, "g"),
+      punctuations: new RegExp(/[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/g),
       specialCharacters: /[^a-zA-Z0-9\s]/g,
       urls: /https?:\/\/\S+/gi,
       newlines: /\r?\n|\r/g,
@@ -45,6 +40,7 @@ export namespace Tools {
    * @property {string} ConvertToLowercase - Operation to convert all text to lowercase.
    * @property {string} CountCharacters - Operation to count the total number of non-whitespace characters in the text.
    * @property {string} CountAlphabets - Operation to count the total number of alphabetic characters in the text.
+   * @property {string} CountNumbers - Operation to count the total number of numeric characters in the text.
    * @property {string} CountAlphanumeric - Operation to count the total number of alphanumeric (alphabetic and numeric) characters in the text.
    */
   export enum Operations {
@@ -59,6 +55,7 @@ export namespace Tools {
     ConvertToLowercase = "lowercaps",
     CountCharacters = "charcount",
     CountAlphabets = "alphacount",
+    CountNumbers = "numcount",
     CountAlphanumeric = "alphanumericcount",
   }
 
@@ -71,13 +68,16 @@ export namespace Tools {
    * @summary A class to analyze and manipulate strings based on user-provided options.
    *
    * @property {string} [raw_text] - The input text to be analyzed and manipulated.
-   * @property {number} count - Stores the result of character or alphabet counting operations.
-   * @property {number} _count - Stores the count of numeric characters during alphanumeric counting.
+   * @property {number} count - Stores the result of character for counting operations.
+   * @property {number} alphacount - Stores the count of alphabets during alphanumeric or alphabetic counting.
+   * @property {number} numericcount - Stores the count of numeric characters during alphanumeric counting.
+   * @property {string} url - Stores the extracted urls while extracting.
    * @property {string[]} operations - List of operations performed on the input string.
-   * @property {string} output - The final processed output string.
+   *
+   * ---
    *
    * @param {string} raw_text - The input text to process.
-   * @param {AnalyserOptions} options - The options object defining the operations to perform.
+   * @param {AnalyserOptions} options - The options object defining the builtin operations to perform.
    * @param {boolean} [options.removepunc] - Removes punctuations if true.
    * @param {boolean} [options.removenum] - Removes numbers if true.
    * @param {boolean} [options.removealpha] - Removes alphabets if true.
@@ -89,6 +89,7 @@ export namespace Tools {
    * @param {boolean} [options.lowercaps] - Converts text to lowercase if true.
    * @param {boolean} [options.charcount] - Counts characters in the text if true.
    * @param {boolean} [options.alphacount] - Counts alphabets in the text if true.
+   * @param {boolean} [options.numcount] - Counts numeric characters in the text if true.
    * @param {boolean} [options.alphanumericcount] - Counts alphanumeric characters if true.
    */
   export class Analyser {
@@ -98,8 +99,7 @@ export namespace Tools {
     public numericcount: number = 0;
     public url: string = "";
     public operations: string[] = [];
-    public output: string = "";
-    public customOperations: { [key: string]: () => Promise<void> } = {};
+    private customOperations: { [key: string]: () => Promise<void> } = {};
     private builtInOptions: AnalyserBuiltInOptions = {};
 
     constructor(raw_text: string, options: AnalyserBuiltInOptions = {}) {
@@ -142,10 +142,12 @@ export namespace Tools {
       [Operations.ConvertToLowercase]: this.toFullLowercase.bind(this),
       [Operations.CountCharacters]: this.countCharacters.bind(this),
       [Operations.CountAlphabets]: this.countAlphas.bind(this),
+      [Operations.CountNumbers]: this.countNums.bind(this),
       [Operations.CountAlphanumeric]: this.countAlphaNumeric.bind(this),
     };
 
     /**
+     * @private
      * @async
      * @function removeAlphabets
      * @summary Removes all alphabetic characters from the input text.
@@ -156,6 +158,7 @@ export namespace Tools {
     }
 
     /**
+     * @private
      * @async
      * @function removeNumbers
      * @summary Removes all numeric characters from the input text.
@@ -166,6 +169,7 @@ export namespace Tools {
     }
 
     /**
+     * @private
      * @async
      * @function removePunctuations
      * @summary Removes all punctuation characters from the input text.
@@ -179,6 +183,7 @@ export namespace Tools {
     }
 
     /**
+     * @private
      * @async
      * @function removeSpecialCharacters
      * @summary Removes all special characters from the input text.
@@ -192,6 +197,7 @@ export namespace Tools {
     }
 
     /**
+     * @private
      * @async
      * @function extraSpaceRemover
      * @summary Removes extra spaces and trims the input text.
@@ -204,6 +210,7 @@ export namespace Tools {
     }
 
     /**
+     * @private
      * @async
      * @function newLineRemover
      * @summary Removes newline characters from the input text.
@@ -216,6 +223,7 @@ export namespace Tools {
     }
 
     /**
+     * @private
      * @async
      * @function extractURL
      * @summary Extracts all URLs from the input text and joins them with a comma.
@@ -227,6 +235,7 @@ export namespace Tools {
     }
 
     /**
+     * @private
      * @async
      * @function toFullUppercase
      * @summary Converts all characters in the input text to uppercase.
@@ -237,6 +246,7 @@ export namespace Tools {
     }
 
     /**
+     * @private
      * @async
      * @function toFullLowercase
      * @summary Converts all characters in the input text to lowercase.
@@ -247,6 +257,7 @@ export namespace Tools {
     }
 
     /**
+     * @private
      * @async
      * @function countCharacters
      * @summary Counts the number of non-whitespace characters in the input text.
@@ -260,17 +271,33 @@ export namespace Tools {
     }
 
     /**
+     * @private
      * @async
      * @function countAlphas
-     * @summary Counts the number of alphabetic characters in the input text.
+     * @summary Counts the number of alphabets in the input text.
      */
     private async countAlphas(): Promise<void> {
-      this.count = (
+      this.alphacount = (
         this.raw_text.match(ToolsConstant.regex.alphabets) || []
       ).length;
       this.logOperation("Counted Alphabets");
     }
+
     /**
+     * @private
+     * @async
+     * @function countNums
+     * @summary Counts the number of numeric characters in the input text.
+     */
+    private async countNums(): Promise<void> {
+      this.numericcount = (
+        this.raw_text.match(ToolsConstant.regex.numbers) || []
+      ).length;
+      this.logOperation("Counted Numbers");
+    }
+
+    /**
+     * @private
      * @async
      * @function countAlphaNumeric
      * @summary Counts the number of alphabetic and numeric characters in the input text.
@@ -302,7 +329,7 @@ export namespace Tools {
      *
      * @example
      * const analyserEngine = new Tools.Analyser("Sample Text");
-     * await analyserEngine.addCustomOperation("reverseText", "Reverse Text", (text) => text.split("").reverse().join(""), true); // Passing true to enable the command. 
+     * await analyserEngine.addCustomOperation("reverseText", "Reverse Text", (text) => text.split("").reverse().join(""), true); // Passing true to enable the command.
      * // By default the commands added are disabled.So without passing the third param {boolean} would not hamper the programme.
      * console.log(analyserEngine.raw_text); // Output: "txeT elpmaS"
      */
@@ -325,7 +352,7 @@ export namespace Tools {
     }
 
     /**
-     *  @function toggleOperation
+     * @function toggleOperation
      * @summary Toggled an added custom text operation to the analyser dynamically.
      *
      * @description This method allows you to toggle (`enable` or `disable`) the operations the were added using `addCustomOperation` function.
