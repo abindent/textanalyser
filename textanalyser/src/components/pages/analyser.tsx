@@ -20,10 +20,17 @@ import Switch from "@mui/material/Switch";
 // ICONS
 import { DoneIcon } from "@/icon";
 
+// PRISMJS
+import Prism from "prismjs";
+import "prismjs/plugins/line-numbers/prism-line-numbers";
+import "prismjs/plugins/toolbar/prism-toolbar";
+import "prismjs/plugins/autolinker/prism-autolinker";
+import "prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard";
+
 // ANALYSER
 import { Tools } from "@/utils/analyser";
 
-// TEST
+// MAIN COMPONENT
 export default function AnalyserPage() {
   /** THE PRESETS **/
 
@@ -98,7 +105,6 @@ export default function AnalyserPage() {
 
   // MAIN ANALYSER FUNCTION
   const Examine = async () => {
-    console.log(data);
     const AnalyserEngine = new Tools.Analyser(examString, {
       removealpha: data.removealpha,
       removenum: data.removenum,
@@ -115,13 +121,17 @@ export default function AnalyserPage() {
       alphanumericcount: data.alphanumericcount,
     });
     const _res = await AnalyserEngine.main();
-    setPurpose(_res["purpose"])
+    setPurpose(_res["purpose"]);
     setOutput(_res["output"]);
-    setOutputCharacaterCount(_res["metadata"]["characterCount"])
-    setOutputAlphabetCount(_res["metadata"]["alphabetCount"])
-    setOutputNumericCount(_res["metadata"]["numericCount"])
-    setOutputURL(_res["metadata"]["url"])
+    setOutputCharacaterCount(_res["metadata"]["characterCount"]);
+    setOutputAlphabetCount(_res["metadata"]["alphabetCount"]);
+    setOutputNumericCount(_res["metadata"]["numericCount"]);
+    setOutputURL(_res["metadata"]["url"]);
   };
+
+  React.useEffect(() => {
+    Prism.highlightAll();
+  }, [output]);
 
   return (
     <div>
@@ -348,9 +358,17 @@ export default function AnalyserPage() {
               </TabPanel>
             </TabContext>
           </Box>
-          <Button variant="contained" onClick={Examine}>Analyse</Button>
-          <p>{output}</p><br/>
-          <p>{outputurl}</p>
+          <Button variant="contained" onClick={Examine}>
+            Analyse
+          </Button>
+          <h5>Output:</h5>
+          <pre className="line-numbers autolinker">
+            <code className="language-c">
+              {output}
+            </code>
+          </pre>
+          <br />
+          {outputurl && <><h5>Extracted URL:</h5><pre className="autolinker"><code className="language-c">{outputurl}</code></pre></>}
         </Box>
       </Container>
     </div>

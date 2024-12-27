@@ -9,6 +9,12 @@ import "react-toastify/ReactToastify.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 
+// PRISM
+import "prismjs/themes/prism-okaidia.css";
+
+import "prismjs/plugins/line-numbers/prism-line-numbers.css";
+import "prismjs/plugins/autolinker/prism-autolinker.css";
+
 // FONTAWESOME CONFIG
 config.autoAddCss = false;
 
