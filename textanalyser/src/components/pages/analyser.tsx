@@ -22,8 +22,11 @@ import { DoneIcon } from "@/icon";
 
 // PRISMJS
 import Prism from "prismjs";
-import "prismjs/plugins/line-numbers/prism-line-numbers";
+import "prismjs/plugins/line-numbers/prism-line-numbers.css";
+import "prismjs/plugins/toolbar/prism-toolbar.css";
+import "prismjs/plugins/autolinker/prism-autolinker.css";
 import "prismjs/plugins/toolbar/prism-toolbar";
+import "prismjs/plugins/line-numbers/prism-line-numbers";
 import "prismjs/plugins/autolinker/prism-autolinker";
 import "prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard";
 
@@ -96,15 +99,37 @@ export default function AnalyserPage() {
 
   const operationHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
-    setData({ ...data, [e.target.name]: e.target.checked });
+    const { name, checked } = e.target;
+    if (name === "extractUrls" && checked) {
+      // If extractUrls is toggled on, disable other options
+      setData({
+        removealpha: false,
+        removenum: false,
+        removepunc: false,
+        removespecialchar: false,
+        fullcaps: false,
+        lowercaps: false,
+        extraspaceremover: false,
+        newlineremover: false,
+        extractUrls: true,
+        charcount: false,
+        alphacount: false,
+        numcount: false,
+        alphanumericcount: false,
+      });
+    } else {
+      // Otherwise, update the specific option
+      setData({ ...data, [name]: checked });
+    }
   };
-
   const tabHandler = (event: React.SyntheticEvent, newValue: string) => {
     setTabNo(newValue);
   };
 
   // MAIN ANALYSER FUNCTION
   const Examine = async () => {
+    if (data.extractUrls === true) {
+    }
     const AnalyserEngine = new Tools.Analyser(examString, {
       removealpha: data.removealpha,
       removenum: data.removenum,
@@ -121,8 +146,8 @@ export default function AnalyserPage() {
       alphanumericcount: data.alphanumericcount,
     });
     const _res = await AnalyserEngine.main();
-    setPurpose(_res["purpose"]);
     setOutput(_res["output"]);
+    setPurpose(_res["purpose"]);
     setOutputCharacaterCount(_res["metadata"]["characterCount"]);
     setOutputAlphabetCount(_res["metadata"]["alphabetCount"]);
     setOutputNumericCount(_res["metadata"]["numericCount"]);
@@ -131,7 +156,7 @@ export default function AnalyserPage() {
 
   React.useEffect(() => {
     Prism.highlightAll();
-  }, [output]);
+  }, [output, outputurl]);
 
   return (
     <div>
@@ -158,7 +183,6 @@ export default function AnalyserPage() {
             onInputCapture={changeHandler}
             label="Your Text"
             rows={"12"}
-            maxRows={"20"}
             multiline
           />
 
@@ -217,6 +241,7 @@ export default function AnalyserPage() {
                           checked={data.removealpha}
                           onChange={operationHandler}
                           name="removealpha"
+                          disabled={data.extractUrls}
                         />
                       }
                       label="Remove Alphabets"
@@ -227,6 +252,7 @@ export default function AnalyserPage() {
                           checked={data.removenum}
                           onChange={operationHandler}
                           name="removenum"
+                          disabled={data.extractUrls}
                         />
                       }
                       label="Remove Numbers"
@@ -237,6 +263,7 @@ export default function AnalyserPage() {
                           checked={data.removepunc}
                           onChange={operationHandler}
                           name="removepunc"
+                          disabled={data.extractUrls}
                         />
                       }
                       label="Remove Punctuations"
@@ -247,6 +274,7 @@ export default function AnalyserPage() {
                           checked={data.removespecialchar}
                           onChange={operationHandler}
                           name="removespecialchar"
+                          disabled={data.extractUrls}
                         />
                       }
                       label="Remove Special Characters"
@@ -257,6 +285,7 @@ export default function AnalyserPage() {
                           checked={data.newlineremover}
                           onChange={operationHandler}
                           name="newlineremover"
+                          disabled={data.extractUrls}
                         />
                       }
                       label="Remove Extra Lines"
@@ -267,6 +296,7 @@ export default function AnalyserPage() {
                           checked={data.extraspaceremover}
                           onChange={operationHandler}
                           name="extraspaceremover"
+                          disabled={data.extractUrls}
                         />
                       }
                       label="Remove Extra Spaces"
@@ -293,6 +323,7 @@ export default function AnalyserPage() {
                           checked={data.charcount}
                           onChange={operationHandler}
                           name="charcount"
+                          disabled={data.extractUrls}
                         />
                       }
                       label="Count Characters"
@@ -303,6 +334,7 @@ export default function AnalyserPage() {
                           checked={data.alphacount}
                           onChange={operationHandler}
                           name="alphacount"
+                          disabled={data.extractUrls}
                         />
                       }
                       label="Count Alphabets"
@@ -313,6 +345,7 @@ export default function AnalyserPage() {
                           checked={data.numcount}
                           onChange={operationHandler}
                           name="numcount"
+                          disabled={data.extractUrls}
                         />
                       }
                       label="Count Numbers"
@@ -323,6 +356,7 @@ export default function AnalyserPage() {
                           checked={data.alphanumericcount}
                           onChange={operationHandler}
                           name="alphanumericcount"
+                          disabled={data.extractUrls}
                         />
                       }
                       label="Count Alphabets and Numbers"
@@ -339,6 +373,7 @@ export default function AnalyserPage() {
                           checked={data.fullcaps}
                           onChange={operationHandler}
                           name="fullcaps"
+                          disabled={data.extractUrls}
                         />
                       }
                       label="Turn to Uppercase"
@@ -349,6 +384,7 @@ export default function AnalyserPage() {
                           checked={data.lowercaps}
                           onChange={operationHandler}
                           name="lowercaps"
+                          disabled={data.extractUrls}
                         />
                       }
                       label="Turn to Lowercase"
@@ -361,14 +397,28 @@ export default function AnalyserPage() {
           <Button variant="contained" onClick={Examine}>
             Analyse
           </Button>
-          <h5>Output:</h5>
-          <pre className="line-numbers autolinker">
-            <code className="language-c">
-              {output}
-            </code>
-          </pre>
+          {output && (
+            <>
+              <h2>Output:</h2>
+              <p>
+                <b>Operations Performed:</b> {purpose}
+              </p>
+              <pre className="line-numbers autolinker">
+                <code className="language-c">{output}</code>
+              </pre>
+            </>
+          )}
           <br />
-          {outputurl && <><h5>Extracted URL:</h5><pre className="autolinker"><code className="language-c">{outputurl}</code></pre></>}
+          {outputurl && (
+            <div>
+              <p>
+                <b>Extracted URL:</b>
+              </p>
+              <pre className="line-numbers autolinker">
+                <code className="language-c">{outputurl}</code>
+              </pre>
+            </div>
+          )}
         </Box>
       </Container>
     </div>
