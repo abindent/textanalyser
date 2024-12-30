@@ -10,8 +10,7 @@ import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 
 // PRISM
-import "prismjs/themes/prism.css";
-import "prismjs/themes/prism-okaidia.css";
+import "prismjs/themes/prism-tomorrow.css";
 
 // FONTAWESOME CONFIG
 config.autoAddCss = false;

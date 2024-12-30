@@ -128,8 +128,7 @@ export default function AnalyserPage() {
 
   // MAIN ANALYSER FUNCTION
   const Examine = async () => {
-    if (data.extractUrls === true) {
-    }
+    console.log(examString);
     const AnalyserEngine = new Tools.Analyser(examString, {
       removealpha: data.removealpha,
       removenum: data.removenum,
@@ -403,8 +402,8 @@ export default function AnalyserPage() {
               <p>
                 <b>Operations Performed:</b> {purpose}
               </p>
-              <pre className="line-numbers autolinker">
-                <code className="language-c">{output}</code>
+              <pre className="language-c line-numbers autolinker">
+                <code>{output}</code>
               </pre>
             </>
           )}
@@ -414,11 +413,12 @@ export default function AnalyserPage() {
               <p>
                 <b>Extracted URL:</b>
               </p>
-              <pre className="line-numbers autolinker">
-                <code className="language-c">{outputurl}</code>
+              <pre className="language-c autolinker">
+                <code>{outputurl}</code>
               </pre>
             </div>
           )}
+          <Code />
         </Box>
       </Container>
     </div>
