@@ -346,7 +346,7 @@ export namespace Tools {
       }
       this.customOperations[commandName] = async () => {
         this.raw_text = operation(this.raw_text);
-        this.logOperation(`Performed Custom Operation: ${logName}`);
+        this.logOperation(`Custom Operation: ${logName}`);
       };
       this.options[commandName] = isEnabled;
     }

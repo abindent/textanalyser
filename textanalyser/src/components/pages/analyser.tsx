@@ -77,6 +77,7 @@ export default function AnalyserPage() {
     alphacount: boolean;
     numcount: boolean;
     alphanumericcount: boolean;
+    wrapText: boolean;
   }
 
   // OPERATIONS
@@ -94,6 +95,7 @@ export default function AnalyserPage() {
     alphacount: false,
     numcount: false,
     alphanumericcount: false,
+    wrapText: false,
   });
 
   // HANDLERS
@@ -121,6 +123,7 @@ export default function AnalyserPage() {
         alphacount: false,
         numcount: false,
         alphanumericcount: false,
+        wrapText: false,
       });
     } else {
       // Otherwise, update the specific option
@@ -133,13 +136,12 @@ export default function AnalyserPage() {
 
   const wrapText = (text: string) => {
     const wrapped_text: string = Array.from(examString)
-      .map((char) => `{'${char}'}`)
+      .map((char) => (char === "'" ? `{"'"}` : `{'${char}'}`))
       .join("");
     return wrapped_text;
   };
   // MAIN ANALYSER FUNCTION
   const Examine = async () => {
-
     /** BASIC ENGINE */
     const AnalyserEngine = new Tools.Analyser(examString, {
       removealpha: data.removealpha,
@@ -158,8 +160,10 @@ export default function AnalyserPage() {
     });
 
     /** CUSTOM OPERATIONS */
-    AnalyserEngine.addCustomOperation("wrapText", "Wrapped Text", (text)=> wrapText(text))
-    AnalyserEngine.toggleOperation("wrapText", true);
+    AnalyserEngine.addCustomOperation("wrapText", "Wrapped Text", (text) =>
+      wrapText(text)
+    );
+    AnalyserEngine.toggleOperation("wrapText", data.wrapText);
 
     /** RESULT */
     const _res = await AnalyserEngine.main();
@@ -334,6 +338,17 @@ export default function AnalyserPage() {
                       }
                       label="Extract URLs"
                     />
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={data.wrapText}
+                          onChange={operationHandler}
+                          name="wrapText"
+                          disabled={data.extractUrls}
+                        />
+                      }
+                      label="Wrap Text (wrap js or ts or any code for [TSX or JSX] for enabling to be used as a text node.)"
+                    />
                   </FormGroup>
                 </FormControl>
               </TabPanel>
@@ -425,7 +440,8 @@ export default function AnalyserPage() {
             <>
               <h2>Output:</h2>
               <p>
-                <b>Operations Performed:</b> {purpose}
+                <b>Operations Performed:</b> 
+                <br/>{purpose}
               </p>
               <pre className="language-c line-numbers">
                 <code>{output}</code>
