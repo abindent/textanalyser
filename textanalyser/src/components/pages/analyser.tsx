@@ -20,18 +20,21 @@ import Switch from "@mui/material/Switch";
 // ICONS
 import { DoneIcon } from "@/icon";
 
-// PRISMJS
-import Prism from "prismjs";
-import "prismjs/plugins/line-numbers/prism-line-numbers.css";
-import "prismjs/plugins/toolbar/prism-toolbar.css";
-import "prismjs/plugins/autolinker/prism-autolinker.css";
-import "prismjs/plugins/toolbar/prism-toolbar";
-import "prismjs/plugins/line-numbers/prism-line-numbers";
-import "prismjs/plugins/autolinker/prism-autolinker";
-import "prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard";
-
 // ANALYSER
 import { Tools } from "@/utils/analyser";
+
+// Showcase code
+import ShowCaseCode from "./code";
+
+// PRISM LOADER
+import PRISMLoader from "@/utils/prismloader";
+
+// CODEBLOCK
+const URLBlock = (url: string="")=>{
+  return(
+    <PRISMLoader language="c">{url}</PRISMLoader>
+  )
+}
 
 // MAIN COMPONENT
 export default function AnalyserPage() {
@@ -126,9 +129,14 @@ export default function AnalyserPage() {
     setTabNo(newValue);
   };
 
+  const wrapText = async () => {
+    const wrapped_text: string = Array.from(examString)
+      .map((char) => `{'${char}'}`)
+      .join("");
+    return wrapped_text;
+  };
   // MAIN ANALYSER FUNCTION
   const Examine = async () => {
-    console.log(examString);
     const AnalyserEngine = new Tools.Analyser(examString, {
       removealpha: data.removealpha,
       removenum: data.removenum,
@@ -152,10 +160,6 @@ export default function AnalyserPage() {
     setOutputNumericCount(_res["metadata"]["numericCount"]);
     setOutputURL(_res["metadata"]["url"]);
   };
-
-  React.useEffect(() => {
-    Prism.highlightAll();
-  }, [output, outputurl]);
 
   return (
     <div>
@@ -402,9 +406,7 @@ export default function AnalyserPage() {
               <p>
                 <b>Operations Performed:</b> {purpose}
               </p>
-              <pre className="language-c line-numbers autolinker">
-                <code>{output}</code>
-              </pre>
+              <PRISMLoader language="c" key={"output"}>{output}</PRISMLoader>
             </>
           )}
           <br />
@@ -413,12 +415,11 @@ export default function AnalyserPage() {
               <p>
                 <b>Extracted URL:</b>
               </p>
-              <pre className="language-c autolinker">
-                <code>{outputurl}</code>
-              </pre>
+             <PRISMLoader language="c" key={"outputurl"}>{outputurl}</PRISMLoader>
             </div>
           )}
-          <Code />
+
+          <ShowCaseCode />
         </Box>
       </Container>
     </div>
