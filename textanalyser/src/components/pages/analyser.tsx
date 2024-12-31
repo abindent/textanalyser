@@ -131,7 +131,7 @@ export default function AnalyserPage() {
     setTabNo(newValue);
   };
 
-  const wrapText = async () => {
+  const wrapText = (text: string) => {
     const wrapped_text: string = Array.from(examString)
       .map((char) => `{'${char}'}`)
       .join("");
@@ -139,6 +139,8 @@ export default function AnalyserPage() {
   };
   // MAIN ANALYSER FUNCTION
   const Examine = async () => {
+
+    /** BASIC ENGINE */
     const AnalyserEngine = new Tools.Analyser(examString, {
       removealpha: data.removealpha,
       removenum: data.removenum,
@@ -154,6 +156,12 @@ export default function AnalyserPage() {
       numcount: data.numcount,
       alphanumericcount: data.alphanumericcount,
     });
+
+    /** CUSTOM OPERATIONS */
+    AnalyserEngine.addCustomOperation("wrapText", "Wrapped Text", (text)=> wrapText(text))
+    AnalyserEngine.toggleOperation("wrapText", true);
+
+    /** RESULT */
     const _res = await AnalyserEngine.main();
     setOutput(_res["output"]);
     setPurpose(_res["purpose"]);

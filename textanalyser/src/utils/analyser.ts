@@ -364,7 +364,7 @@ export namespace Tools {
      *
      * @example
      * const analyserEngine = new Tools.Analyser("Sample Text");
-     * await analyserEngine.addCustomOperation("reverseText", (text) => text.split("").reverse().join(""));
+     * await analyserEngine.addCustomOperation("reverseText", "Reverse Text", (text) => text.split("").reverse().join(""));
      * await analyserEngine.toggleOperation("reverseText", true); // Toggles the custom operation
      * console.log(analyserEngine.raw_text); // Output: "txeT elpmaS"
      */
