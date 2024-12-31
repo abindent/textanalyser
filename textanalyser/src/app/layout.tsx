@@ -11,6 +11,9 @@ import "@fortawesome/fontawesome-svg-core/styles.css";
 
 // PRISM
 import "prismjs/themes/prism-okaidia.css";
+import "prismjs/plugins/toolbar/prism-toolbar.css";
+import "prismjs/plugins/line-numbers/prism-line-numbers.css";
+import "prismjs/plugins/autolinker/prism-autolinker.css";
 
 // FONTAWESOME CONFIG
 config.autoAddCss = false;

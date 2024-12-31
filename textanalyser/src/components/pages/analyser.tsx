@@ -26,15 +26,17 @@ import { Tools } from "@/utils/analyser";
 // Showcase code
 import ShowCaseCode from "./code";
 
-// PRISM LOADER
-import PRISMLoader from "@/utils/prismloader";
+// PRISM Wrapper
 
-// CODEBLOCK
-const URLBlock = (url: string="")=>{
-  return(
-    <PRISMLoader language="c">{url}</PRISMLoader>
-  )
-}
+// PRISMJS
+import Prism from "prismjs";
+import "prismjs/components/prism-c";
+import "prismjs/components/prism-typescript";
+import "prismjs/plugins/toolbar/prism-toolbar";
+import "prismjs/plugins/line-numbers/prism-line-numbers";
+import "prismjs/plugins/autolinker/prism-autolinker";
+import "prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard";
+import PRISMWrapper from "@/utils/prismwrapper";
 
 // MAIN COMPONENT
 export default function AnalyserPage() {
@@ -160,6 +162,16 @@ export default function AnalyserPage() {
     setOutputNumericCount(_res["metadata"]["numericCount"]);
     setOutputURL(_res["metadata"]["url"]);
   };
+
+  React.useEffect(() => {
+    Prism.highlightAll();
+  }, [
+    output,
+    outputurl,
+    outputalphabetCount,
+    outputcharacterCount,
+    outputnumericCount,
+  ]);
 
   return (
     <div>
@@ -400,13 +412,16 @@ export default function AnalyserPage() {
           <Button variant="contained" onClick={Examine}>
             Analyse
           </Button>
+
           {output && (
             <>
               <h2>Output:</h2>
               <p>
                 <b>Operations Performed:</b> {purpose}
               </p>
-              <PRISMLoader language="c" key={"output"}>{output}</PRISMLoader>
+              <pre className="language-c line-numbers">
+                <code>{output}</code>
+              </pre>
             </>
           )}
           <br />
@@ -415,11 +430,16 @@ export default function AnalyserPage() {
               <p>
                 <b>Extracted URL:</b>
               </p>
-             <PRISMLoader language="c" key={"outputurl"}>{outputurl}</PRISMLoader>
+              <pre className="language-c line-numbers">
+                <code>{`🔗: ${outputurl}`}</code>
+              </pre>
             </div>
           )}
-
-          <ShowCaseCode />
+          <br />
+          <PRISMWrapper key={"output"}>
+            <h5>Source Code:</h5>
+            <ShowCaseCode />
+          </PRISMWrapper>
         </Box>
       </Container>
     </div>
