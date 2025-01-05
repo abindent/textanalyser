@@ -98,6 +98,126 @@ export default function AnalyserPage() {
     wrapText: false,
   });
 
+  // TABPANELS
+  const FormatData = {
+    basicoperations: {
+      removealpha: {
+        label: "Remove Alphabets",
+        checked: data.removealpha,
+        name: "removealpha",
+        disabled: data.extractUrls,
+      },
+      removenum: {
+        label: "Remove Numbers",
+        checked: data.removenum,
+        name: "removenum",
+        disabled: data.extractUrls,
+      },
+      removepunc: {
+        label: "Remove Punctuations",
+        checked: data.removepunc,
+        name: "removepunc",
+        disabled: data.extractUrls,
+      },
+      removespecialchar: {
+        label: "Remove Special Characters",
+        checked: data.removespecialchar,
+        name: "removespecialchar",
+        disabled: data.extractUrls,
+      },
+      newlineremover: {
+        label: "Remove Extra Lines",
+        checked: data.newlineremover,
+        name: "newlineremover",
+        disabled: data.extractUrls,
+      },
+      extraspaceremover: {
+        label: "Remove Extra Spaces",
+        checked: data.extraspaceremover,
+        name: "extraspaceremover",
+        disabled: data.extractUrls,
+      },
+      extractUrls: {
+        label: "Extract URLs",
+        checked: data.extractUrls,
+        name: "extractUrls",
+        disabled: false,
+      },
+      wrapText: {
+        label:
+          "Wrap Text (wrap codes for enabling them to be used as a text node.)",
+        checked: data.wrapText,
+        name: "wrapText",
+        disabled: data.extractUrls,
+      },
+    },
+    countchar: {
+      charcount: {
+        label: "Count Characters",
+        checked: data.charcount,
+        name: "charcount",
+        disabled: data.extractUrls,
+      },
+      alphacount: {
+        label: "Count Alphabets",
+        checked: data.alphacount,
+        name: "alphacount",
+        disabled: data.extractUrls,
+      },
+      numcount: {
+        label: "Count Numbers",
+        checked: data.numcount,
+        name: "numcount",
+        disabled: data.extractUrls,
+      },
+      alphanumericcount: {
+        label: "Count Alphabets and Numbers",
+        checked: data.alphanumericcount,
+        name: "alphanumericcount",
+        disabled: data.extractUrls,
+      },
+    },
+    changecap: {
+      fullcaps: {
+        label: "Turn to Uppercase",
+        checked: data.fullcaps,
+        name: "fullcaps",
+        disabled: data.extractUrls,
+      },
+      lowercaps: {
+        label: "Turn to Lowercase",
+        checked: data.lowercaps,
+        name: "lowercaps",
+        disabled: data.extractUrls,
+      },
+    },
+  };
+
+
+  const renderSwitches = (data: any) => {
+    return (
+      <FormGroup>
+        {Object.keys(data).map((key) => {
+          const { label, checked, name, disabled } = data[key];
+          return (
+            <FormControlLabel
+              key={name}
+              control={
+                <Switch
+                  checked={checked}
+                  onChange={operationHandler}
+                  name={name}
+                  disabled={disabled}
+                />
+              }
+              label={label}
+            />
+          );
+        })}
+      </FormGroup>
+    );
+  };
+
   // HANDLERS
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -135,7 +255,7 @@ export default function AnalyserPage() {
   };
 
   const wrapText = (text: string) => {
-    const wrapped_text: string = Array.from(examString)
+    const wrapped_text: string = Array.from(text)
       .map((char) => (char === "'" ? `{"'"}` : `{'${char}'}`))
       .join("");
     return wrapped_text;
@@ -160,10 +280,14 @@ export default function AnalyserPage() {
     });
 
     /** CUSTOM OPERATIONS */
-    AnalyserEngine.addCustomOperation("wrapText", "Wrapped Text", (text) =>
-      wrapText(text)
+    await AnalyserEngine.addCustomOperation(
+      "wrapText",
+      "Wrapped Text",
+      (text) => wrapText(text)
     );
-    AnalyserEngine.toggleOperation("wrapText", data.wrapText);
+    if (data.wrapText) {
+      await AnalyserEngine.toggleOperation("wrapText", data.wrapText);
+    }
 
     /** RESULT */
     const _res = await AnalyserEngine.main();
@@ -219,6 +343,8 @@ export default function AnalyserPage() {
                 <TabList
                   onChange={tabHandler}
                   aria-label="lab API tabs example"
+                  variant="scrollable"
+                  selectionFollowsFocus
                 >
                   <Tab
                     icon={
@@ -261,173 +387,17 @@ export default function AnalyserPage() {
               </Box>
               <TabPanel value="1">
                 <FormControl component="fieldset" variant="standard">
-                  <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={data.removealpha}
-                          onChange={operationHandler}
-                          name="removealpha"
-                          disabled={data.extractUrls}
-                        />
-                      }
-                      label="Remove Alphabets"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={data.removenum}
-                          onChange={operationHandler}
-                          name="removenum"
-                          disabled={data.extractUrls}
-                        />
-                      }
-                      label="Remove Numbers"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={data.removepunc}
-                          onChange={operationHandler}
-                          name="removepunc"
-                          disabled={data.extractUrls}
-                        />
-                      }
-                      label="Remove Punctuations"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={data.removespecialchar}
-                          onChange={operationHandler}
-                          name="removespecialchar"
-                          disabled={data.extractUrls}
-                        />
-                      }
-                      label="Remove Special Characters"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={data.newlineremover}
-                          onChange={operationHandler}
-                          name="newlineremover"
-                          disabled={data.extractUrls}
-                        />
-                      }
-                      label="Remove Extra Lines"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={data.extraspaceremover}
-                          onChange={operationHandler}
-                          name="extraspaceremover"
-                          disabled={data.extractUrls}
-                        />
-                      }
-                      label="Remove Extra Spaces"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={data.extractUrls}
-                          onChange={operationHandler}
-                          name="extractUrls"
-                        />
-                      }
-                      label="Extract URLs"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={data.wrapText}
-                          onChange={operationHandler}
-                          name="wrapText"
-                          disabled={data.extractUrls}
-                        />
-                      }
-                      label="Wrap Text (wrap js or ts or any code for [TSX or JSX] for enabling to be used as a text node.)"
-                    />
-                  </FormGroup>
+                  {renderSwitches(FormatData["basicoperations"])}
                 </FormControl>
               </TabPanel>
               <TabPanel value="2">
                 <FormControl component="fieldset" variant="standard">
-                  <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={data.charcount}
-                          onChange={operationHandler}
-                          name="charcount"
-                          disabled={data.extractUrls}
-                        />
-                      }
-                      label="Count Characters"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={data.alphacount}
-                          onChange={operationHandler}
-                          name="alphacount"
-                          disabled={data.extractUrls}
-                        />
-                      }
-                      label="Count Alphabets"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={data.numcount}
-                          onChange={operationHandler}
-                          name="numcount"
-                          disabled={data.extractUrls}
-                        />
-                      }
-                      label="Count Numbers"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={data.alphanumericcount}
-                          onChange={operationHandler}
-                          name="alphanumericcount"
-                          disabled={data.extractUrls}
-                        />
-                      }
-                      label="Count Alphabets and Numbers"
-                    />
-                  </FormGroup>
+                  {renderSwitches(FormatData["countchar"])}
                 </FormControl>
               </TabPanel>
               <TabPanel value="3">
                 <FormControl component="fieldset" variant="standard">
-                  <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={data.fullcaps}
-                          onChange={operationHandler}
-                          name="fullcaps"
-                          disabled={data.extractUrls}
-                        />
-                      }
-                      label="Turn to Uppercase"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={data.lowercaps}
-                          onChange={operationHandler}
-                          name="lowercaps"
-                          disabled={data.extractUrls}
-                        />
-                      }
-                      label="Turn to Lowercase"
-                    />
-                  </FormGroup>
+                  {renderSwitches(FormatData["changecap"])}
                 </FormControl>
               </TabPanel>
             </TabContext>
@@ -440,8 +410,9 @@ export default function AnalyserPage() {
             <>
               <h2>Output:</h2>
               <p>
-                <b>Operations Performed:</b> 
-                <br/>{purpose}
+                <b>Operations Performed:</b>
+                <br />
+                {purpose}
               </p>
               <pre className="language-c line-numbers">
                 <code>{output}</code>

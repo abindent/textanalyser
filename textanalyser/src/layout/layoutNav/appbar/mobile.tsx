@@ -9,7 +9,13 @@ import Image from "next/image";
 import ThemeModeToggler from "./theme";
 
 // MUI
-import { alpha, styled, useTheme, useMediaQuery, Typography } from "@mui/material";
+import {
+  alpha,
+  styled,
+  useTheme,
+  useMediaQuery,
+  Typography,
+} from "@mui/material";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
@@ -21,14 +27,16 @@ import MenuItem from "@mui/material/MenuItem";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 
-
 // COMPONENTS
+import MenuButton, { type MenuListType } from "@/utils/menubutton";
 import Search from "./searchbar";
 
 // ICON
 import {
+  BiotechIcon,
   CallIcon,
   CloseIcon,
+  EditIcon,
   HomeIcon,
   MenuIcon,
   PersonIcon,
@@ -51,6 +59,20 @@ export default function MobileVersion() {
   const isHideable = useMediaQuery(theme.breakpoints.up(376));
   const imgWidth = isHideable ? 30 : 40;
   const imgHeight = isHideable ? 30 : 40;
+
+  // MENULIST
+  const menuList: MenuListType = {
+    analyser: {
+      label: "Analyse Text",
+      icon: <BiotechIcon />,
+      link: "/analyser",
+    },
+    styler: {
+      label: "Style Text",
+      icon: <EditIcon />,
+      link: "/styler",
+    },
+  };
 
   const AppBar = styled(MuiAppBar, {
     shouldForwardProp: (prop) => prop !== "open",
@@ -107,12 +129,14 @@ export default function MobileVersion() {
           borderBottomLeftRadius: "2rem",
           boxShadow: 0,
           bgcolor: "transparent",
-          backgroundImage: 'linear-gradient(180deg, #CEE5FD, #FFF)',
-          ...theme.applyStyles('dark', {
-            backgroundImage: `linear-gradient(#02294F, ${alpha("#090E10", 0.0)})`
-          })
-        })
-        }
+          backgroundImage: "linear-gradient(180deg, #CEE5FD, #FFF)",
+          ...theme.applyStyles("dark", {
+            backgroundImage: `linear-gradient(#02294F, ${alpha(
+              "#090E10",
+              0.0
+            )})`,
+          }),
+        })}
       >
         <Container maxWidth="xs">
           <Toolbar sx={{ justifyContent: "space-between" }}>
@@ -122,7 +146,7 @@ export default function MobileVersion() {
               width={imgWidth}
               height={imgHeight}
               onClick={() => {
-                router.push("/")
+                router.push("/");
               }}
             />
             <Typography variant="h1">TextAnalyser</Typography>
@@ -169,7 +193,9 @@ export default function MobileVersion() {
               >
                 <ThemeModeToggler />
               </Box>
-              <IconButton onClick={handleDrawerToggle} ><CloseIcon /></IconButton>
+              <IconButton onClick={handleDrawerToggle}>
+                <CloseIcon />
+              </IconButton>
             </DrawerHeader>
             <Divider />
 
@@ -195,12 +221,13 @@ export default function MobileVersion() {
               <CallIcon fontSize="small" /> Contact
             </MenuItem>
             <Divider />
+            <MenuButton name={"Tools"} list={menuList} />
             <MenuItem>
               <Search />
             </MenuItem>
           </Box>
         </Drawer>
       </AppBar>
-    </Box >
+    </Box>
   );
 }

@@ -2,7 +2,7 @@ import * as React from "react";
 
 export default function ShowCaseCode() {
   return (
-    <pre className="language-typescript line-numbers">
+    <pre data-filename="analyser.ts" className="language-typescript line-numbers">
       <code>
         {"/"}
         {"*"}

@@ -18,6 +18,16 @@ export default function PRISMLoader({
   children: React.ReactNode;
 }) {
   React.useEffect(() => {
+    Prism.plugins.toolbar.registerButton("show-filename", function (env: any) {
+      const pre = env.element.parentNode;
+      const filename = pre.getAttribute("data-filename");
+      if (!filename) return;
+
+      const label = document.createElement("span");
+      label.textContent = filename;
+      label.className = "code-filename";
+      return label;
+    });
     Prism.highlightAll();
   }, [children]);
   return <div className="prism-codeblock">{children}</div>;

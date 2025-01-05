@@ -10,16 +10,29 @@ import Container from "@mui/material/Container";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 
-
 // COMPONENT
+import MenuButton, { type MenuListType } from "@/utils/menubutton";
 import ThemeModeToggler from "./theme";
 import Search from "./searchbar";
 
 // ICON
-import { CallIcon, HomeIcon, PersonIcon } from "@/icon";
+import { BiotechIcon, CallIcon, EditIcon, HomeIcon, PersonIcon } from "@/icon";
 
 // NAVBAR
 export default function DeskTopVersion() {
+  // MENU LIST
+  const menuList: MenuListType = {
+    analyser: {
+      label: "Analyse Text",
+      icon: <BiotechIcon />,
+      link: "/analyser",
+    },
+    styler: {
+      label: "Style Text",
+      icon: <EditIcon />,
+      link: "/styler",
+    },
+  };
   return (
     <AppBar
       sx={{
@@ -64,18 +77,20 @@ export default function DeskTopVersion() {
             noWrap
             component="a"
             href="/"
-            sx={[(theme) => ({
-              mr: 1,
-              display: { xs: "none", md: "inline-flex" },
-              fontFamily: "sans-serif",
-              fontWeight: 700,
-              color: "black",
-              ...theme.applyStyles('dark', {
-                color: 'white'
+            sx={[
+              (theme) => ({
+                mr: 1,
+                display: { xs: "none", md: "inline-flex" },
+                fontFamily: "sans-serif",
+                fontWeight: 700,
+                color: "black",
+                ...theme.applyStyles("dark", {
+                  color: "white",
+                }),
+                textDecoration: "none",
+                cursor: "pointer",
               }),
-              textDecoration: "none",
-              cursor: "pointer",
-            })]}
+            ]}
           >
             <Image src="/icon.png" width={32} height={32} alt="TextAnalyser" />
             TextAnalyser
@@ -155,6 +170,8 @@ export default function DeskTopVersion() {
                 </Typography>
               </Button>
             </Link>
+
+            <MenuButton name={"Tools"} list={menuList} />
           </Box>
 
           <Box sx={{ flexGrow: 0, display: { xs: "none", md: "flex" } }}>
