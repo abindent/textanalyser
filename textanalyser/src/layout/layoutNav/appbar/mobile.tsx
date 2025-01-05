@@ -149,7 +149,7 @@ export default function MobileVersion() {
                 router.push("/");
               }}
             />
-            <Typography variant="h1">TextAnalyser</Typography>
+            <Typography variant="h5">TextAnalyser</Typography>
             <Box>
               <Button
                 variant="text"
