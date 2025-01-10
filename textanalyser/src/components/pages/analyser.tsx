@@ -23,9 +23,6 @@ import { DoneIcon } from "@/icon";
 // ANALYSER
 import { Tools } from "@/utils/analyser";
 
-// Showcase code
-import ShowCaseCode from "./code";
-
 // PRISM Wrapper
 
 // PRISMJS
@@ -193,7 +190,6 @@ export default function AnalyserPage() {
     },
   };
 
-
   const renderSwitches = (data: any) => {
     return (
       <FormGroup>
@@ -319,9 +315,15 @@ export default function AnalyserPage() {
           backgroundImage:
             theme.palette.mode === "light"
               ? "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(210, 100%, 90%), transparent)"
-              : `radial-gradient(ellipse 80% 50% at 50% -20%, hsl(210, 100%, 16%), transparent)`,
+              : "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(210, 100%, 16%), transparent)",
           backgroundSize: "100% 20%",
           backgroundRepeat: "no-repeat",
+          maskImage:
+            "linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))",
+          WebkitMaskImage:
+            "linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))",
+          borderRadius: theme.shape.borderRadius,
+          transition: "all 0.3s ease-in-out",
         })}
       >
         <Box component="form" noValidate>
@@ -333,6 +335,13 @@ export default function AnalyserPage() {
             onChange={changeHandler}
             onInputCapture={changeHandler}
             label="Your Text"
+            slotProps={{
+              inputLabel: {
+                sx: {
+                  marginTop: {sm: "6px", md: "4px"}
+                }
+              }
+            }}
             rows={"12"}
             multiline
           />
@@ -432,8 +441,11 @@ export default function AnalyserPage() {
           )}
           <br />
           <PRISMWrapper key={"output"}>
-            <h5>Source Code:</h5>
-            <ShowCaseCode />
+            <h3>Source Code:</h3>
+            <pre
+              data-language="analyser.ts"
+              data-src="/showcase/scripts/analyser.ts"
+            ></pre>
           </PRISMWrapper>
         </Box>
       </Container>

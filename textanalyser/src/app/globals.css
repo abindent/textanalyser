@@ -3,9 +3,11 @@
   scroll-behavior: smooth;
 }
 
+
+/* GLoabl Variables */
 html,
 body {
-  color: var(--mui-palette-text-primary);
+  color: var(--osc-palette-text-primary);
   padding: 0;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
@@ -15,14 +17,4 @@ body {
 a {
   color: inherit;
   text-decoration: none;
-}
-
-.code-filename {
-  font-family: Arial, sans-serif;
-  font-size: 12px;
-  padding: 5px 10px;
-  margin-left: 10px;
-  border-bottom: none;
-  color: silver;
-  margin-bottom: -5px; /* Aligns nicely with the code block */
 }
