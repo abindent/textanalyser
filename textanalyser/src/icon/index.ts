@@ -8,6 +8,7 @@ export { default as ChevronRightRoundedIcon } from "@mui/icons-material/ChevronR
 export { default as CheckCircleRoundedIcon } from "@mui/icons-material/CheckCircleRounded";
 export { default as CloseIcon } from "@mui/icons-material/Close";
 export { default as ConstructionRoundedIcon } from "@mui/icons-material/ConstructionRounded";
+export {default as ContentCopyIcon} from '@mui/icons-material/ContentCopy';
 export { default as DevicesRoundedIcon } from "@mui/icons-material/DevicesRounded";
 export { default as DoneIcon } from "@mui/icons-material/Done";
 export { default as EdgesensorHighRoundedIcon } from "@mui/icons-material/EdgesensorHighRounded";

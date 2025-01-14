@@ -2,7 +2,7 @@ import React from "react";
 
 // IMPORTS
 import type { Metadata } from "next";
-import AnalyserPage from "@/components/pages/analyser";
+import AnalyserPage from "@/components/pages/tools/analyser";
 
 // METADATA
 export const metadata: Metadata = {
