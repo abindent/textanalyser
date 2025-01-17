@@ -5,6 +5,7 @@ import * as React from "react";
 // MUI
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
 
 // ICONS
@@ -18,8 +19,8 @@ const StylerPage: React.FC = () => {
   /* STATE VARIABLES */
   const [inputText, setInputText] = React.useState<string>("Preview Text");
   const [fancyTexts, setFancyTexts] = React.useState<string[]>([]);
+  const [copiedStates, setCopiedStates] = React.useState<boolean[]>([]); // Array to track "Copied" state for each text
   const [count, setCount] = React.useState<number>(89);
-  const [copied, setCopied] = React.useState<boolean>(false);
 
   /* GLOBAL FUNCTIONS AND HANDLERS */
 
@@ -34,6 +35,7 @@ const StylerPage: React.FC = () => {
     }
 
     setFancyTexts(updatedFancyTexts);
+    setCopiedStates(new Array(updatedFancyTexts.length).fill(false)); // Initialize copied states
   };
   const loadMore = () => {
     const newTexts: string[] = [];
@@ -41,69 +43,117 @@ const StylerPage: React.FC = () => {
       newTexts.push(crazyWithFlourishOrSymbols(inputText));
     }
 
-    setFancyTexts((prev) => [...prev, ...newTexts]);
+    setFancyTexts((prev) => {
+      const updatedTexts = [...prev, ...newTexts];
+      setCopiedStates((prevStates) => [
+        ...prevStates,
+        ...new Array(newTexts.length).fill(false),
+      ]); // Update copied states
+      return updatedTexts;
+    });
+
     setCount((prev) => prev + 10);
   };
 
   // HANDLERs
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text).then(
-      (err) => {
-        console.error("Could not copy text: ", err);
-      }
-    );
-  };
+  const handleCopy = (textIndex: number) => {
+    navigator.clipboard
+      .writeText(fancyTexts[textIndex])
+      .then(() => {
+        setCopiedStates((prevStates) => {
+          const updatedStates = [...prevStates];
+          updatedStates[textIndex] = true;
+          return updatedStates;
+        });
 
+        // Reset the "Copied" state after 3 seconds
+        setTimeout(() => {
+          setCopiedStates((prevStates) => {
+            const updatedStates = [...prevStates];
+            updatedStates[textIndex] = false;
+            return updatedStates;
+          });
+        }, 1700);
+      })
+      .catch((err) => {
+        console.error("Failed to copy text: ", err);
+      });
+  };
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.trim();
-    const text = value === "" ? "Preview Text" : value;
+    const text = value;
     setInputText(text);
     generateFancy(text);
   };
 
+  React.useEffect(() => {
+    if (inputText === "Preview Text") {
+      generateFancy(inputText);
+    }
+  }, [inputText]);
+
   return (
-    <div className="container items-center justify-center px-12">
-      {/* Input Field */}
-      <input
-        type="text"
-        className="fancytext bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 mb-4"
+    <Container
+      sx={(theme) => ({
+        width: "100%",
+        height: "100%",
+        marginTop: theme.spacing(12),
+        marginBottom: theme.spacing(12),
+      })}
+    >
+      <TextField
+        required
+        fullWidth
+        id="examString"
         value={inputText}
         onChange={handleInputChange}
-        placeholder="Type your text here"
+        onInputCapture={handleInputChange}
+        label="Your Text"
       />
-
       {/* Fancy Text Outputs */}
       <div id="result">
-        {fancyTexts.map((fancyText, index) => (
-          <div className="input flex mb-2" key={index}>
-            <input
-              type="text"
-              className={`bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 cursor-not-allowed text-${index}`}
-              value={fancyText}
-              readOnly
-            />
-            <button
-              type="button"
-              className="copybutton text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center ml-2"
-              onClick={() => handleCopy(fancyText)}
-            >
-              <i className="fas fa-copy">&nbsp;</i>Copy
-            </button>
-          </div>
-        ))}
+        <Box
+          sx={{
+            width: "89%",
+            justifyContent: "center",
+          }}
+          component="form"
+          noValidate
+        >
+          {fancyTexts.map((fancyText, index) => {
+            return (
+              <div style={{ marginTop: "10px" }} key={index}>
+                <TextField
+                  variant="filled"
+                  value={fancyText}
+                  sx={{ width: "89%" }}
+                  slotProps={{
+                    input: {
+                      readOnly: true,
+                    },
+                  }}
+                />
+                <Button
+                  variant="contained"
+                  startIcon={<ContentCopyIcon />}
+                  onClick={() => handleCopy(index)} // Use index to update copied state
+                  disabled={copiedStates[index]} // Prevent repeated clicks during timeout
+                >
+                  {copiedStates[index] ? "Copied!" : "Copy"}
+                </Button>
+              </div>
+            );
+          })}
+        </Box>
       </div>
-
-      {/* Load More Button */}
-      <button
-        type="button"
-        className="loadmore text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mt-4"
-        onClick={loadMore}
-      >
-        Load More
-      </button>
-    </div>
+      <Box sx={{ marginTop: "2rem" }}>
+        <Button variant="contained" onClick={loadMore}>
+          Load More
+        </Button>
+      </Box>
+      <br />
+    </Container>
   );
 };
-
 
 export default StylerPage;

@@ -6,7 +6,7 @@ import StylerPage from "@/components/pages/tools/styler";
 
 // METADATA
 export const metadata: Metadata = {
-  title: "Style | TextAnalyser",
+  title: "Styler | TextAnalyser",
   description:
     "This page is for styling your texts.",
 };
