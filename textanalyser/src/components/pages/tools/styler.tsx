@@ -62,7 +62,6 @@ const StylerPage: React.FC = () => {
   };
 
   return (
-    <div></div>
     <div className="container items-center justify-center px-12">
       {/* Input Field */}
       <input
