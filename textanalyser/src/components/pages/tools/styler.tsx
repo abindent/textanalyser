@@ -11,7 +11,7 @@ import TextField from "@mui/material/TextField";
 import { ContentCopyIcon } from "@/icon";
 
 // Toolkit
-import { crazyWithFlourishOrSymbols, forward } from "@/utils/styler";
+import { crazyWithFlourishOrSymbols, forward } from "@/utils/styler/styler";
 
 /** MAIN COMPONENT **/
 const StylerPage: React.FC = () => {
