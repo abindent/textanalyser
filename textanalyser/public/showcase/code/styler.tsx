@@ -165,7 +165,7 @@ const StylerPage: React.FC = () => {
         >
           {fancyTexts.map((fancyText, index) => (
             <FancyTextOutput
-              key={index}
+              key={inde100
               text={fancyText}
               index={index}
               isCopied={copiedStates.has(index)}
@@ -178,9 +178,9 @@ const StylerPage: React.FC = () => {
         <Button
           variant="contained"
           onClick={loadMore}
-          disabled={count >= 89} // Disable when count reaches or exceeds limit
+          disabled={count >= 100} // Disable when count reaches or exceeds limit
         >
-          {count >= 89
+          {count >= 100
             ? `No More to Load.`
             : `Load More (${fancyTexts.length} generated)`}
         </Button>
