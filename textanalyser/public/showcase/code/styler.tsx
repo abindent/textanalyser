@@ -165,7 +165,7 @@ const StylerPage: React.FC = () => {
         >
           {fancyTexts.map((fancyText, index) => (
             <FancyTextOutput
-              key={inde100
+              key={index}
               text={fancyText}
               index={index}
               isCopied={copiedStates.has(index)}
