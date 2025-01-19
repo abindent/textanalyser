@@ -17,7 +17,6 @@ import { crazyWithFlourishOrSymbols, forward } from "@/utils/styler/styler";
 /** MAIN COMPONENT */
 const StylerPage: React.FC = () => {
   /* STATE VARIABLES */
-  const [inputText, setInputText] = React.useState<string>("Preview Text");
   const [debouncedInputText, setDebouncedInputText] =
     React.useState<string>("Preview Text");
   const [fancyTexts, setFancyTexts] = React.useState<string[]>([]);
@@ -130,10 +129,10 @@ const StylerPage: React.FC = () => {
   );
   /* USEEFFECT */
   React.useEffect(() => {
-    if (inputText === "Preview Text") {
-      generateFancy(inputText);
+    if (debouncedInputText === "Preview Text") {
+      generateFancy(debouncedInputText);
     }
-  }, [inputText]);
+  }, [debouncedInputText]);
 
   /* JSX RENDER */
   return (
