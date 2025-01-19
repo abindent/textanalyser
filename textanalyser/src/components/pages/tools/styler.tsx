@@ -63,7 +63,7 @@ const StylerPage: React.FC = () => {
   const loadMore = () => {
     const newTexts: string[] = [];
     for (let i = 1; i <= 10; i++) {
-      newTexts.push(crazyWithFlourishOrSymbols(inputText));
+      newTexts.push(crazyWithFlourishOrSymbols(debouncedInputText));
     }
 
     setFancyTexts((prev) => [...prev, ...newTexts]);
@@ -182,7 +182,7 @@ const StylerPage: React.FC = () => {
           disabled={count >= 89} // Disable when count reaches or exceeds limit
         >
           {count >= 89
-            ? "No More to Load"
+            ? `No More to Load.`
             : `Load More (${fancyTexts.length} generated)`}
         </Button>
       </Box>
