@@ -14,12 +14,11 @@ import { ContentCopyIcon } from "@/icon";
 // Toolkit
 import { crazyWithFlourishOrSymbols, forward } from "@/utils/styler/styler";
 
-/** MAIN COMPONENT */
+/** MAIN COMPONENT **/
 const StylerPage: React.FC = () => {
   /* STATE VARIABLES */
   const [inputText, setInputText] = React.useState<string>("Preview Text");
-  const [debouncedInputText, setDebouncedInputText] =
-    React.useState<string>("Preview Text");
+  const [debouncedInputText, setDebouncedInputText] = React.useState<string>("Preview Text");
   const [fancyTexts, setFancyTexts] = React.useState<string[]>([]);
   const [copiedStates, setCopiedStates] = React.useState<Set<number>>(
     new Set()
@@ -28,77 +27,77 @@ const StylerPage: React.FC = () => {
 
   /* GLOBAL FUNCTIONS AND HANDLERS */
 
-  /* FUNCTIONS */
-  const debounce = (func: Function, delay: number) => {
-    let timer: NodeJS.Timeout;
-    return (...args: any[]) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => func(...args), delay);
-    };
+/* FUNCTIONS */
+const debounce = (func: Function, delay: number) => {
+  let timer: NodeJS.Timeout;
+  return (...args: any[]) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => func(...args), delay);
   };
+};
 
-  const generateFancy = (text: string) => {
-    if (!text.trim()) {
-      setFancyTexts([]);
-      return;
-    }
+const generateFancy = (text: string) => {
+  if (!text.trim()) {
+    setFancyTexts([]);
+    return;
+  }
 
-    const result = forward(text);
-    const finalRes = result.split("\n\n");
+  const result = forward(text);
+  const finalRes = result.split("\n\n");
 
-    const updatedFancyTexts = finalRes.map((res) => res);
-    for (let k = 1; k < count; k++) {
-      updatedFancyTexts.push(crazyWithFlourishOrSymbols(text));
-    }
+  const updatedFancyTexts = finalRes.map((res) => res);
+  for (let k = 1; k < count; k++) {
+    updatedFancyTexts.push(crazyWithFlourishOrSymbols(text));
+  }
 
-    setFancyTexts(updatedFancyTexts);
-    setCopiedStates(new Set()); // Reset copied states.
-  };
+  setFancyTexts(updatedFancyTexts);
+  setCopiedStates(new Set()); // Reset copied states.
+};
 
-  const debouncedGenerateFancy = React.useCallback(
-    debounce((text: string) => generateFancy(text), 300),
-    []
-  );
+const debouncedGenerateFancy = React.useCallback(
+  debounce((text: string) => generateFancy(text), 300),
+  []
+);
 
-  const loadMore = () => {
-    const newTexts: string[] = [];
-    for (let i = 1; i <= 10; i++) {
-      newTexts.push(crazyWithFlourishOrSymbols(inputText));
-    }
+const loadMore = () => {
+  const newTexts: string[] = [];
+  for (let i = 1; i <= 10; i++) {
+    newTexts.push(crazyWithFlourishOrSymbols(inputText));
+  }
 
-    setFancyTexts((prev) => [...prev, ...newTexts]);
-    setCount((prev) => prev + 10);
-  };
+  setFancyTexts((prev) => [...prev, ...newTexts]);
+  setCount((prev) => prev + 10);
+};
 
-  const handleCopy = (textIndex: number) => {
-    navigator.clipboard
-      .writeText(fancyTexts[textIndex])
-      .then(() => {
+const handleCopy = (textIndex: number) => {
+  navigator.clipboard
+    .writeText(fancyTexts[textIndex])
+    .then(() => {
+      setCopiedStates((prevStates) => {
+        const updatedStates = new Set(prevStates);
+        updatedStates.add(textIndex);
+        return updatedStates;
+      });
+
+      // Reset the "Copied" state after 3 seconds
+      setTimeout(() => {
         setCopiedStates((prevStates) => {
           const updatedStates = new Set(prevStates);
-          updatedStates.add(textIndex);
+          updatedStates.delete(textIndex);
           return updatedStates;
         });
+      }, 1700);
+    })
+    .catch((err) => {
+      console.error("Failed to copy text: ", err);
+    });
+};
 
-        // Reset the "Copied" state after 3 seconds
-        setTimeout(() => {
-          setCopiedStates((prevStates) => {
-            const updatedStates = new Set(prevStates);
-            updatedStates.delete(textIndex);
-            return updatedStates;
-          });
-        }, 1700);
-      })
-      .catch((err) => {
-        console.error("Failed to copy text: ", err);
-      });
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setDebouncedInputText(value); // Update the input value immediately
-    debouncedGenerateFancy(value); // Generate fancy texts with debounce
-  };
+const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const value = e.target.value;
+  setDebouncedInputText(value); // Update the input value immediately
+  debouncedGenerateFancy(value); // Generate fancy texts with debounce
+};
 
   /* COMPONENTS */
   const FancyTextOutput: React.FC<{
@@ -120,7 +119,7 @@ const StylerPage: React.FC = () => {
       />
       <Button
         variant="contained"
-        startIcon={isCopied ? <></> : <ContentCopyIcon />}
+        startIcon={<ContentCopyIcon />}
         onClick={() => onCopy(index)}
         disabled={isCopied}
       >
