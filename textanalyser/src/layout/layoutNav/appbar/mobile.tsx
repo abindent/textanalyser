@@ -40,6 +40,7 @@ import {
   HomeIcon,
   MenuIcon,
   PersonIcon,
+  RssFeedIcon,
 } from "@/icon";
 
 // APPBAR
@@ -65,12 +66,12 @@ export default function MobileVersion() {
     analyser: {
       label: "Analyse Text",
       icon: <BiotechIcon />,
-      link: "/analyser",
+      link: "/tools/analyser",
     },
     styler: {
       label: "Style Text",
       icon: <EditIcon />,
-      link: "/styler",
+      link: "/tools/styler",
     },
   };
 
@@ -215,13 +216,24 @@ export default function MobileVersion() {
             </MenuItem>
             <MenuItem
               onClick={() => {
+                router.push("/blog");
+              }}
+            >
+              <RssFeedIcon fontSize="small" /> Blog
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
                 router.push("/contact");
               }}
             >
               <CallIcon fontSize="small" /> Contact
             </MenuItem>
             <Divider />
-            <MenuButton name={"Tools"} list={menuList} />
+            <MenuButton
+              name={"Tools"}
+              startIcon={<BiotechIcon />}
+              list={menuList}
+            />
             <MenuItem>
               <Search />
             </MenuItem>

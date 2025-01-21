@@ -18,7 +18,7 @@ import TabPanel from "@mui/lab/TabPanel";
 import Switch from "@mui/material/Switch";
 
 // ICONS
-import { DoneIcon } from "@/icon";
+import { BiotechIcon, DoneIcon } from "@/icon";
 
 // ANALYSER
 import { Tools } from "@/utils/analyser";
@@ -93,6 +93,9 @@ export default function AnalyserPage() {
     alphanumericcount: false,
     wrapText: false,
   });
+
+  // BUTTON STATE
+  const isButtonDisabled = !Object.values(data).some((value) => value);
 
   // TABPANELS
   const FormatData = {
@@ -286,7 +289,11 @@ export default function AnalyserPage() {
 
     /** RESULT */
     const _res = await AnalyserEngine.main();
-    setOutput(_res["output"]);
+    if (_res["output"].length > 0) {
+      setOutput(_res["output"]);
+    } else {
+      setOutput("Null Output");
+    }
     setPurpose(_res["purpose"]);
     setOutputCharacaterCount(_res["metadata"]["characterCount"]);
     setOutputAlphabetCount(_res["metadata"]["alphabetCount"]);
@@ -317,10 +324,6 @@ export default function AnalyserPage() {
               : "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(210, 100%, 16%), transparent)",
           backgroundSize: "100% 20%",
           backgroundRepeat: "no-repeat",
-          maskImage:
-            "linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))",
-          WebkitMaskImage:
-            "linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))",
           borderRadius: theme.shape.borderRadius,
           transition: "all 0.3s ease-in-out",
         })}
@@ -337,9 +340,9 @@ export default function AnalyserPage() {
             slotProps={{
               inputLabel: {
                 sx: {
-                  marginTop: {sm: "6px", md: "4px"}
-                }
-              }
+                  marginTop: { sm: "6px", md: "4px" },
+                },
+              },
             }}
             rows={"12"}
             multiline
@@ -410,7 +413,12 @@ export default function AnalyserPage() {
               </TabPanel>
             </TabContext>
           </Box>
-          <Button variant="contained" onClick={Examine}>
+          <Button
+            variant="contained"
+            onClick={Examine}
+            startIcon={<BiotechIcon />}
+            disabled={isButtonDisabled}
+          >
             Analyse
           </Button>
 

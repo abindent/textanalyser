@@ -5,6 +5,9 @@ import "./globals.css";
 // REACT TOAST
 import "react-toastify/ReactToastify.css";
 
+// FONTS
+import { GeistSans } from "geist/font/sans";
+
 // FONTAWESOME
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
@@ -36,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={GeistSans.className}>
       <head>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </head>

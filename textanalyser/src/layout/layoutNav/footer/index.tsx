@@ -5,7 +5,7 @@ import Link from "next/link";
 import styles from "./css/footer.module.css";
 
 // MUI ICONS
-import { CallIcon, HomeIcon, PersonIcon } from "@/icon";
+import { BiotechIcon, CallIcon, HomeIcon, PersonIcon, RssFeedIcon } from "@/icon";
 
 // FONTAWESOME ICONS
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -65,9 +65,21 @@ export default function Footer ()  {
               </Link>
             </li>
             <li>
+              <Link className={styles._wrapper_links} href="/blog">
+                <RssFeedIcon />
+                <p style={{ marginTop: "3px" }}>&nbsp;BLOG</p>
+              </Link>
+            </li>
+            <li>
               <Link className={styles._wrapper_links} href="/contact">
                 <CallIcon />
                 <p style={{ marginTop: "3px" }}>&nbsp;CONTACT</p>
+              </Link>
+            </li>
+            <li>
+              <Link className={styles._wrapper_links} href="/showcase">
+                <BiotechIcon />
+                <p style={{ marginTop: "3px" }}>&nbsp;SHOWCASE</p>
               </Link>
             </li>
             

@@ -69,8 +69,9 @@ const StyledMenu = styled((props: MenuProps) => (
 // MENUBUTTON
 export default function MenuButton({
   name,
+  startIcon,
   list,
-}: Readonly<{ name: string; list: MenuListType }>) {
+}: Readonly<{ name: string; startIcon?: React.ReactNode; list: MenuListType }>) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -97,6 +98,7 @@ export default function MenuButton({
         aria-expanded={open ? "true" : undefined}
         disableElevation
         onClick={handleClick}
+        startIcon={startIcon}
         endIcon={<KeyboardArrowDownIcon />}
       >
         {name}

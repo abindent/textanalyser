@@ -16,7 +16,14 @@ import ThemeModeToggler from "./theme";
 import Search from "./searchbar";
 
 // ICON
-import { BiotechIcon, CallIcon, EditIcon, HomeIcon, PersonIcon } from "@/icon";
+import {
+  BiotechIcon,
+  CallIcon,
+  EditIcon,
+  HomeIcon,
+  PersonIcon,
+  RssFeedIcon,
+} from "@/icon";
 
 // NAVBAR
 export default function DeskTopVersion() {
@@ -25,12 +32,12 @@ export default function DeskTopVersion() {
     analyser: {
       label: "Analyse Text",
       icon: <BiotechIcon />,
-      link: "/analyser",
+      link: "/tools/analyser",
     },
     styler: {
       label: "Style Text",
       icon: <EditIcon />,
-      link: "/styler",
+      link: "/tools/styler",
     },
   };
   return (
@@ -146,6 +153,30 @@ export default function DeskTopVersion() {
                 </Typography>
               </Button>
             </Link>
+            <Link href="/blog">
+              <Button
+                size="small"
+                key={"blog"}
+                variant="contained"
+                sx={{
+                  color: "white",
+                  display: "inline-flex",
+                  fontWeight: 600,
+                  mx: 2,
+                }}
+              >
+                <RssFeedIcon sx={{ fontSize: "0.81rem" }} />{" "}
+                <Typography
+                  sx={{ mx: 1 }}
+                  fontFamily={"sans-serif"}
+                  fontSize={"0.79rem"}
+                  fontWeight={600}
+                  textAlign="center"
+                >
+                  Blog
+                </Typography>
+              </Button>
+            </Link>
             <Link href="/contact">
               <Button
                 size="small"
@@ -171,7 +202,7 @@ export default function DeskTopVersion() {
               </Button>
             </Link>
 
-            <MenuButton name={"Tools"} list={menuList} />
+            <MenuButton name={"Tools"} startIcon={<BiotechIcon/>} list={menuList} />
           </Box>
 
           <Box sx={{ flexGrow: 0, display: { xs: "none", md: "flex" } }}>
