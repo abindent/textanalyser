@@ -15,6 +15,7 @@ import TextField from "@mui/material/TextField";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
+import Typography from "@mui/material/Typography";
 import Switch from "@mui/material/Switch";
 
 // ICONS
@@ -328,6 +329,15 @@ export default function AnalyserPage() {
           transition: "all 0.3s ease-in-out",
         })}
       >
+        <Typography
+          variant="h3"
+          align="center"
+          fontWeight={"250"}
+          justifyContent={"center"}
+          marginBottom={"1.75rem"}
+        >
+          Text Analyser
+        </Typography>
         <Box component="form" noValidate>
           <TextField
             required
@@ -423,24 +433,21 @@ export default function AnalyserPage() {
           </Button>
 
           {output && (
-            <>
-              <h2>Output:</h2>
-              <p>
-                <b>Operations Performed:</b>
-                <br />
-                {purpose}
-              </p>
+            <div>
+              <Typography variant="h4" fontWeight={"300"}>Output:</Typography>
+              <Typography variant="inherit"  fontWeight={"500"} marginBottom={"0.75rem"}>
+                Operations Performed:
+              </Typography>
+              <Typography variant="kbd" marginBottom={"0.75rem"}>{purpose}</Typography>
               <pre className="language-c line-numbers">
                 <code>{output}</code>
               </pre>
-            </>
+            </div>
           )}
           <br />
           {outputurl && (
             <div>
-              <p>
-                <b>Extracted URL:</b>
-              </p>
+              <Typography variant="inherit" marginBottom={"0.75rem"} fontWeight={"500"}>Extracted URL:</Typography>
               <pre className="language-c line-numbers">
                 <code>{`🔗: ${outputurl}`}</code>
               </pre>

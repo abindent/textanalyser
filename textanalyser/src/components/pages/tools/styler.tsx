@@ -7,6 +7,7 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 
 // ICONS
 import { ContentCopyIcon } from "@/icon";
@@ -142,8 +143,17 @@ const StylerPage: React.FC = () => {
         height: "100%",
         marginTop: theme.spacing(12),
         marginBottom: theme.spacing(12),
+        backgroundImage:
+          theme.palette.mode === "light"
+            ? "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(210, 100%, 90%), transparent)"
+            : "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(210, 100%, 16%), transparent)",
+        backgroundSize: "100% 20%",
+        backgroundRepeat: "no-repeat",
+        borderRadius: theme.shape.borderRadius,
+        transition: "all 0.3s ease-in-out",
       })}
     >
+      <Typography variant="h3" align="center" justifyContent={"center"} marginBottom={"1.75rem"}>🍡  🎀  𝐹𝒶𝓃𝒸𝓎 𝐹🌞𝓃𝓉 𝒢𝑒𝓃𝑒𝓇𝒶𝓉🏵𝓇  🎀  🍡</Typography>
       <TextField
         required
         fullWidth
