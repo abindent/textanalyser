@@ -64,4 +64,5 @@ div.code-toolbar > .toolbar > .toolbar-item > span {
     font-size: 0.8em;
     padding: 0px 0.5em;
     background: none!important;
+    box-shadow: none!important;
 }
