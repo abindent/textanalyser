@@ -177,7 +177,7 @@ export default function DeskTopVersion() {
                 </Typography>
               </Button>
             </Link>
-            <Link href="/contact">
+            <Link href="https://github.com/abindent/textanalyser/issues/new?template=Blank+issue" target="_blank">
               <Button
                 size="small"
                 key={"contact"}

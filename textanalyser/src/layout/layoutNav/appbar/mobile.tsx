@@ -223,7 +223,7 @@ export default function MobileVersion() {
             </MenuItem>
             <MenuItem
               onClick={() => {
-                router.push("/contact");
+                router.replace("https://github.com/abindent/textanalyser/issues/new?template=Blank+issue");
               }}
             >
               <CallIcon fontSize="small" /> Contact

@@ -71,7 +71,7 @@ export default function Footer ()  {
               </Link>
             </li>
             <li>
-              <Link className={styles._wrapper_links} href="/contact">
+              <Link className={styles._wrapper_links} href="https://github.com/abindent/textanalyser/issues/new?template=Blank+issue" target="_blank">
                 <CallIcon />
                 <p style={{ marginTop: "3px" }}>&nbsp;CONTACT</p>
               </Link>
