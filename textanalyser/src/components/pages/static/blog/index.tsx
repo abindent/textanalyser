@@ -7,17 +7,46 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
 
 // APPWRITE
-import { getDocuments } from "@/lib/appwrite";
+import { Client, Databases, Query } from "appwrite";
+
+// CUSTOM ELEMENTS
 import BlogCard from "./card";
-import { Typography } from "@mui/material";
+import BlogSkeleton from "./skeleton";
 
 const BlogPosts = () => {
   // BLOGS
+  const [loading, setLoading] = React.useState<boolean>(true);
   const [blogs, setBlogs] = React.useState<any>([]);
 
-  getDocuments(setBlogs);
+  const client = new Client()
+    .setEndpoint("https://cloud.appwrite.io/v1")
+    .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID);
+
+  const databases = new Databases(client);
+
+  function getDocuments() {
+    const documents = databases.listDocuments(
+      process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+      process.env.NEXT_PUBLIC_APPWRITE_COLLECTION_ID,
+      [Query.equal("is_published", true)]
+    );
+    documents.then(
+      function (response) {
+        setBlogs(response.documents);
+        setLoading(false);
+      },
+      function (error: Error) {
+        throw Error(`${error.name}: ${error.message}`);
+      }
+    );
+  }
+
+  React.useEffect(() => {
+    getDocuments();
+  }, [blogs]);
 
   return (
     <div>
@@ -50,6 +79,12 @@ const BlogPosts = () => {
             Blogs
           </Typography>
           <Stack direction={"column"}>
+            {loading && <BlogSkeleton />}
+            {loading === false && blogs.length < 1 && (
+              <Typography variant="subtitle1" textAlign={"center"}>
+                Couldn't find any blog.
+              </Typography>
+            )}
             {blogs.map((blog: any, index: any) => (
               <BlogCard {...blog} key={index} />
             ))}
