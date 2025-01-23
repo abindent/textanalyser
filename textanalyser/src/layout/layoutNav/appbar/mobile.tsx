@@ -29,7 +29,6 @@ import Toolbar from "@mui/material/Toolbar";
 
 // COMPONENTS
 import MenuButton, { type MenuListType } from "@/utils/menubutton";
-import Search from "./searchbar";
 
 // ICON
 import {
@@ -234,9 +233,6 @@ export default function MobileVersion() {
               startIcon={<BiotechIcon />}
               list={menuList}
             />
-            <MenuItem>
-              <Search />
-            </MenuItem>
           </Box>
         </Drawer>
       </AppBar>

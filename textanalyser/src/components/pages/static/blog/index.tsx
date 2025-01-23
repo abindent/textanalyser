@@ -72,6 +72,7 @@ const BlogPosts = () => {
           <Typography
             variant="h3"
             textAlign={"center"}
+            fontStyle={"revert-layer"}
             sx={{
               mb: { xs: 2, sm: 5 },
             }}

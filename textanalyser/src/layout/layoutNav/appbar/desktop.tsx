@@ -13,7 +13,6 @@ import Typography from "@mui/material/Typography";
 // COMPONENT
 import MenuButton, { type MenuListType } from "@/utils/menubutton";
 import ThemeModeToggler from "./theme";
-import Search from "./searchbar";
 
 // ICON
 import {
@@ -208,8 +207,6 @@ export default function DeskTopVersion() {
           <Box sx={{ flexGrow: 0, display: { xs: "none", md: "flex" } }}>
             <ThemeModeToggler />
           </Box>
-
-          <Search />
         </Toolbar>
       </Container>
     </AppBar>
