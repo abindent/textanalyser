@@ -21,6 +21,7 @@ import BlogSkeleton from "./skeleton";
 
 function BlogPost(slug: any) {
   const [loading, setLoading] = React.useState<boolean>(true);
+  const [_error, setError] = React.useState<string>("");
   const [timeZone, setTimezone] = React.useState<any>();
   const [blog, setBlog] = React.useState<any>();
 
@@ -42,7 +43,8 @@ function BlogPost(slug: any) {
         setLoading(false);
       },
       function (error: Error) {
-        throw Error(`${error.name}: ${error.message}`);
+        setLoading(false);
+        setError(`${error.name}: ${error.message}`);
       }
     );
   }
@@ -71,8 +73,20 @@ function BlogPost(slug: any) {
               display: "flex",
             }}
           >
-            Couldn't find any blogat requested url&nbsp;&nbsp;{" "}
+            Couldn't find any blog at requested url&nbsp;&nbsp;{" "}
             <Typography variant="kbd">{`/blog/${slug.slug}`}</Typography>
+          </Typography>
+        )}
+        {_error.length > 0 && (
+          <Typography
+            variant="subtitle1"
+            justifyContent={"center"}
+            textAlign={"center"}
+            display={"inline-flex"}
+          >
+            <div>
+              <b>Error Occured:</b>&nbsp;&nbsp; <pre>{_error}</pre>
+            </div>
           </Typography>
         )}
         {blog && (

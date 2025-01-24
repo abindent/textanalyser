@@ -19,6 +19,7 @@ import BlogSkeleton from "./skeleton";
 const BlogPosts = () => {
   // BLOGS
   const [loading, setLoading] = React.useState<boolean>(true);
+  const [_error, setError] = React.useState<string>("");
   const [blogs, setBlogs] = React.useState<any>([]);
 
   const client = new Client()
@@ -39,7 +40,8 @@ const BlogPosts = () => {
         setLoading(false);
       },
       function (error: Error) {
-        throw Error(`${error.name}: ${error.message}`);
+        setLoading(false);
+        setError(`${error.name}: ${error.message}`);
       }
     );
   }
@@ -84,6 +86,15 @@ const BlogPosts = () => {
             {loading === false && blogs.length < 1 && (
               <Typography variant="subtitle1" textAlign={"center"}>
                 Couldn't find any blog.
+              </Typography>
+            )}
+            {_error.length > 0 && (
+              <Typography
+                variant="subtitle1"
+                textAlign={"center"}
+                display={"flex"}
+              >
+                <b>Error Occured:</b>&nbsp;&nbsp;{_error}
               </Typography>
             )}
             {blogs.map((blog: any, index: any) => (
