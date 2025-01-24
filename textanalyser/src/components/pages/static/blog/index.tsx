@@ -91,10 +91,13 @@ const BlogPosts = () => {
             {_error.length > 0 && (
               <Typography
                 variant="subtitle1"
+                justifyContent={"center"}
                 textAlign={"center"}
-                display={"flex"}
+                display={"inline-flex"}
               >
-                <b>Error Occured:</b>&nbsp;&nbsp;{_error}
+                <div>
+                  <b>Error Occured:</b>&nbsp;&nbsp; <pre>{_error}</pre>
+                </div>
               </Typography>
             )}
             {blogs.map((blog: any, index: any) => (
