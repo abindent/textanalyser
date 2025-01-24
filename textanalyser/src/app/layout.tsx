@@ -2,9 +2,6 @@ import type { Metadata } from "next";
 // CSS FILE CONFIG
 import "./globals.css";
 
-// REACT TOAST
-import "react-toastify/ReactToastify.css";
-
 // FONTS
 import { GeistSans } from "geist/font/sans";
 

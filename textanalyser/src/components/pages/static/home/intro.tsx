@@ -82,7 +82,7 @@ export default function Intro() {
           Welcome to TextAnalyser! Step into a world where your words come
           alive. Refine, enhance, style, and design your text effortlessly with
           this powerful tool. Unleash your creativity, explore text analysis,
-          and make every word count. TextAnalyzer – because your ideas deserve
+          and make every word count. TextAnalyser – because your ideas deserve
           the spotlight they truly deserve.
         </Typography>
         <Stack

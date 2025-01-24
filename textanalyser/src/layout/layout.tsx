@@ -21,9 +21,6 @@ import Box from "@mui/material/Box";
 import Fab from "@mui/material/Fab";
 import Fade from "@mui/material/Fade";
 
-// REACT TOAST
-import { ToastContainer } from "react-toastify";
-
 // WEB PANEL COMPONENT
 import Navbar from "./layoutNav/appbar";
 import Footer from "./layoutNav/footer";
@@ -34,7 +31,6 @@ import { KeyboardArrowUpIcon } from "@/icon";
 
 // UTILITIES
 import useScrollTrigger from "@mui/material/useScrollTrigger";
-
 
 // Scrool to Top Function Props
 interface RegistryProps {
@@ -129,16 +125,6 @@ export function ThemeRegistry(props: RegistryProps) {
           defaultMode: "system",
           modeStorageKey: "theme",
         })}
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="colored"
-        />
         <div id="nav" aria-label="achor"></div>
         <Navbar />
         {children}

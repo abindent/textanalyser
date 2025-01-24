@@ -19,7 +19,7 @@ export namespace Tools {
       punctuations: new RegExp(/[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/g),
       specialCharacters: new RegExp(/[^a-zA-Z0-9\s!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/g),
       urls: /https?:\/\/\S+/gi,
-      newlines: /\r?\n|\r/g,
+      newlines: /^\s*$(?:\r\n?|\n)/gm,
       extraSpaces: / +/g,
       character: /\s/g,
     };

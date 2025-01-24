@@ -29,7 +29,6 @@ import { Tools } from "@/utils/analyser";
 // PRISMJS
 import Prism from "prismjs";
 import "prismjs/components/prism-c";
-import "prismjs/components/prism-typescript";
 import "prismjs/plugins/toolbar/prism-toolbar";
 import "prismjs/plugins/line-numbers/prism-line-numbers";
 import "prismjs/plugins/autolinker/prism-autolinker";
