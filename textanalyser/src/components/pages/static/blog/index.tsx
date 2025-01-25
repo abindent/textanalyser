@@ -48,7 +48,7 @@ const BlogPosts = () => {
 
   React.useEffect(() => {
     getDocuments();
-  }, [blogs]);
+  }, []);
 
   return (
     <div>

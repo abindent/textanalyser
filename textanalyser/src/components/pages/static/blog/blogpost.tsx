@@ -52,7 +52,7 @@ function BlogPost(slug: any) {
   React.useEffect(() => {
     setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
     getDocument(slug.slug);
-  }, [blog]);
+  }, []);
 
   return (
     <div>
