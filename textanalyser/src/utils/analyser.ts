@@ -217,7 +217,7 @@ export namespace Tools {
      */
     private async newLineRemover(): Promise<void> {
       this.raw_text = this.raw_text
-        .replace(ToolsConstant.regex.newlines, " ")
+        .replace(ToolsConstant.regex.newlines, "\n")
         .trim();
       this.logOperation("Removed New Line Characters");
     }
