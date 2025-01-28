@@ -6,10 +6,13 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
 import Container from "@mui/material/Container";
 import FormControl from "@mui/material/FormControl";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import Grid from "@mui/material/Grid2";
 import Tab from "@mui/material/Tab";
 import TextField from "@mui/material/TextField";
 import TabContext from "@mui/lab/TabContext";
@@ -432,26 +435,102 @@ export default function AnalyserPage() {
           </Button>
 
           {output && (
-            <div>
-              <Typography variant="h4" fontWeight={"300"}>Output:</Typography>
-              <Typography variant="inherit"  fontWeight={"500"} marginBottom={"0.75rem"}>
+            <Box marginTop="2rem">
+              <Typography variant="h4" fontWeight="500" marginBottom="1rem">
+                Analysis Results:
+              </Typography>
+              <Typography
+                variant="inherit"
+                fontWeight={"500"}
+                marginBottom={"0.75rem"}
+              >
                 Operations Performed:
               </Typography>
-              <Typography variant="kbd" marginBottom={"0.75rem"}>{purpose}</Typography>
+              <Typography variant="kbd" marginBottom={"0.75rem"}>
+                {purpose}
+              </Typography>
               <pre className="language-c line-numbers">
                 <code>{output}</code>
               </pre>
-            </div>
+              <Grid container spacing={2}>
+                {outputcharacterCount !== 0 && (
+                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                    <Card elevation={3}>
+                      <CardContent>
+                        <Typography
+                          variant="h6"
+                          color="primary"
+                          fontWeight="600"
+                        >
+                          Character Count
+                        </Typography>
+                        <Typography variant="h5">
+                          {outputcharacterCount}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                )}
+                {outputnumericCount !== 0 && (
+                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                    <Card elevation={3}>
+                      <CardContent>
+                        <Typography
+                          variant="h6"
+                          color="primary"
+                          fontWeight="600"
+                        >
+                          Numeric Count
+                        </Typography>
+                        <Typography variant="h5">
+                          {outputnumericCount}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                )}
+                {outputalphabetCount !== 0 && (
+                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                    <Card elevation={3}>
+                      <CardContent>
+                        <Typography
+                          variant="h6"
+                          color="primary"
+                          fontWeight="600"
+                        >
+                          Alphabet Count
+                        </Typography>
+                        <Typography variant="h5">
+                          {outputalphabetCount}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                )}
+                {outputurl && (
+                  <Grid size={{ xs: 12 }}>
+                    <Card elevation={3}>
+                      <CardContent>
+                        <Typography
+                          variant="h6"
+                          color="primary"
+                          fontWeight="600"
+                        >
+                          Extracted URL
+                        </Typography>
+                        <Typography variant="body1">
+                          <pre className="language-c line-numbers">
+                            <code>{`🔗: ${outputurl}`}</code>
+                          </pre>
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                )}
+              </Grid>
+            </Box>
           )}
           <br />
-          {outputurl && (
-            <div>
-              <Typography variant="inherit" marginBottom={"0.75rem"} fontWeight={"500"}>Extracted URL:</Typography>
-              <pre className="language-c line-numbers">
-                <code>{`🔗: ${outputurl}`}</code>
-              </pre>
-            </div>
-          )}
         </Box>
       </Container>
     </div>
