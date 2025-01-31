@@ -87,7 +87,7 @@ const BlogPosts = () => {
               Couldn't find any blog.
             </Typography>
           )}
-          <Stack direction={"row"}>
+          <Stack direction={{ sm: "column", md: "row" }} gap={4}>
             {_error.length > 0 && (
               <Typography
                 variant="subtitle1"
