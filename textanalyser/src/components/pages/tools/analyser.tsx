@@ -47,20 +47,29 @@ export default function AnalyserPage() {
 
   // INPUT AND OUTPUT
   const [examString, setExamString] = React.useState<string>("Hello World");
-  const [output, setOutput] = React.useState<string | undefined | null>("");
-  const [purpose, setPurpose] = React.useState<string | undefined | null>("");
-  const [outputcharacterCount, setOutputCharacaterCount] = React.useState<
-    number | undefined | null
-  >(0);
-  const [outputalphabetCount, setOutputAlphabetCount] = React.useState<
-    number | undefined | null
-  >(0);
-  const [outputnumericCount, setOutputNumericCount] = React.useState<
-    number | undefined | null
-  >(0);
-  const [outputurl, setOutputURL] = React.useState<string | undefined | null>(
-    ""
-  );
+  const [analysis, setAnalysis] = React.useState<AnalysisData>({
+    output: "",
+    purpose: "",
+    stats: {
+      count: {
+        characters: 0,
+        alphabets: 0,
+        numbers: 0,
+      },
+      url: "",
+    },
+  });
+
+  const [typingTest, setTypingTest] = React.useState<TypingStats>({
+    startTime: null,
+    endTime: null,
+    wpm: 0,
+  });
+
+  const [additionalData, setAdditionalData] = React.useState<AdditionalData>({
+    readTime: "Not Calculated",
+    word_count: examString.split(/\s+/).filter(Boolean).length,
+  });
 
   // DATA INTERFACE
   interface Data {
@@ -77,8 +86,31 @@ export default function AnalyserPage() {
     alphacount: boolean;
     numcount: boolean;
     alphanumericcount: boolean;
-    wrapText: boolean;
     reverseText: boolean;
+  }
+
+  interface AnalysisData {
+    output: string;
+    purpose: string;
+    stats: {
+      count: {
+        characters: number;
+        alphabets: number;
+        numbers: number;
+      };
+      url: string;
+    };
+  }
+
+  interface AdditionalData {
+    readTime: string;
+    word_count: number;
+  }
+
+  interface TypingStats {
+    startTime: number | null;
+    endTime: number | null;
+    wpm: number;
   }
 
   // OPERATIONS
@@ -96,7 +128,6 @@ export default function AnalyserPage() {
     alphacount: false,
     numcount: false,
     alphanumericcount: false,
-    wrapText: false,
     reverseText: false,
   });
 
@@ -148,13 +179,6 @@ export default function AnalyserPage() {
         name: "extractUrls",
         disabled: false,
       },
-      wrapText: {
-        label:
-          "Wrap Text (wrap codes for enabling them to be used as a text node.)",
-        checked: data.wrapText,
-        name: "wrapText",
-        disabled: data.extractUrls,
-      },
       reverseText: {
         label: "Reverse Text",
         checked: data.reverseText,
@@ -204,6 +228,36 @@ export default function AnalyserPage() {
     },
   };
 
+  // Calculate Read Time
+  const calculateReadTime = (text: string): string => {
+    const wordsPerMinute = 200; // Average reading speed
+    const wordCount = text.trim().split(/\s+/).length;
+    const minutes = Math.floor(wordCount / wordsPerMinute);
+    const seconds = Math.floor(
+      (wordCount % wordsPerMinute) / (wordsPerMinute / 60)
+    );
+
+    if (minutes === 0 && seconds === 0) return "Less than a second";
+    if (minutes === 0) return `${seconds} seconds`;
+    if (seconds === 0) return `${minutes} min`;
+
+    return `${minutes} min ${seconds} sec`;
+  };
+
+  // Calculate Typing Speed
+  const calculateTypingStats = (sample: string, input: string) => {
+    const correctCharacters = Array.from(input).filter(
+      (char, index) => char === sample[index]
+    ).length;
+
+    const totalTime = (typingTest.endTime! - typingTest.startTime!) / 60000; // in minutes
+    const wpm = Math.round(correctCharacters / 5 / totalTime);
+    const accuracy = Math.round((correctCharacters / input.length) * 100);
+
+    return { wpm: isFinite(wpm) ? wpm : 0, accuracy };
+  };
+
+  // Render Function to Generate Switches for those Utilities
   const renderSwitches = (data: any) => {
     return (
       <FormGroup>
@@ -229,9 +283,34 @@ export default function AnalyserPage() {
   };
 
   // HANDLERS
+  const typingTestHandler = () => {
+    if (!typingTest.startTime) {
+      setTypingTest((prev) => ({
+        ...prev,
+        startTime: Date.now(),
+      }));
+    }
+
+    setTypingTest((prev) => ({
+      ...prev,
+      endTime: Date.now(),
+      ...calculateTypingStats(examString, examString),
+    }));
+
+    setTypingTest((prev) => ({
+      ...prev,
+      examString,
+    }));
+  };
+
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     setExamString(e.target.value);
+    typingTestHandler();
+    setAdditionalData({
+      readTime: calculateReadTime(examString),
+      word_count: examString.split(/\s+/).filter(Boolean).length,
+    });
   };
 
   const operationHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -253,7 +332,6 @@ export default function AnalyserPage() {
         alphacount: false,
         numcount: false,
         alphanumericcount: false,
-        wrapText: false,
         reverseText: false,
       });
     } else {
@@ -265,12 +343,6 @@ export default function AnalyserPage() {
     setTabNo(newValue);
   };
 
-  const wrapText = (text: string) => {
-    const wrapped_text: string = Array.from(text)
-      .map((char) => (char === "'" ? `{"'"}` : `{'${char}'}`))
-      .join("");
-    return wrapped_text;
-  };
   // MAIN ANALYSER FUNCTION
   const Examine = async () => {
     /** BASIC ENGINE */
@@ -291,11 +363,6 @@ export default function AnalyserPage() {
     });
 
     /** CUSTOM OPERATIONS */
-    await AnalyserEngine.addCustomOperation(
-      "wrapText",
-      "Wrapped Text",
-      (text) => wrapText(text)
-    );
 
     await AnalyserEngine.addCustomOperation(
       "reverseText",
@@ -303,37 +370,42 @@ export default function AnalyserPage() {
       (text) => esrever.reverse(text)
     );
 
-    if (data.wrapText) {
-      await AnalyserEngine.toggleOperation("wrapText", data.wrapText);
-    }
-
     if (data.reverseText) {
       await AnalyserEngine.toggleOperation("reverseText", data.reverseText);
     }
 
     /** RESULT */
-    const _res = await AnalyserEngine.main();
-    if (_res["output"].length > 0) {
-      setOutput(_res["output"]);
-    } else {
-      setOutput("Null Output");
+    const result = await AnalyserEngine.main();
+
+    try {
+      setAnalysis({
+        output: result.output || "Null Output",
+        purpose: result.purpose || "No Operations have been Performed",
+        stats: {
+          count: {
+            characters: result.metadata.characterCount,
+            alphabets: result.metadata.alphabetCount,
+            numbers: result.metadata.numericCount,
+          },
+          url: result.metadata.url,
+        },
+      });
+      setAdditionalData({
+        readTime: calculateReadTime(result.output),
+        word_count: result.output.split(/\s+/).filter(Boolean).length,
+      });
+    } catch (error) {
+      console.error("Analysis failed:", error);
+      setAnalysis((prev) => ({
+        ...prev,
+        output: "Error occurred during analysis",
+      }));
     }
-    setPurpose(_res["purpose"]);
-    setOutputCharacaterCount(_res["metadata"]["characterCount"]);
-    setOutputAlphabetCount(_res["metadata"]["alphabetCount"]);
-    setOutputNumericCount(_res["metadata"]["numericCount"]);
-    setOutputURL(_res["metadata"]["url"]);
   };
 
   React.useEffect(() => {
     Prism.highlightAll();
-  }, [
-    output,
-    outputurl,
-    outputalphabetCount,
-    outputcharacterCount,
-    outputnumericCount,
-  ]);
+  }, [analysis.output]);
 
   return (
     <div>
@@ -456,7 +528,7 @@ export default function AnalyserPage() {
             Analyse
           </Button>
 
-          {output && (
+          {analysis.output && (
             <Box marginTop="2rem">
               <Typography variant="h4" fontWeight="500" marginBottom="1rem">
                 Analysis Results:
@@ -469,13 +541,13 @@ export default function AnalyserPage() {
                 Operations Performed:
               </Typography>
               <Typography variant="kbd" marginBottom={"0.75rem"}>
-                {purpose}
+                {analysis.purpose}
               </Typography>
               <pre className="language-c line-numbers">
-                <code>{output}</code>
+                <code>{analysis.output}</code>
               </pre>
 
-              {outputurl && (
+              {analysis.stats.url && (
                 <Grid size={{ xs: 12 }}>
                   <Card elevation={3}>
                     <CardContent>
@@ -484,7 +556,7 @@ export default function AnalyserPage() {
                       </Typography>
                       <Typography variant="body1">
                         <pre className="language-c line-numbers">
-                          <code>{`🔗: ${outputurl}`}</code>
+                          <code>{`🔗: ${analysis.stats.url}`}</code>
                         </pre>
                       </Typography>
                     </CardContent>
@@ -501,7 +573,9 @@ export default function AnalyserPage() {
                   <Typography variant="h6" color="primary" fontWeight="600">
                     Character Count
                   </Typography>
-                  <Typography variant="h5">{outputcharacterCount}</Typography>
+                  <Typography variant="h5">
+                    {analysis.stats.count.characters}
+                  </Typography>
                 </CardContent>
               </Card>
             </Grid>
@@ -512,7 +586,9 @@ export default function AnalyserPage() {
                   <Typography variant="h6" color="primary" fontWeight="600">
                     Numeric Count
                   </Typography>
-                  <Typography variant="h5">{outputnumericCount}</Typography>
+                  <Typography variant="h5">
+                    {analysis.stats.count.numbers}
+                  </Typography>
                 </CardContent>
               </Card>
             </Grid>
@@ -523,11 +599,70 @@ export default function AnalyserPage() {
                   <Typography variant="h6" color="primary" fontWeight="600">
                     Alphabet Count
                   </Typography>
-                  <Typography variant="h5">{outputalphabetCount}</Typography>
+                  <Typography variant="h5">
+                    {analysis.stats.count.alphabets}
+                  </Typography>
                 </CardContent>
               </Card>
             </Grid>
           </Grid>
+          <Typography variant="caption" color={"text.secondary"}>
+            <b>
+              <u>
+                <i>Caution:</i>
+              </u>
+            </b>
+            {"\u00A0"}
+            The above options get only affected by analyser functions. In
+            simpler words these datas are derived when "<b>ANALYSE</b>" button
+            is pressed.
+          </Typography>
+          <Grid container spacing={2} marginTop={"0.75rem"}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card elevation={3}>
+                <CardContent>
+                  <Typography variant="h6" color="primary" fontWeight="600">
+                    Word Count
+                  </Typography>
+                  <Typography variant="h5">
+                    {additionalData.word_count}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card elevation={3}>
+                <CardContent>
+                  <Typography variant="h6" color="primary" fontWeight={600}>
+                    Read Time
+                  </Typography>
+                  <Typography variant="h5">
+                    {additionalData.readTime}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card elevation={3}>
+                <CardContent>
+                  <Typography variant="h6" color="primary" fontWeight={600}>
+                    Words Per Minute
+                  </Typography>
+                  <Typography variant="h5">{typingTest.wpm}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+          <Typography variant="caption" color={"text.secondary"}>
+            <b>
+              <u>
+                <i>Caution:</i>
+              </u>
+            </b>
+            {"\u00A0"}
+            The above options are synced to the input field, and won't be
+            affected by analyser functions.
+          </Typography>
         </Box>
       </Container>
     </div>
