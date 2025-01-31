@@ -6,22 +6,30 @@
 export namespace Tools {
   /**
    * @class ToolsConstant
-   * @summary Provides constant values required for string analysis operations.
-   * @property {string} punctuations - A string containing all punctuation characters.
-   * @property {string} alphabets - A string containing all uppercase and lowercase alphabets.
-   * @property {string} specialCharacters - A string containing all special characters.
-   * @property {string} numbers - A string containing numeric digits from 0 to 9.
+   * @summary A collection of regular expressions for different character patterns.
+   * @readonly
+   * @property {Object} regex - An object containing regex patterns.
+   * @property {RegExp} regex.alphabets - Matches all alphabetical characters (both uppercase and lowercase).
+   * @property {RegExp} regex.numbers - Matches all numeric digits (0-9).
+   * @property {RegExp} regex.punctuations - Matches common punctuation characters.
+   * @property {RegExp} regex.specialCharacters - Matches any special characters that are not alphanumeric or common punctuation.
+   * @property {RegExp} regex.urls - Matches URLs that start with "http" or "https".
+   * @property {RegExp} regex.newlines - Matches empty lines (newlines with only whitespace).
+   * @property {RegExp} regex.extraSpaces - Matches multiple consecutive spaces.
+   * @property {RegExp} regex.character - Matches whitespace characters.
    */
   export class ToolsConstant {
     static readonly regex = {
       alphabets: /[a-zA-Z]/g,
       numbers: /\d/g,
       punctuations: new RegExp(/[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/g),
-      specialCharacters: new RegExp(/[^a-zA-Z0-9\s!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/g),
+      specialCharacters: new RegExp(
+        /[^a-zA-Z0-9\s!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/g
+      ),
       urls: /https?:\/\/\S+/gi,
       newlines: /^\s*$(?:\r\n?|\n)/gm,
       extraSpaces: / +/g,
-      character: /\s/g,
+      character: /[^\s\p{Cf}]/gu,
     };
   }
 
@@ -263,9 +271,8 @@ export namespace Tools {
      * @summary Counts the number of non-whitespace characters in the input text.
      */
     private async countCharacters(): Promise<void> {
-      this.count = this.raw_text.replace(
-        ToolsConstant.regex.character,
-        ""
+      this.count = (
+        this.raw_text.match(ToolsConstant.regex.character) ?? []
       ).length;
       this.logOperation("Counted Characters");
     }

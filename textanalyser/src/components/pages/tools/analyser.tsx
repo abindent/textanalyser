@@ -25,6 +25,7 @@ import Switch from "@mui/material/Switch";
 import { BiotechIcon, DoneIcon } from "@/icon";
 
 // ANALYSER
+import esrever from "esrever";
 import { Tools } from "@/utils/analyser";
 
 // PRISM Wrapper
@@ -77,6 +78,7 @@ export default function AnalyserPage() {
     numcount: boolean;
     alphanumericcount: boolean;
     wrapText: boolean;
+    reverseText: boolean;
   }
 
   // OPERATIONS
@@ -95,6 +97,7 @@ export default function AnalyserPage() {
     numcount: false,
     alphanumericcount: false,
     wrapText: false,
+    reverseText: false,
   });
 
   // BUTTON STATE
@@ -150,6 +153,12 @@ export default function AnalyserPage() {
           "Wrap Text (wrap codes for enabling them to be used as a text node.)",
         checked: data.wrapText,
         name: "wrapText",
+        disabled: data.extractUrls,
+      },
+      reverseText: {
+        label: "Reverse Text",
+        checked: data.reverseText,
+        name: "reverseText",
         disabled: data.extractUrls,
       },
     },
@@ -245,6 +254,7 @@ export default function AnalyserPage() {
         numcount: false,
         alphanumericcount: false,
         wrapText: false,
+        reverseText: false,
       });
     } else {
       // Otherwise, update the specific option
@@ -286,8 +296,19 @@ export default function AnalyserPage() {
       "Wrapped Text",
       (text) => wrapText(text)
     );
+
+    await AnalyserEngine.addCustomOperation(
+      "reverseText",
+      "Reversed Text",
+      (text) => esrever.reverse(text)
+    );
+
     if (data.wrapText) {
       await AnalyserEngine.toggleOperation("wrapText", data.wrapText);
+    }
+
+    if (data.reverseText) {
+      await AnalyserEngine.toggleOperation("reverseText", data.reverseText);
     }
 
     /** RESULT */
@@ -321,6 +342,7 @@ export default function AnalyserPage() {
           width: "100%",
           height: "100%",
           marginTop: theme.spacing(12),
+          marginBottom: theme.spacing(10),
           backgroundImage:
             theme.palette.mode === "light"
               ? "radial-gradient(ellipse 80% 50% at 50% -20%, hsl(210, 100%, 90%), transparent)"
@@ -452,85 +474,60 @@ export default function AnalyserPage() {
               <pre className="language-c line-numbers">
                 <code>{output}</code>
               </pre>
-              <Grid container spacing={2}>
-                {outputcharacterCount !== 0 && (
-                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                    <Card elevation={3}>
-                      <CardContent>
-                        <Typography
-                          variant="h6"
-                          color="primary"
-                          fontWeight="600"
-                        >
-                          Character Count
-                        </Typography>
-                        <Typography variant="h5">
-                          {outputcharacterCount}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                )}
-                {outputnumericCount !== 0 && (
-                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                    <Card elevation={3}>
-                      <CardContent>
-                        <Typography
-                          variant="h6"
-                          color="primary"
-                          fontWeight="600"
-                        >
-                          Numeric Count
-                        </Typography>
-                        <Typography variant="h5">
-                          {outputnumericCount}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                )}
-                {outputalphabetCount !== 0 && (
-                  <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                    <Card elevation={3}>
-                      <CardContent>
-                        <Typography
-                          variant="h6"
-                          color="primary"
-                          fontWeight="600"
-                        >
-                          Alphabet Count
-                        </Typography>
-                        <Typography variant="h5">
-                          {outputalphabetCount}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                )}
-                {outputurl && (
-                  <Grid size={{ xs: 12 }}>
-                    <Card elevation={3}>
-                      <CardContent>
-                        <Typography
-                          variant="h6"
-                          color="primary"
-                          fontWeight="600"
-                        >
-                          Extracted URL
-                        </Typography>
-                        <Typography variant="body1">
-                          <pre className="language-c line-numbers">
-                            <code>{`🔗: ${outputurl}`}</code>
-                          </pre>
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                )}
-              </Grid>
+
+              {outputurl && (
+                <Grid size={{ xs: 12 }}>
+                  <Card elevation={3}>
+                    <CardContent>
+                      <Typography variant="h6" color="primary" fontWeight="600">
+                        Extracted URL
+                      </Typography>
+                      <Typography variant="body1">
+                        <pre className="language-c line-numbers">
+                          <code>{`🔗: ${outputurl}`}</code>
+                        </pre>
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              )}
             </Box>
           )}
           <br />
+          <Grid container spacing={2} marginTop={"0.75rem"}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card elevation={3}>
+                <CardContent>
+                  <Typography variant="h6" color="primary" fontWeight="600">
+                    Character Count
+                  </Typography>
+                  <Typography variant="h5">{outputcharacterCount}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card elevation={3}>
+                <CardContent>
+                  <Typography variant="h6" color="primary" fontWeight="600">
+                    Numeric Count
+                  </Typography>
+                  <Typography variant="h5">{outputnumericCount}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card elevation={3}>
+                <CardContent>
+                  <Typography variant="h6" color="primary" fontWeight="600">
+                    Alphabet Count
+                  </Typography>
+                  <Typography variant="h5">{outputalphabetCount}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
         </Box>
       </Container>
     </div>
