@@ -245,16 +245,17 @@ export default function AnalyserPage() {
   };
 
   // Calculate Typing Speed
-  const calculateTypingStats = (sample: string, input: string) => {
-    const correctCharacters = Array.from(input).filter(
-      (char, index) => char === sample[index]
-    ).length;
+  const calculateTypingStats = (input: string) => {
+    if (!typingTest.startTime || input.length === 0) {
+      return { wpm: 0 };
+    }
+    const elapsedTime = (typingTest.endTime! - typingTest.startTime!) / 60000; // Convert to minutes
 
-    const totalTime = (typingTest.endTime! - typingTest.startTime!) / 60000; // in minutes
-    const wpm = Math.round(correctCharacters / 5 / totalTime);
-    const accuracy = Math.round((correctCharacters / input.length) * 100);
+    if (elapsedTime < 0.05) return 0;
 
-    return { wpm: isFinite(wpm) ? wpm : 0, accuracy };
+    const wpm = Math.round(input.length / 5 / elapsedTime); // Assuming 5 characters per word
+
+    return { wpm: isFinite(wpm) ? wpm : 0 };
   };
 
   // Render Function to Generate Switches for those Utilities
@@ -283,7 +284,7 @@ export default function AnalyserPage() {
   };
 
   // HANDLERS
-  const typingTestHandler = () => {
+  const typingTestHandler = (input: string) => {
     if (!typingTest.startTime) {
       setTypingTest((prev) => ({
         ...prev,
@@ -294,19 +295,17 @@ export default function AnalyserPage() {
     setTypingTest((prev) => ({
       ...prev,
       endTime: Date.now(),
-      ...calculateTypingStats(examString, examString),
-    }));
-
-    setTypingTest((prev) => ({
-      ...prev,
-      examString,
+      ...calculateTypingStats(input),
     }));
   };
 
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
-    setExamString(e.target.value);
-    typingTestHandler();
+
+    // Input Text
+    const inputText: string = e.target.value;
+    setExamString(inputText);
+    typingTestHandler(inputText);
     setAdditionalData({
       readTime: calculateReadTime(examString),
       word_count: examString.split(/\s+/).filter(Boolean).length,
