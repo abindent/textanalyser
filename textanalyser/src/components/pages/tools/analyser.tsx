@@ -304,8 +304,8 @@ export default function AnalyserPage() {
 
     // Input Text
     const inputText: string = e.target.value;
-    setExamString(inputText);
     typingTestHandler(inputText);
+    setExamString(inputText);
     setAdditionalData({
       readTime: calculateReadTime(examString),
       word_count: examString.split(/\s+/).filter(Boolean).length,
@@ -645,9 +645,9 @@ export default function AnalyserPage() {
               <Card elevation={3}>
                 <CardContent>
                   <Typography variant="h6" color="primary" fontWeight={600}>
-                    Words Per Minute
+                    Typing speed
                   </Typography>
-                  <Typography variant="h5">{typingTest.wpm}</Typography>
+                  <Typography variant="h5">{typingTest.wpm} wpm</Typography>
                 </CardContent>
               </Card>
             </Grid>
