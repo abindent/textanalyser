@@ -3,14 +3,13 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/6515ac4b-0e82-466a-a0bb-8d20dc558ee0/deploy-status)](https://app.netlify.com/sites/textanalyserosc/deploys)
 
 ## Overview
-TextAnalyser is a powerful tool designed to help you analyze and gain insights from your text data. Whether you want to extract keywords, count word frequencies, or perform sentiment analysis, TextAnalyser has you covered.
+is a lightweight, user-friendly web tool for analyzing text. Whether you're a writer, a student, or just someone who loves playing around with words, this tool gives you instant insights—like word counts, character counts, and estimated reading time—all in a clean, straightforward interface.
 
 ## Features
-- **Keyword Extraction**: Identify the most important words and phrases in your text.
-- **Word Frequency Count**: Get a detailed count of word occurrences in your text.
-- **Sentiment Analysis**: Determine the sentiment (positive, negative, neutral) of your text.
-- **Text Summarization**: Generate concise summaries of your text.
-- **Language Detection**: Automatically detect the language of your text.
+
+- **URL Extraction**: Identifies and extracts urls from your text.
+- **Word Count**: Get a detailed count of word occurrences in your text.
+- **Text Analysis**: Analyses different parts (characters, number, punctuations, special characters, whitespaces, line breaks, url, etc.) of your 
 
 ## Demo
 Check out the live demo of TextAnalyser: [TextAnalyser Demo](https://textanalyserosc.netlify.app/)
