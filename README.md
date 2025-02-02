@@ -26,13 +26,11 @@ To install and run TextAnalyser locally, follow these steps:
 
 2. **Install dependencies:**
     ```sh
-    cd textanalyser
     npm install
     ```
 
 3. **Run the application:**
     ```sh
-    cd textanalyser
     npm run build
     npm start
     ```
