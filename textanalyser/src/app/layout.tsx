@@ -28,6 +28,9 @@ export const metadata: Metadata = {
   title: "TextAnalyser",
   description:
     "Just wanna to analyse your text? Come here and start analyzing.",
+  verification: {
+    google: "RxEp4MDwAJu9fHlP-U2MIdzjSqTIi7eCyyF7kj8oAnc",
+  },
 };
 
 export default function RootLayout({
