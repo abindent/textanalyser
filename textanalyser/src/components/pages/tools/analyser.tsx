@@ -9,6 +9,7 @@ import Chip from "@mui/material/Chip";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Container from "@mui/material/Container";
+import Divider from "@mui/material/Divider";
 import FormControl from "@mui/material/FormControl";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -22,10 +23,15 @@ import Typography from "@mui/material/Typography";
 import Switch from "@mui/material/Switch";
 
 // ICONS
-import { BiotechIcon, DoneIcon } from "@/icon";
+import {
+  BiotechIcon,
+  DoneIcon,
+  CategoryIcon,
+  EmojiEmotionsIcon,
+  PercentIcon,
+} from "@/icon";
 
 // ANALYSER
-import esrever from "esrever";
 import { Tools } from "@/utils/analyser";
 
 // PRISM Wrapper
@@ -38,6 +44,147 @@ import "prismjs/plugins/line-numbers/prism-line-numbers";
 import "prismjs/plugins/autolinker/prism-autolinker";
 import "prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard";
 
+// EMOJI METADATA
+interface EmojiAnalysisProps {
+  metadata: {
+    totalEmojis?: number;
+    uniqueEmojis?: string[];
+    uniqueEmojiCount?: number;
+    emojiCategories?: {
+      nature?: number;
+      objects?: number;
+      symbols?: number;
+    };
+    emojiDensity?: number;
+  };
+}
+const EmojiAnalysisDisplay: React.FC<EmojiAnalysisProps> = ({ metadata }) => {
+  // Only render if there are emojis
+  if (!metadata.totalEmojis || metadata.totalEmojis === 0) {
+    return null;
+  }
+
+  return (
+    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+      <Card elevation={3}>
+        <CardContent>
+          <Typography
+            variant="h6"
+            color="primary"
+            fontWeight="600"
+            gutterBottom
+            display="flex"
+            alignItems="center"
+            gap={1}
+            component={"div"}
+          >
+            <EmojiEmotionsIcon color="primary" />
+            Emoji Analysis
+          </Typography>
+
+          {/* Emoji Overview */}
+          <Box display="flex" justifyContent="space-between" mb={2}>
+            <Typography variant="body1" component={"div"}>
+              Total Emojis:
+              <Chip
+                label={metadata.totalEmojis}
+                color="primary"
+                size="small"
+                sx={{ ml: 1 }}
+              />
+            </Typography>
+            <Typography variant="body1" component={"div"}>
+              Unique Emojis:
+              <Chip
+                label={metadata.uniqueEmojiCount}
+                color="secondary"
+                size="small"
+                sx={{ ml: 1 }}
+              />
+            </Typography>
+          </Box>
+
+          <Divider sx={{ my: 2 }} />
+
+          {/* Emoji Breakdown */}
+          <Typography
+            variant="subtitle1"
+            color="text.secondary"
+            display="flex"
+            alignItems="center"
+            gap={1}
+            mb={1}
+          >
+            <CategoryIcon fontSize="small" />
+            Emoji Categories
+          </Typography>
+
+          <Grid container spacing={1}>
+            {Object.entries(metadata.emojiCategories || {}).map(
+              ([category, count]) => (
+                <Grid size={{ xs: 12, sm: 6, md: 3 }} key={category}>
+                  <Card variant="outlined">
+                    <CardContent sx={{ textAlign: "center", py: 1 }}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        textTransform="capitalize"
+                      >
+                        {category}
+                      </Typography>
+                      <Typography variant="h6" color="primary">
+                        {count}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              )
+            )}
+          </Grid>
+
+          {/* Emoji Density */}
+          <Box
+            mt={2}
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Typography
+              variant="subtitle1"
+              color="text.secondary"
+              display="flex"
+              alignItems="center"
+              gap={1}
+            >
+              <PercentIcon fontSize="small" />
+              Emoji Density
+            </Typography>
+            <Typography variant="h6" color="secondary">
+              {metadata.emojiDensity?.toFixed(2)}%
+            </Typography>
+          </Box>
+
+          {/* Unique Emojis Display */}
+          <Box mt={2}>
+            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+              Unique Emojis
+            </Typography>
+            <Box display="flex" flexWrap="wrap" gap={1}>
+              {metadata.uniqueEmojis?.map((emoji, index) => (
+                <Chip
+                  key={index}
+                  label={emoji}
+                  variant="outlined"
+                  size="medium"
+                />
+              ))}
+            </Box>
+          </Box>
+        </CardContent>
+      </Card>
+    </Grid>
+  );
+};
 // MAIN COMPONENT
 export default function AnalyserPage() {
   /** THE PRESETS **/
@@ -45,20 +192,34 @@ export default function AnalyserPage() {
   // MUI TABS
   const [tabNo, setTabNo] = React.useState<string>("1");
 
+  // OUTPUT INITIALIZATION
+  const initialResult: AnalysisData = {
+    purpose: "",
+    output: "",
+    operations: [],
+    builtInOperations: [],
+    customOperations: [],
+    metadata: {
+      counts: {
+        characterCount: 0,
+        alphabetCount: 0,
+        numericCount: 0,
+        wordCount: 0,
+        sentenceCount: 0,
+      },
+      urls: [],
+      emails: [],
+      phoneNumbers: [],
+      hashtags: [],
+      mentions: [],
+      custom: [],
+    },
+    executionTime: 0,
+  };
+
   // INPUT AND OUTPUT
   const [examString, setExamString] = React.useState<string>("Hello World");
-  const [analysis, setAnalysis] = React.useState<AnalysisData>({
-    output: "",
-    purpose: "",
-    stats: {
-      count: {
-        characters: 0,
-        alphabets: 0,
-        numbers: 0,
-      },
-      url: "",
-    },
-  });
+  const [analysis, setAnalysis] = React.useState<AnalysisData>(initialResult);
 
   const [typingTest, setTypingTest] = React.useState<TypingStats>({
     startTime: null,
@@ -66,10 +227,7 @@ export default function AnalyserPage() {
     wpm: 0,
   });
 
-  const [additionalData, setAdditionalData] = React.useState<AdditionalData>({
-    readTime: "Not Calculated",
-    word_count: examString.split(/\s+/).filter(Boolean).length,
-  });
+  const [readTime, setReadTime] = React.useState<string>("Not Calculated");
 
   // DATA INTERFACE
   interface Data {
@@ -86,25 +244,36 @@ export default function AnalyserPage() {
     alphacount: boolean;
     numcount: boolean;
     alphanumericcount: boolean;
+    wordcount: boolean;
+    sentencecount: boolean;
     reverseText: boolean;
+    extractEmojis: boolean;
+    extractMentions: boolean;
   }
 
-  interface AnalysisData {
-    output: string;
+  interface AnalysisData extends Tools.AnalyserResult {
     purpose: string;
-    stats: {
-      count: {
-        characters: number;
-        alphabets: number;
-        numbers: number;
+    output: string;
+    operations: string[];
+    metadata: {
+      counts: {
+        characterCount: number;
+        alphabetCount: number;
+        numericCount: number;
+        wordCount: number;
+        sentenceCount: number;
       };
-      url: string;
+      urls: string[];
+      emails: string[];
+      phoneNumbers: string[];
+      hashtags: string[];
+      mentions: string[];
+      custom?:
+        | {
+            [key: string]: any;
+          }
+        | undefined;
     };
-  }
-
-  interface AdditionalData {
-    readTime: string;
-    word_count: number;
   }
 
   interface TypingStats {
@@ -128,7 +297,11 @@ export default function AnalyserPage() {
     alphacount: false,
     numcount: false,
     alphanumericcount: false,
+    wordcount: false,
+    sentencecount: false,
     reverseText: false,
+    extractEmojis: false,
+    extractMentions: false,
   });
 
   // BUTTON STATE
@@ -179,10 +352,16 @@ export default function AnalyserPage() {
         name: "extractUrls",
         disabled: false,
       },
-      reverseText: {
-        label: "Reverse Text",
-        checked: data.reverseText,
-        name: "reverseText",
+      extractEmojis: {
+        label: "Extract Emoji",
+        checked: data.extractEmojis,
+        name: "extractEmojis",
+        disabled: data.extractUrls,
+      },
+      extractMentions: {
+        label: "Extract Mentions",
+        checked: data.extractMentions,
+        name: "extractMentions",
         disabled: data.extractUrls,
       },
     },
@@ -211,6 +390,18 @@ export default function AnalyserPage() {
         name: "alphanumericcount",
         disabled: data.extractUrls,
       },
+      wordccount: {
+        label: "Count Words",
+        checked: data.wordcount,
+        name: "wordcount",
+        disabled: data.extractUrls,
+      },
+      sentencecount: {
+        label: "Count Sentences",
+        checked: data.sentencecount,
+        name: "sentencecount",
+        disabled: data.extractUrls,
+      },
     },
     changecap: {
       fullcaps: {
@@ -223,6 +414,12 @@ export default function AnalyserPage() {
         label: "Turn to Lowercase",
         checked: data.lowercaps,
         name: "lowercaps",
+        disabled: data.extractUrls,
+      },
+      reverseText: {
+        label: "Reverse Text",
+        checked: data.reverseText,
+        name: "reverseText",
         disabled: data.extractUrls,
       },
     },
@@ -306,38 +503,26 @@ export default function AnalyserPage() {
     const inputText: string = e.target.value;
     typingTestHandler(inputText);
     setExamString(inputText);
-    setAdditionalData({
-      readTime: calculateReadTime(examString),
-      word_count: examString.split(/\s+/).filter(Boolean).length,
-    });
+    setReadTime(calculateReadTime(examString));
   };
 
   const operationHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     const { name, checked } = e.target;
-    if (name === "extractUrls" && checked) {
-      // If extractUrls is toggled on, disable other options
-      setData({
-        removealpha: false,
-        removenum: false,
-        removepunc: false,
-        removespecialchar: false,
-        fullcaps: false,
-        lowercaps: false,
-        extraspaceremover: false,
-        newlineremover: false,
-        extractUrls: true,
-        charcount: false,
-        alphacount: false,
-        numcount: false,
-        alphanumericcount: false,
-        reverseText: false,
-      });
-    } else {
+
+    setData((prevData) => {
+      if (name === "extractUrls" && checked) {
+        // When extractUrls is enabled, turn off all other options
+        return Object.keys(prevData).reduce((acc: any, key) => {
+          acc[key] = key === "extractUrls";
+          return acc;
+        }, {} as typeof prevData);
+      }
       // Otherwise, update the specific option
-      setData({ ...data, [name]: checked });
-    }
+      return { ...prevData, [name]: checked };
+    });
   };
+
   const tabHandler = (event: React.SyntheticEvent, newValue: string) => {
     setTabNo(newValue);
   };
@@ -359,40 +544,95 @@ export default function AnalyserPage() {
       alphacount: data.alphacount,
       numcount: data.numcount,
       alphanumericcount: data.alphanumericcount,
+      wordcount: data.wordcount,
+      sentencecount: data.sentencecount,
+      reversetext: data.reverseText,
+      extractMentions: data.extractMentions,
     });
 
-    /** CUSTOM OPERATIONS */
-
+    /** CUSTOM OPERATION */
     await AnalyserEngine.addCustomOperation(
-      "reverseText",
-      "Reversed Text",
-      (text) => esrever.reverse(text)
-    );
+      "extractEmojis",
+      "Extracted Emojis",
+      {
+        operation: (text: string) => {
+          const emojiRegex =
+            /[\u{1F300}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
 
-    if (data.reverseText) {
-      await AnalyserEngine.toggleOperation("reverseText", data.reverseText);
-    }
+          const emojis = text.match(emojiRegex) || [];
+
+          if (emojis.length > 0) {
+          }
+
+          return text;
+        },
+        metadata: { analysisType: "emoji-detection" },
+        metadataExtractor: (text: string) => {
+          // Comprehensive emoji regex
+          const emojiRegex =
+            /[\u{1F300}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
+
+          // Extract all emojis
+          const emojis = text.match(emojiRegex) || [];
+
+          // Count unique emojis
+          const uniqueEmojis = [...new Set(emojis)];
+
+          // Categorize emojis (this is a simplified categorization)
+          const emojiCategories = {
+            nature: emojis.filter((emoji) =>
+              /[\u{1F300}-\u{1F5FF}\u{1F900}-\u{1F9FF}]/u.test(emoji)
+            ),
+            objects: emojis.filter((emoji) =>
+              /[\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}]/u.test(emoji)
+            ),
+            symbols: emojis.filter((emoji) =>
+              /[\u{2600}-\u{26FF}]/u.test(emoji)
+            ),
+          };
+
+          return {
+            totalEmojis: emojis.length,
+            uniqueEmojis: uniqueEmojis,
+            uniqueEmojiCount: uniqueEmojis.length,
+            emojiCategories: {
+              nature: emojiCategories.nature.length,
+              objects: emojiCategories.objects.length,
+              symbols: emojiCategories.symbols.length,
+            },
+            emojiDensity: (emojis.length / text.length) * 100,
+          };
+        },
+
+        isEnabled: data.extractEmojis,
+      }
+    );
 
     /** RESULT */
     const result = await AnalyserEngine.main();
 
-    try {
-      setAnalysis({
-        output: result.output || "Null Output",
-        purpose: result.purpose || "No Operations have been Performed",
-        stats: {
-          count: {
-            characters: result.metadata.characterCount,
-            alphabets: result.metadata.alphabetCount,
-            numbers: result.metadata.numericCount,
-          },
-          url: result.metadata.url,
+    const completeResult: AnalysisData = {
+      ...result,
+      metadata: {
+        counts: {
+          characterCount: result.metadata.counts.characterCount || 0,
+          alphabetCount: result.metadata.counts.alphabetCount || 0,
+          numericCount: result.metadata.counts.numericCount || 0,
+          wordCount: result.metadata.counts.wordCount || 0,
+          sentenceCount: result.metadata.counts.sentenceCount || 0,
         },
-      });
-      setAdditionalData({
-        readTime: calculateReadTime(result.output),
-        word_count: result.output.split(/\s+/).filter(Boolean).length,
-      });
+        urls: result.metadata.urls || [],
+        emails: result.metadata.emails || [],
+        phoneNumbers: result.metadata.phoneNumbers || [],
+        hashtags: result.metadata.hashtags || [],
+        mentions: result.metadata.mentions || [],
+        custom: result.metadata.custom,
+      },
+    };
+
+    try {
+      setAnalysis(completeResult);
+      setReadTime(calculateReadTime(result.output));
     } catch (error) {
       console.error("Analysis failed:", error);
       setAnalysis((prev) => ({
@@ -490,13 +730,13 @@ export default function AnalyserPage() {
                   <Tab
                     icon={
                       <Chip
-                        icon={<DoneIcon />}
-                        color="secondary"
-                        label="Verified"
+                        size={"small"}
+                        color="primary"
+                        label="Beta Phase (TBA)"
                       />
                     }
                     iconPosition="end"
-                    label="Change Caps"
+                    label="Text Transformations"
                     value="3"
                   />
                 </TabList>
@@ -528,7 +768,10 @@ export default function AnalyserPage() {
           </Button>
 
           {analysis.output && (
-            <Box marginTop="2rem">
+            <Box
+              key={analysis.executionTime || "analysis" + Date.now()}
+              marginTop="2rem"
+            >
               <Typography variant="h4" fontWeight="500" marginBottom="1rem">
                 Analysis Results:
               </Typography>
@@ -539,33 +782,125 @@ export default function AnalyserPage() {
               >
                 Operations Performed:
               </Typography>
-              <Typography variant="kbd" marginBottom={"0.75rem"}>
-                {analysis.purpose}
-              </Typography>
+              {analysis.builtInOperations.length > 0 && (
+                <>
+                  <Box key="builtInOperationsBox">
+                    <Typography
+                      variant="inherit"
+                      fontWeight="500"
+                      marginBottom="0.75rem"
+                      key="builtInOperationsLabel"
+                    >
+                      ▶ Built In Operations:
+                    </Typography>
+                    <Box
+                      display={"flex"}
+                      flexDirection={"column"}
+                      key={"operations_builtin_map"}
+                    >
+                      {analysis.builtInOperations.map((purpose, index) => (
+                        <Typography
+                          key={`_purposes_builtins_${index}`}
+                          variant="overline"
+                          marginBottom="0.75rem"
+                        >
+                          ● {purpose}
+                        </Typography>
+                      ))}
+                    </Box>
+                  </Box>
+                </>
+              )}
+              {analysis.customOperations.length > 0 && (
+                <>
+                  <Box key="customOperationsBox">
+                    <Typography
+                      variant="inherit"
+                      fontWeight="500"
+                      marginBottom="0.75rem"
+                      key="customOperationsLabel"
+                    >
+                      ▶ Custom Operations:
+                    </Typography>
+                    <Box
+                      display={"flex"}
+                      flexDirection={"column"}
+                      key={"operations_custom_map"}
+                    >
+                      {analysis.customOperations.map((purpose, index) => (
+                        <Typography
+                          key={`_purposes_custom_${index}`}
+                          variant="overline"
+                          marginBottom="0.75rem"
+                        >
+                          ● {purpose}
+                        </Typography>
+                      ))}
+                    </Box>
+                  </Box>
+                </>
+              )}
+
               <pre className="language-c line-numbers">
                 <code>{analysis.output}</code>
               </pre>
 
-              {analysis.stats.url && (
+              {analysis.metadata.urls.length > 0 && (
                 <Grid size={{ xs: 12 }}>
                   <Card elevation={3}>
                     <CardContent>
                       <Typography variant="h6" color="primary" fontWeight="600">
                         Extracted URL
                       </Typography>
-                      <Typography variant="body1">
-                        <pre className="language-c line-numbers">
-                          <code>{`🔗: ${analysis.stats.url}`}</code>
-                        </pre>
-                      </Typography>
+                      <pre className="language-c line-numbers">
+                        <code>{`🔗: ${[...analysis.metadata.urls]}`}</code>
+                      </pre>
                     </CardContent>
                   </Card>
                 </Grid>
               )}
+
+              {analysis.metadata.mentions.length > 0 && (
+                <Grid size={{ xs: 12, sm: 6, md: 3 }} mb={"0.5rem"}>
+                  <Card elevation={3}>
+                    <CardContent>
+                      <Typography variant="h6" color="primary" fontWeight="600">
+                        Extracted Mentions
+                      </Typography>
+                      {analysis.metadata.mentions.map((mention, index) => (
+                        <Typography
+                          key={"_mentions_" + index}
+                          variant="body1"
+                          component="div"
+                        >
+                          <pre className="language-c">
+                            <code>{`👤: ${mention}`}</code>
+                          </pre>
+                        </Typography>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </Grid>
+              )}
+
+              {analysis.metadata.custom?.extractEmojis &&
+                Object.keys(analysis.metadata.custom?.extractEmojis).length >
+                  0 && (
+                  <Box marginTop="2rem" suppressHydrationWarning>
+                    <EmojiAnalysisDisplay
+                      key={
+                        "_analysis_emoji_" +
+                        Math.random() *
+                          analysis.metadata.custom?.extractEmojis.length
+                      } // if using a dynamic key to force remount
+                      metadata={analysis.metadata.custom?.extractEmojis}
+                    />
+                  </Box>
+                )}
             </Box>
           )}
           <br />
-          <Grid container spacing={2} marginTop={"0.75rem"}>
+          <Grid container spacing={3} gap={4} marginTop={"0.75rem"}>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Card elevation={3}>
                 <CardContent>
@@ -573,7 +908,7 @@ export default function AnalyserPage() {
                     Character Count
                   </Typography>
                   <Typography variant="h5">
-                    {analysis.stats.count.characters}
+                    {analysis.metadata.counts.characterCount}
                   </Typography>
                 </CardContent>
               </Card>
@@ -586,7 +921,7 @@ export default function AnalyserPage() {
                     Numeric Count
                   </Typography>
                   <Typography variant="h5">
-                    {analysis.stats.count.numbers}
+                    {analysis.metadata.counts.numericCount}
                   </Typography>
                 </CardContent>
               </Card>
@@ -599,8 +934,45 @@ export default function AnalyserPage() {
                     Alphabet Count
                   </Typography>
                   <Typography variant="h5">
-                    {analysis.stats.count.alphabets}
+                    {analysis.metadata.counts.alphabetCount}
                   </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card elevation={3}>
+                <CardContent>
+                  <Typography variant="h6" color="primary" fontWeight="600">
+                    Word Count
+                  </Typography>
+                  <Typography variant="h5">
+                    {analysis.metadata.counts.wordCount}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card elevation={3}>
+                <CardContent>
+                  <Typography variant="h6" color="primary" fontWeight="600">
+                    Sentence Count
+                  </Typography>
+                  <Typography variant="h5">
+                    {analysis.metadata.counts.sentenceCount}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+              <Card elevation={3}>
+                <CardContent>
+                  <Typography variant="h6" color="primary" fontWeight="600">
+                    Execution Time (ms)
+                  </Typography>
+                  <Typography variant="h5">{analysis.executionTime}</Typography>
                 </CardContent>
               </Card>
             </Grid>
@@ -614,30 +986,20 @@ export default function AnalyserPage() {
             {"\u00A0"}
             The above options get only affected by analyser functions. In
             simpler words these datas are derived when "<b>ANALYSE</b>" button
-            is pressed.
+            is pressed (while certain options are chosen).
+          </Typography>
+
+          <Typography variant="h3" color={"text.primary"} pt={3}>
+            Stats
           </Typography>
           <Grid container spacing={2} marginTop={"0.75rem"}>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Card elevation={3}>
-                <CardContent>
-                  <Typography variant="h6" color="primary" fontWeight="600">
-                    Word Count
-                  </Typography>
-                  <Typography variant="h5">
-                    {additionalData.word_count}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Card elevation={3}>
                 <CardContent>
                   <Typography variant="h6" color="primary" fontWeight={600}>
                     Read Time
                   </Typography>
-                  <Typography variant="h5">
-                    {additionalData.readTime}
-                  </Typography>
+                  <Typography variant="h5">{readTime}</Typography>
                 </CardContent>
               </Card>
             </Grid>
