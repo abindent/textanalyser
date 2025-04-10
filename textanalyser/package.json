@@ -6,6 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
+    "export": "next export",
     "lint": "next lint"
   },
   "dependencies": {
@@ -30,8 +31,7 @@
     "prism-react-renderer": "^2.4.1",
     "prismjs": "^1.29.0",
     "react": "^19.0.0-rc-66855b96-20241106",
-    "react-dom": "^19.0.0-rc-66855b96-20241106",
-    "react-toastify": "^10.0.6"
+    "react-dom": "^19.0.0-rc-66855b96-20241106"
   },
   "devDependencies": {
     "@types/node": "^20",

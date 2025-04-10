@@ -7,8 +7,10 @@ import Showcase from "@/components/pages/static/showcase";
 // METADATA
 export const metadata: Metadata = {
   title: "Showcase | TextAnalyser",
-  description:
-    "This page is for showcasing the important codes.",
+  description: "This page is for showcasing the important codes.",
+  verification: {
+    google: "RxEp4MDwAJu9fHlP-U2MIdzjSqTIi7eCyyF7kj8oAnc",
+  },
 };
 
 export default async function Home() {

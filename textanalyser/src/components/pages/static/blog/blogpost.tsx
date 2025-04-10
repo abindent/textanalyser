@@ -3,21 +3,23 @@
 import * as React from "react";
 
 //MUI
+import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 
 // MARKDOWN
-import { MuiMarkdown } from "mui-markdown";
+import { MuiMarkdown, getOverrides } from "mui-markdown";
 import { Highlight, themes } from "prism-react-renderer";
 
 // APPWRITE
 import { Client, Databases, Query } from "appwrite";
 
 // CUSTOM ELEMENTS
-import { convertToDynamicLocalTime } from "@/utils/convertTime";
 import BlogSkeleton from "./skeleton";
+import { convertToDynamicLocalTime } from "@/utils/convertTime";
+import { stringToColor } from "@/utils/stringtocolor";
 
 function BlogPost(slug: any) {
   const [loading, setLoading] = React.useState<boolean>(true);
@@ -39,7 +41,8 @@ function BlogPost(slug: any) {
 
     document.then(
       function (response) {
-        setBlog(response.documents[0]);
+        const document = response.documents[0];
+        setBlog(document);
         setLoading(false);
       },
       function (error: Error) {
@@ -52,7 +55,7 @@ function BlogPost(slug: any) {
   React.useEffect(() => {
     setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
     getDocument(slug.slug);
-  }, [blog]);
+  }, []);
 
   return (
     <div>
@@ -73,7 +76,7 @@ function BlogPost(slug: any) {
               display: "flex",
             }}
           >
-            Couldn't find any blog at requested url&nbsp;&nbsp;{" "}
+            Couldn't find any blog at requested url {"\u00A0"}
             <Typography variant="kbd">{`/blog/${slug.slug}`}</Typography>
           </Typography>
         )}
@@ -85,7 +88,9 @@ function BlogPost(slug: any) {
             display={"inline-flex"}
           >
             <div>
-              <b>Error Occured:</b>&nbsp;&nbsp; <pre>{_error}</pre>
+              <b>Error Occured:</b>
+              <br />
+              <pre>{_error}</pre>
             </div>
           </Typography>
         )}
@@ -103,15 +108,57 @@ function BlogPost(slug: any) {
                 <b>Created At</b>:{" "}
                 {convertToDynamicLocalTime(blog?.created_at, timeZone)}
               </Typography>
-              <Typography variant="subtitle2" sx={{ display: "flex" }}>
-                Posted By:&nbsp;&nbsp;
-                <Typography
-                  variant="subtitle2"
-                  sx={{ color: "text.secondary" }}
-                >
-                  {blog.author}
-                </Typography>
+              <Typography variant="body2">
+                <b>Written By:</b>
               </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1.5,
+                  mt: 1,
+                  p: 1,
+                }}
+              >
+                {blog.authors?.map((name: string, index: number) => {
+                  const color = stringToColor(name);
+                  return (
+                    <Box
+                      key={index}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        p: 1,
+                        borderRadius: "8px",
+                        backgroundColor: "rgba(0, 0, 0, 0.04)",
+                      }}
+                    >
+                      <Avatar
+                        sx={{
+                          width: 32,
+                          height: 32,
+                          fontSize: 14,
+                          backgroundColor: color,
+                          color: "#fff",
+                        }}
+                        aria-label={name}
+                      >
+                        {name
+                          .split(" ")
+                          .map((word) => word[0])
+                          .join("")}{" "}
+                      </Avatar>
+                      <Typography
+                        variant="body2"
+                        sx={{ color: "text.primary", fontWeight: 500 }}
+                      >
+                        {name}
+                      </Typography>
+                    </Box>
+                  );
+                })}
+              </Box>
               <Divider />
             </Box>
 
@@ -119,11 +166,20 @@ function BlogPost(slug: any) {
               Highlight={Highlight}
               themes={themes}
               prismTheme={themes.github}
+              overrides={{
+                ...getOverrides,
+                a: {
+                  props: {
+                    style: { textDecoration: "none" },
+                  },
+                },
+              }}
             >
               {blog.content}
             </MuiMarkdown>
           </div>
         )}
+        <Divider />
       </Container>
     </div>
   );

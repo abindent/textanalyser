@@ -27,7 +27,7 @@ export default function Features() {
       icon: <EditIcon />,
       title: "Styler (Fancy Font)",
       description:
-        "This utility adds different fancy characters to crazufy (beautify) your text.",
+        "This utility adds different fancy characters to crazify (beautify) your text.",
       imageLight: 'url("./resources/light/fontgen.png")',
       imageDark: 'url("./resources/dark/fontgen.png")',
     },

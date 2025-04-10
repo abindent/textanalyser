@@ -48,7 +48,7 @@ const BlogPosts = () => {
 
   React.useEffect(() => {
     getDocuments();
-  }, [blogs]);
+  }, []);
 
   return (
     <div>
@@ -81,13 +81,13 @@ const BlogPosts = () => {
           >
             Blogs
           </Typography>
-          <Stack direction={"column"}>
-            {loading && <BlogSkeleton />}
-            {loading === false && blogs.length < 1 && (
-              <Typography variant="subtitle1" textAlign={"center"}>
-                Couldn't find any blog.
-              </Typography>
-            )}
+          {loading && <BlogSkeleton />}
+          {loading === false && blogs.length < 1 && (
+            <Typography variant="subtitle1" textAlign={"center"}>
+              Couldn't find any blog.
+            </Typography>
+          )}
+          <Stack direction={{ sm: "column", md: "row" }} gap={4}>
             {_error.length > 0 && (
               <Typography
                 variant="subtitle1"

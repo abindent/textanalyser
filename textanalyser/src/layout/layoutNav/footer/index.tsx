@@ -110,7 +110,7 @@ export default function Footer ()  {
               </Link>
             </li>
             <li>
-              <Link href="https://discord.io/OpenSourceGames">
+              <Link href="https://discord.ly/OpenSourceCodes">
                 <FontAwesomeIcon
                   className={styles._footer_social_icons}
                   icon={faDiscord}
