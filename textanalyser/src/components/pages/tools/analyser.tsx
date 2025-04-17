@@ -32,7 +32,7 @@ import {
 } from "@/icon";
 
 // ANALYSER
-import { Tools } from "@/utils/analyser";
+import { Tools } from "textanalysis-tool";
 
 // PRISM Wrapper
 
