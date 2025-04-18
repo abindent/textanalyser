@@ -249,6 +249,9 @@ export default function AnalyserPage() {
     reverseText: boolean;
     extractEmojis: boolean;
     extractMentions: boolean;
+    extractEmail: boolean;
+    extractHashTag: boolean;
+    extractPhoneNo: boolean;
   }
 
   interface AnalysisData extends Tools.AnalyserResult {
@@ -302,6 +305,9 @@ export default function AnalyserPage() {
     reverseText: false,
     extractEmojis: false,
     extractMentions: false,
+    extractEmail: false,
+    extractHashTag: false,
+    extractPhoneNo: false,
   });
 
   // BUTTON STATE
@@ -314,55 +320,61 @@ export default function AnalyserPage() {
         label: "Remove Alphabets",
         checked: data.removealpha,
         name: "removealpha",
-        disabled: data.extractUrls,
       },
       removenum: {
         label: "Remove Numbers",
         checked: data.removenum,
         name: "removenum",
-        disabled: data.extractUrls,
       },
       removepunc: {
         label: "Remove Punctuations",
         checked: data.removepunc,
         name: "removepunc",
-        disabled: data.extractUrls,
       },
       removespecialchar: {
         label: "Remove Special Characters",
         checked: data.removespecialchar,
         name: "removespecialchar",
-        disabled: data.extractUrls,
       },
       newlineremover: {
         label: "Remove Extra Lines",
         checked: data.newlineremover,
         name: "newlineremover",
-        disabled: data.extractUrls,
       },
       extraspaceremover: {
         label: "Remove Extra Spaces",
         checked: data.extraspaceremover,
         name: "extraspaceremover",
-        disabled: data.extractUrls,
       },
       extractUrls: {
         label: "Extract URLs",
         checked: data.extractUrls,
         name: "extractUrls",
-        disabled: false,
+      },
+      extractEmail: {
+        label: "Extract Emails",
+        checked: data.extractEmail,
+        name: "extractEmail",
+      },
+      extractPhone: {
+        label: "Extract Phone Nos",
+        checked: data.extractPhoneNo,
+        name: "extractPhoneNo",
+      },
+      extractHasTag: {
+        label: "Extract Hashtags",
+        checked: data.extractHashTag,
+        name: "extractHashTag",
       },
       extractEmojis: {
         label: "Extract Emoji",
         checked: data.extractEmojis,
         name: "extractEmojis",
-        disabled: data.extractUrls,
       },
       extractMentions: {
         label: "Extract Mentions",
         checked: data.extractMentions,
         name: "extractMentions",
-        disabled: data.extractUrls,
       },
     },
     countchar: {
@@ -370,37 +382,31 @@ export default function AnalyserPage() {
         label: "Count Characters",
         checked: data.charcount,
         name: "charcount",
-        disabled: data.extractUrls,
       },
       alphacount: {
         label: "Count Alphabets",
         checked: data.alphacount,
         name: "alphacount",
-        disabled: data.extractUrls,
       },
       numcount: {
         label: "Count Numbers",
         checked: data.numcount,
         name: "numcount",
-        disabled: data.extractUrls,
       },
       alphanumericcount: {
         label: "Count Alphabets and Numbers",
         checked: data.alphanumericcount,
         name: "alphanumericcount",
-        disabled: data.extractUrls,
       },
       wordccount: {
         label: "Count Words",
         checked: data.wordcount,
         name: "wordcount",
-        disabled: data.extractUrls,
       },
       sentencecount: {
         label: "Count Sentences",
         checked: data.sentencecount,
         name: "sentencecount",
-        disabled: data.extractUrls,
       },
     },
     changecap: {
@@ -408,19 +414,16 @@ export default function AnalyserPage() {
         label: "Turn to Uppercase",
         checked: data.fullcaps,
         name: "fullcaps",
-        disabled: data.extractUrls,
       },
       lowercaps: {
         label: "Turn to Lowercase",
         checked: data.lowercaps,
         name: "lowercaps",
-        disabled: data.extractUrls,
       },
       reverseText: {
         label: "Reverse Text",
         checked: data.reverseText,
         name: "reverseText",
-        disabled: data.extractUrls,
       },
     },
   };
@@ -469,7 +472,6 @@ export default function AnalyserPage() {
                   checked={checked}
                   onChange={operationHandler}
                   name={name}
-                  disabled={disabled}
                 />
               }
               label={label}
@@ -531,23 +533,26 @@ export default function AnalyserPage() {
   const Examine = async () => {
     /** BASIC ENGINE */
     const AnalyserEngine = new Tools.Analyser(examString, {
-      removealpha: data.removealpha,
-      removenum: data.removenum,
-      removepunc: data.removepunc,
-      removespecialchar: data.removespecialchar,
-      fullcaps: data.fullcaps,
-      lowercaps: data.lowercaps,
-      extraspaceremover: data.extraspaceremover,
-      newlineremover: data.newlineremover,
-      extractUrls: data.extractUrls,
-      charcount: data.charcount,
-      alphacount: data.alphacount,
-      numcount: data.numcount,
-      alphanumericcount: data.alphanumericcount,
-      wordcount: data.wordcount,
-      sentencecount: data.sentencecount,
-      reversetext: data.reverseText,
-      extractMentions: data.extractMentions,
+      [Tools.Operations.RemoveAlphabets]: data.removealpha,
+      [Tools.Operations.RemoveNumbers]: data.removenum,
+      [Tools.Operations.RemovePunctuations]: data.removepunc,
+      [Tools.Operations.RemoveSpecialChars]: data.removespecialchar,
+      [Tools.Operations.ConvertToTitleCase]: data.fullcaps,
+      [Tools.Operations.ConvertToLowercase]: data.lowercaps,
+      [Tools.Operations.RemoveExtraSpaces]: data.extraspaceremover,
+      [Tools.Operations.RemoveNewlines]: data.newlineremover,
+      [Tools.Operations.ExtractUrls]: data.extractUrls,
+      [Tools.Operations.CountCharacters]: data.charcount,
+      [Tools.Operations.CountAlphabets]: data.alphacount,
+      [Tools.Operations.CountNumbers]: data.numcount,
+      [Tools.Operations.CountAlphanumeric]: data.alphanumericcount,
+      [Tools.Operations.CountWords]: data.wordcount,
+      [Tools.Operations.CountSentences]: data.sentencecount,
+      [Tools.Operations.ReverseText]: data.reverseText,
+      [Tools.Operations.ExtractMentions]: data.extractMentions,
+      [Tools.Operations.ExtractEmails]: data.extractEmail,
+      [Tools.Operations.ExtractHashtags]: data.extractHashTag,
+      [Tools.Operations.ExtractPhoneNumbers]: data.extractPhoneNo,
     });
 
     /** CUSTOM OPERATION */
@@ -875,6 +880,75 @@ export default function AnalyserPage() {
                         >
                           <pre className="language-c">
                             <code>{`👤: ${mention}`}</code>
+                          </pre>
+                        </Typography>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </Grid>
+              )}
+
+              {analysis.metadata.emails.length > 0 && (
+                <Grid size={{ xs: 12, sm: 6, md: 3 }} mb={"0.5rem"}>
+                  <Card elevation={3}>
+                    <CardContent>
+                      <Typography variant="h6" color="primary" fontWeight="600">
+                        Extracted Emails
+                      </Typography>
+                      {analysis.metadata.emails.map((email, index) => (
+                        <Typography
+                          key={"_email_" + index}
+                          variant="body1"
+                          component="div"
+                        >
+                          <pre className="language-c">
+                            <code>{`✉: ${email}`}</code>
+                          </pre>
+                        </Typography>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </Grid>
+              )}
+
+              {analysis.metadata.phoneNumbers.length > 0 && (
+                <Grid size={{ xs: 12, sm: 6, md: 3 }} mb={"0.5rem"}>
+                  <Card elevation={3}>
+                    <CardContent>
+                      <Typography variant="h6" color="primary" fontWeight="600">
+                        Extracted Phone Numbers
+                      </Typography>
+                      {analysis.metadata.phoneNumbers.map((phoneNumber, index) => (
+                        <Typography
+                          key={"_phone_" + index}
+                          variant="body1"
+                          component="div"
+                        >
+                          <pre className="language-c">
+                            <code>{`📲: ${phoneNumber}`}</code>
+                          </pre>
+                        </Typography>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </Grid>
+              )}
+
+              {analysis.metadata.hashtags.length > 0 && (
+                <Grid size={{ xs: 12, sm: 6, md: 3 }} mb={"0.5rem"}>
+                  <Card elevation={3}>
+                    <CardContent>
+                      <Typography variant="h6" color="primary" fontWeight="600">
+                        Extracted Hashtags
+                      </Typography>
+                      {analysis.metadata.hashtags.map((hashtag, index) => (
+                        <Typography
+                          key={"_hash_tags_" + index}
+                          variant="body1"
+                          component="div"
+                        >
+                          <pre className="language-c">
+                            <code>{`👤: ${hashtag}`}</code>
                           </pre>
                         </Typography>
                       ))}
