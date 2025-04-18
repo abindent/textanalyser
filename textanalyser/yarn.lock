@@ -4587,9 +4587,9 @@ text-table@^0.2.0:
   integrity sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==
 
 textanalysis-tool@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/textanalysis-tool/-/textanalysis-tool-1.0.2.tgz#314b4b360734b356eb4919088ad59c90f73f10a8"
-  integrity sha512-afGXb+wMygilN756ioHnIZgW6d/2zwTnHU+N43da+N3BbJ0AT3jQuWFPS9N6QGoCbzN1M27VFLXMLU74Cp3CVA==
+  version "1.0.32"
+  resolved "https://registry.yarnpkg.com/textanalysis-tool/-/textanalysis-tool-1.0.32.tgz#7996dda2ad2107b966810143c17dd23ad9178204"
+  integrity sha512-f9+SNb/6ux6cKS/91A2XDqSovTK2uJNFHotbFbNvcy2c9NaSYgQjDfoZMDiNJ6PvkFFelmZVCiHpn385dfJvjg==
   dependencies:
     esrever "^0.2.0"
     jest "^29.7.0"

@@ -1,5 +1,15 @@
 import esrever from "esrever";
-
+import {
+  type SentimentResult,
+  type ReadabilityResult,
+  type TextDiffResult,
+  type LanguageDetectionResult,
+  SentimentAnalyzer,
+  TextSummarizer,
+  TextStatistics,
+  LanguageDetector,
+  TextDiff,
+} from "./extensions";
 /**
  * @namespace Tools
  * @description A TypeScript module providing text analysis functionalities through various operations like removing punctuations, numbers, alphabets, special characters, extracting URLs, and performing case transformations. It also includes functions for character and alphanumeric counting.
@@ -50,21 +60,26 @@ export namespace Tools {
     RemoveNewlines = "newlineremover",
     RemoveExtraSpaces = "extraspaceremover",
     ExtractUrls = "extractUrls",
-    ExtractEmails = "extractEmails", // New operation
-    ExtractPhoneNumbers = "extractPhoneNumbers", // New operation
-    ExtractHashtags = "extractHashtags", // New operation
-    ExtractMentions = "extractMentions", // New operation
+    ExtractEmails = "extractEmails",
+    ExtractPhoneNumbers = "extractPhoneNumbers",
+    ExtractHashtags = "extractHashtags",
+    ExtractMentions = "extractMentions",
     ConvertToUppercase = "fullcaps",
     ConvertToLowercase = "lowercaps",
-    ConvertToTitleCase = "titlecase", // New operation
+    ConvertToTitleCase = "titlecase",
     CountCharacters = "charcount",
     CountAlphabets = "alphacount",
     CountNumbers = "numcount",
     CountAlphanumeric = "alphanumericcount",
-    CountWords = "wordcount", // New operation
-    CountSentences = "sentencecount", // New operation
-    ReverseText = "reversetext", // New operation
-    Truncate = "truncate", // New operation
+    CountWords = "wordcount",
+    CountSentences = "sentencecount",
+    ReverseText = "reversetext",
+    Truncate = "truncate",
+    AnalyzeSentiment = "analyzeSentiment",
+    SummarizeText = "summarizeText",
+    CalculateReadability = "calculateReadability",
+    DetectLanguage = "detectLanguage",
+    CompareTexts = "compareTexts",
   }
 
   /** Types for Analyser options and built-in operations */
@@ -99,6 +114,13 @@ export namespace Tools {
     builtInOperations: string[];
     customOperations: string[];
     executionTime?: number;
+  }
+  export interface AnalyserExtendedResult extends AnalyserResult {
+    sentiment?: SentimentResult;
+    summary?: string;
+    readability?: ReadabilityResult;
+    languageDetection?: LanguageDetectionResult;
+    textComparison?: TextDiffResult;
   }
 
   /** Configuration type for Truncate operation */
@@ -203,6 +225,11 @@ export namespace Tools {
         [Operations.CountSentences]: this.countSentences.bind(this),
         [Operations.ReverseText]: this.reverseText.bind(this),
         [Operations.Truncate]: this.truncateText.bind(this),
+        [Operations.AnalyzeSentiment]: this.analyzeSentiment.bind(this),
+        [Operations.SummarizeText]: this.summarizeText.bind(this),
+        [Operations.CalculateReadability]: this.calculateReadability.bind(this),
+        [Operations.DetectLanguage]: this.detectLanguage.bind(this),
+        [Operations.CompareTexts]: this.compareTexts.bind(this),
         ...this.customOperations,
       };
     }
@@ -503,6 +530,188 @@ export namespace Tools {
     }
 
     /**
+     * @private
+     * @async
+     * @function analyzeSentiment
+     * @summary Analyzes the sentiment of the input text.
+     */
+    private async analyzeSentiment(): Promise<void> {
+      const analyzer = new SentimentAnalyzer();
+      // Apply custom lexicon if provided in options
+      const lexiconOption = this.builtInOptions[Operations.AnalyzeSentiment];
+      if (
+        lexiconOption &&
+        typeof lexiconOption === "object" &&
+        ("positive" in lexiconOption || "negative" in lexiconOption)
+      ) {
+        analyzer.addCustomLexicon(
+          lexiconOption as { positive?: string[]; negative?: string[] }
+        );
+      }
+
+      const result = analyzer.analyze(this.raw_text);
+
+      // Store in metadata
+      if (!this.metadata.sentiment) {
+        this.metadata.sentiment = {};
+      }
+      this.metadata.sentiment = result;
+
+      this.logOperation("Analyzed Sentiment");
+    }
+
+    /**
+     * @private
+     * @async
+     * @function summarizeText
+     * @summary Summarizes the input text.
+     */
+    private async summarizeText(): Promise<void> {
+      const summarizer = new TextSummarizer();
+
+      // Get configuration options
+      const summaryOptions = this.builtInOptions[Operations.SummarizeText];
+      let sentenceCount = 3; // Default sentence count
+
+      // Apply custom options if provided
+      if (summaryOptions && typeof summaryOptions === "object") {
+        if (
+          "sentenceCount" in summaryOptions &&
+          typeof summaryOptions.sentenceCount === "number"
+        ) {
+          sentenceCount = summaryOptions.sentenceCount;
+        }
+
+        if (
+          "stopWords" in summaryOptions &&
+          Array.isArray(summaryOptions.stopWords)
+        ) {
+          summarizer.addStopWords(summaryOptions.stopWords);
+        }
+      }
+
+      const summary = summarizer.extractiveSummarize(
+        this.raw_text,
+        sentenceCount
+      );
+
+      // Store in metadata
+      if (!this.metadata.summary) {
+        this.metadata.summary = {};
+      }
+      this.metadata.summary = {
+        text: summary,
+        originalLength: this.raw_text.length,
+        summaryLength: summary.length,
+        compressionRatio: summary.length / Math.max(this.raw_text.length, 1),
+      };
+
+      this.logOperation(`Summarized Text (${sentenceCount} sentences)`);
+    }
+
+    /**
+     * @private
+     * @async
+     * @function calculateReadability
+     * @summary Calculates the readability of the input text.
+     */
+    private async calculateReadability(): Promise<void> {
+      const textStats = new TextStatistics();
+      const readabilityResult = textStats.fleschKincaidReadability(
+        this.raw_text
+      );
+
+      // Store in metadata
+      if (!this.metadata.readability) {
+        this.metadata.readability = {};
+      }
+      this.metadata.readability = readabilityResult;
+
+      this.logOperation("Calculated Readability Metrics");
+    }
+
+    /**
+     * @private
+     * @async
+     * @function detectLanguage
+     * @summary Detects the language of the input text.
+     */
+    private async detectLanguage(): Promise<void> {
+      const languageDetector = new LanguageDetector();
+
+      // Apply custom language profiles if provided
+      const languageOptions = this.builtInOptions[Operations.DetectLanguage];
+      if (
+        languageOptions &&
+        typeof languageOptions === "object" &&
+        "customLanguages" in languageOptions
+      ) {
+        const customLanguages = languageOptions.customLanguages;
+        if (customLanguages && typeof customLanguages === "object") {
+          for (const [language, profile] of Object.entries(customLanguages)) {
+            if (typeof profile === "object") {
+              languageDetector.addCustomLanguage(
+                language,
+                profile as Record<string, number>
+              );
+            }
+          }
+        }
+      }
+
+      const detectionResult = languageDetector.detect(this.raw_text);
+
+      // Store in metadata
+      if (!this.metadata.language) {
+        this.metadata.language = {};
+      }
+      this.metadata.language = detectionResult;
+
+      this.logOperation(
+        `Detected Language: ${detectionResult.detectedLanguage}`
+      );
+    }
+
+    /**
+     * @private
+     * @async
+     * @function compareTexts
+     * @summary Compares two texts and returns the differences.
+     */
+    private async compareTexts(): Promise<void> {
+      const textDiff = new TextDiff();
+
+      // Get comparison text from options
+      const compareOptions = this.builtInOptions[Operations.CompareTexts];
+      if (
+        !compareOptions ||
+        typeof compareOptions !== "object" ||
+        !("compareWith" in compareOptions)
+      ) {
+        throw new Error(
+          "CompareTexts operation requires a 'compareWith' text to compare against"
+        );
+      }
+
+      const compareWith = compareOptions.compareWith as string;
+      if (typeof compareWith !== "string") {
+        throw new Error("The 'compareWith' option must be a string");
+      }
+
+      const comparisonResult = textDiff.compare(this.raw_text, compareWith);
+
+      // Store in metadata
+      if (!this.metadata.comparison) {
+        this.metadata.comparison = {};
+      }
+      this.metadata.comparison = comparisonResult;
+
+      this.logOperation(
+        `Compared Texts (${comparisonResult.similarity.toFixed(2)}% similarity)`
+      );
+    }
+
+    /**
      * @function addCustomOperation
      * @summary Adds a custom text operation to the analyser dynamically.
      * @param {string} commandName - The name of the custom operation to be registered.
@@ -710,10 +919,10 @@ export namespace Tools {
      * @summary Retrieves the results of the operations performed on the text.
      * @returns {Promise<AnalyserResult>} An object containing the results of the analysis.
      */
-    private async getResults(): Promise<AnalyserResult> {
+    private async getResults(): Promise<AnalyserExtendedResult> {
       const executionTime = this.executionEndTime - this.executionStartTime;
 
-      return {
+      const result: AnalyserExtendedResult = {
         purpose: this.operations.join(","),
         output: this.raw_text,
         operations: [...this.operations],
@@ -736,6 +945,28 @@ export namespace Tools {
           custom: { ...this.metadata },
         },
       };
+      if (this.metadata.sentiment) {
+        result.sentiment = this.metadata.sentiment as SentimentResult;
+      }
+
+      if (this.metadata.summary) {
+        result.summary = (this.metadata.summary as any).text as string;
+      }
+
+      if (this.metadata.readability) {
+        result.readability = this.metadata.readability as ReadabilityResult;
+      }
+
+      if (this.metadata.language) {
+        result.languageDetection = this.metadata
+          .language as LanguageDetectionResult;
+      }
+
+      if (this.metadata.comparison) {
+        result.textComparison = this.metadata.comparison as TextDiffResult;
+      }
+
+      return result;
     }
 
     /**
