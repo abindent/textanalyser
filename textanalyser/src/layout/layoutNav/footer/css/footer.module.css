@@ -1,0 +1,158 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins&display=swap");
+
+.footer {
+  width: 100%;
+  position: relative;
+  bottom: 0;
+  background: linear-gradient(to right, #00093c, #2d0b00);
+  color: #fff;
+  padding: 100px 0 30px;
+  border-top-left-radius: 125px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.footer a {
+  font-family: Poppins, sans-serif;
+  text-decoration: none;
+  color: #fff;
+}
+
+.footer ._footer_col ul li {
+  list-style: none;
+  display: block;
+  margin-bottom: 12px;
+}
+
+._footer_row {
+  width: 85%;
+  margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+._footer_row::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+._footer_col {
+  flex-basis: 20%;
+  padding: 10px;
+  font-family: Poppins, sans-serif;
+}
+
+._footer_col h3 {
+  width: fit-content;
+  margin-bottom: 40px;
+  position: relative;
+  text-align: center;
+}
+
+._footer_col:nth-child(2)._footer_col:nth-child(3) {
+  flex-basis: 10%;
+}
+
+._footer_col:nth-child(3) {
+  margin: 14px;
+  padding: 0;
+}
+
+._footer_col:nth-child(4) {
+  margin: 10px;
+}
+
+._footer_col:nth-child(3) ul {
+  padding: 0;
+}
+
+._footer_col:nth-child(4) ul {
+  padding: 0;
+  display: flex;
+}
+
+._footer_logo {
+  width: 80px;
+  margin-bottom: 30px;
+}
+
+._wrapper_links {
+  display: inline-flex;
+}
+
+._footer_social_icons {
+  width: 1.3rem;
+  height: 2rem;
+  margin-right: 1rem;
+  cursor: pointer;
+}
+
+._footer_hr {
+  width: 90%;
+  border: 0;
+  border-bottom: 1px solid #ccc;
+  margin: 20px auto;
+}
+
+._footer_copyright_ {
+  font-family: Poppins, sans-serif;
+  text-align: center;
+}
+
+._underline_animation {
+  width: 100%;
+  height: 5px;
+  background: #767676;
+  border-radius: 3px;
+  position: absolute;
+  top: 25px;
+  left: 0;
+  overflow: hidden;
+}
+
+._underline_animation > span {
+  width: 15px;
+  height: 100%;
+  background: #fff;
+  border-radius: 3px;
+  position: absolute;
+  top: 0;
+  left: 10px;
+  animation: move_line 2s linear infinite;
+}
+
+@keyframes move_line {
+  0% {
+    left: -20px;
+  }
+
+  100% {
+    left: 100%;
+  }
+}
+
+@media only screen and (max-width: 984px) {
+  .footer {
+    bottom: unset;
+  }
+
+  ._footer_col:nth-child(3)._footer_col:nth-child(4) {
+    padding: 10px;
+    margin: 0;
+  }
+
+  ._footer_col:nth-child(4) ul {
+    padding: 10px;
+  }
+
+  ._footer_col {
+    flex-basis: 100%;
+  }
+
+  ._footer_col:nth-child(2)._footer_col:nth-child(3) {
+    flex-basis: 100%;
+  }
+}
