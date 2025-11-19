@@ -60,7 +60,7 @@ export default function ThemeToggle() {
           className="relative h-10 w-10 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800/70 transition-all duration-300 group overflow-hidden"
         >
           {/* Background glow effect */}
-          <div className="absolute inset-0 bg-gradient-to-br from-sky-400 to-blue-500 dark:from-indigo-500 dark:to-purple-600 opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-linear-to-br from-sky-400 to-blue-500 dark:from-indigo-500 dark:to-purple-600 opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300" />
           
           {/* Icon container with animation */}
           <div className="relative">

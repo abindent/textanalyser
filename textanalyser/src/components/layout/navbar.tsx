@@ -36,7 +36,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/70 dark:border-slate-800/80 dark:bg-slate-950/80 shadow-sm dark:shadow-slate-900/50 transition-all duration-300">
+    <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/80 backdrop-blur-xl supports-backdrop-filter:bg-white/70 dark:border-slate-800/80 dark:bg-slate-950/80 shadow-sm dark:shadow-slate-900/50 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo with gradient */}
@@ -123,7 +123,7 @@ export default function Navbar() {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-[300px] bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
+              <SheetContent side="right" className="w-[300px] bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
                 <div className="flex items-center gap-2 mb-8 mt-2">
                   <Sparkles className="h-5 w-5 text-sky-600 dark:text-sky-400" />
                   <span className="text-lg font-bold bg-linear-to-r from-sky-600 to-blue-600 dark:from-sky-400 dark:to-blue-400 bg-clip-text text-transparent">
