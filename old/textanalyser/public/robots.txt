@@ -1,5 +1,0 @@
-User-Agent: *
-Allow: /
-Disallow: /_next/
-
-Sitemap: https://textanalyserosc.netlify.app/sitemap.xml
