@@ -45,7 +45,7 @@ export default function Features() {
               <button
                 key={index}
                 onClick={() => handleItemClick(index)}
-                className={`px-3 py-1 rounded-full border ${
+                className={`cursor-pointer px-3 py-1 rounded-full border ${
                   selectedItemIndex === index
                     ? "bg-sky-600 text-white border-sky-600"
                     : "bg-transparent text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700"
@@ -87,7 +87,7 @@ export default function Features() {
               <button
                 key={index}
                 onClick={() => handleItemClick(index)}
-                className={`flex gap-4 items-center p-4 rounded-lg border ${
+                className={`cursor-pointer flex gap-4 items-center p-4 rounded-lg border ${
                   selectedItemIndex === index
                     ? "bg-slate-50/30 dark:bg-slate-700/60 border-sky-500"
                     : "bg-transparent border-slate-200 dark:border-slate-800"

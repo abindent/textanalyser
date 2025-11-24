@@ -252,21 +252,21 @@ export default function AnalyserPage() {
         return (
             <div key={name} className="flex items-center justify-between gap-3 p-2 rounded-md hover:bg-white/2">
                 <div className="flex items-center gap-2">
-                    <div className="text-sm text-slate-200">{item.label}</div>
+                    <div className="text-sm dark:text-slate-200">{item.label}</div>
                     {item.help && (
                         <Popover>
                             <PopoverTrigger asChild>
-                                <button className="p-1 rounded hover:bg-white/5" aria-label="info">
+                                <button className="p-1 rounded hover:bg-white/5 cursor-pointer" aria-label="info">
                                     <InfoIcon />
                                 </button>
                             </PopoverTrigger>
                             <PopoverContent className="w-[220px]">
-                                <div className="text-sm text-slate-400">{item.help}</div>
+                                <div className="text-sm dark:text-slate-400">{item.help}</div>
                             </PopoverContent>
                         </Popover>
                     )}
                 </div>
-                <Switch checked={checked} onCheckedChange={(v: boolean) => operationHandler(name, v)} />
+                <Switch className="cursor-pointer" checked={checked} onCheckedChange={(v: boolean) => operationHandler(name, v)} />
             </div>
         );
     };
@@ -296,7 +296,7 @@ export default function AnalyserPage() {
             [Tools.Operations.ExtractPhoneNumbers]: data.extractPhoneNo,
         } as any);
 
-        // custom emoji op (keeps previous implementation)
+        // custom emoji operation
         try {
             await AnalyserEngine.addCustomOperation(
                 "extractEmojis",
@@ -409,7 +409,7 @@ export default function AnalyserPage() {
                             <DialogFooter>
                                 <Button onClick={() => { navigator.clipboard?.writeText(analysis.output || ""); }} className="mr-2">Copy</Button>
                                 <DialogClose asChild>
-                                    <Button variant="secondary">Close</Button>
+                                    <Button variant="secondary" className="bg-red-600 hover:bg-red-500 text-white">Close</Button>
                                 </DialogClose>
                             </DialogFooter>
                         </DialogContent>
@@ -452,7 +452,7 @@ export default function AnalyserPage() {
                                 <div className="text-sm text-slate-400">exec: {analysis.executionTime ?? 0} ms</div>
                             </div>
 
-                            <Card className="p-0">
+                            <Card className="p-2">
                                 <ScrollArea className="h-40 overflow-hidden">
                                     <pre className="language-c line-numbers p-4 bg-slate-900 text-white">
                                         <code>{analysis.output}</code>
@@ -511,7 +511,7 @@ export default function AnalyserPage() {
                                 {analysis.metadata?.hashtags?.length > 0 && (
                                     <Card className="p-4">
                                         <h4 className="font-semibold">Hashtags</h4>
-                                        {analysis.metadata.hashtags.map((h: string, i: number) => <div key={i} className="text-sm">#{h}</div>)}
+                                        {analysis.metadata.hashtags.map((h: string, i: number) => <div key={i} className="text-sm italic text-blue-800 dark:text-blue-500 hover:underline hover:cursor-pointer">{h}</div>)}
                                     </Card>
                                 )}
 
@@ -555,9 +555,9 @@ export default function AnalyserPage() {
 
                         <Tabs value={tabValue} onValueChange={(v: string) => setTabValue(v)}>
                             <TabsList className="mb-3">
-                                <TabsTrigger value="basic">Basic</TabsTrigger>
-                                <TabsTrigger value="count">Count</TabsTrigger>
-                                <TabsTrigger value="transform">Transform</TabsTrigger>
+                                <TabsTrigger className="cursor-pointer" value="basic">Basic</TabsTrigger>
+                                <TabsTrigger className="cursor-pointer" value="count">Count</TabsTrigger>
+                                <TabsTrigger className="cursor-pointer" value="transform">Transform</TabsTrigger>
                             </TabsList>
 
                             <TabsContent value="basic" className="space-y-1">

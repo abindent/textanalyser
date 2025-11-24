@@ -76,9 +76,9 @@ export default function Intro() {
             <Link
               href="https://github.com/abindent/textanalyser"
               target="_blank"
-              className="text-sky-500 hover:underline"
+              rel="noopener noreferrer"
             >
-              Join the Community Today!
+              Join the <span className="text-blue-500 hover:underline">Community</span> Today!
             </Link>
             <br />
             <span>

@@ -1,5 +1,3 @@
-"use client";
-import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { CodeIcon, ChevronRight } from "lucide-react";
@@ -38,24 +36,42 @@ export default function Intro() {
         </div>
       </div>
 
-      {/* Decorative image / mock */}
+      {/* Decorative image */}
       <div className="w-full mt-6">
-        {/* For theme-aware imagery use two images toggled by dark: utility */}
-        <div className="rounded-xl overflow-hidden relative mx-auto w-full h-64 sm:h-96 shadow-lg border">
-          <Image
-            src="/resources/light/txt-analyser.png"
-            alt="Text analyser light"
-            fill
-            className="object-cover block dark:hidden"
-            sizes="(max-width: 768px) 100vw, 50vw"
-          />
-          <Image
-            src="/resources/dark/txt-analyser.png"
-            alt="Text analyser dark"
-            fill
-            className="object-cover hidden dark:block"
-            sizes="(max-width: 768px) 100vw, 50vw"
-          />
+        <div
+          className="rounded-xl overflow-hidden relative mx-auto shadow-lg border"
+          style={{ maxWidth: 1200 }}
+        >
+          {/* 
+      Keep a fixed aspect-ratio container so Next/Image can generate correctly sized images
+      and the browser does not stretch a smaller image to a larger box (which causes haziness).
+      16:9 (56.25%) is used here — change paddingTop if you want another aspect ratio.
+    */}
+          <div style={{ position: "relative", width: "100%", paddingTop: "56.25%" }}>
+            {/* Light theme image */}
+            <Image
+              src="/resources/light/txt-analyser.png"
+              alt="Text analyser light"
+              fill
+              priority
+              quality={90}
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="block dark:hidden"
+              style={{ objectFit: "contain", objectPosition: "center" }}
+            />
+
+            {/* Dark theme image */}
+            <Image
+              src="/resources/dark/txt-analyser.png"
+              alt="Text analyser dark"
+              fill
+              priority
+              quality={90}
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="hidden dark:block"
+              style={{ objectFit: "contain", objectPosition: "center" }}
+            />
+          </div>
         </div>
       </div>
     </section>
