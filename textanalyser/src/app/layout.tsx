@@ -19,6 +19,9 @@ import "prismjs/plugins/toolbar/prism-toolbar.css";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import "prismjs/plugins/autolinker/prism-autolinker.css";
 
+import "highlight.js/styles/github-dark.css";
+
+
 export const metadata: Metadata = {
   title: "TextAnalyser",
   description: "Advanced text analysis and styling tool",

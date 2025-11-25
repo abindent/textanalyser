@@ -36,12 +36,12 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/80 backdrop-blur-xl supports-backdrop-filter:bg-white/70 dark:border-slate-800/80 dark:bg-slate-950/80 shadow-sm dark:shadow-slate-900/50 transition-all duration-300">
+    <nav className="sticky top-0 z-50 border-b border-slate-200/40 bg-white/40 backdrop-blur-xl supports-backdrop-filter:bg-white/30 dark:border-slate-800/40 dark:bg-slate-950/40 shadow-sm dark:shadow-slate-900/30 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo with gradient */}
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="flex items-center gap-2 group transition-all duration-300"
           >
             <div className="relative">
@@ -90,8 +90,8 @@ export default function Navbar() {
                         </NavigationMenuContent>
                       </>
                     ) : (
-                      <NavigationMenuLink 
-                        href={item.href} 
+                      <NavigationMenuLink
+                        href={item.href}
                         className={`${navigationMenuTriggerStyle()} bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800/70 transition-all duration-200`}
                       >
                         <div className="flex items-center gap-2">
@@ -105,7 +105,7 @@ export default function Navbar() {
               </NavigationMenuList>
             </NavigationMenu>
 
-     
+
           </div>
 
           {/* Right side - Theme toggle and mobile menu */}
@@ -115,8 +115,8 @@ export default function Navbar() {
             {/* Mobile Navigation */}
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild className="md:hidden">
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="icon"
                   className="hover:bg-slate-100 dark:hover:bg-slate-800/70 transition-colors duration-200"
                 >
@@ -130,7 +130,7 @@ export default function Navbar() {
                     TextAnalyser
                   </span>
                 </div>
-                
+
                 <nav className="flex flex-col gap-2">
                   {navItems.map((item) => (
                     <div key={item.label}>
