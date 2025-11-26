@@ -168,6 +168,6 @@ div.code-toolbar>.toolbar>.toolbar-item>span {
   box-shadow: none !important;
 }
 
-div.code-toolbar>pre#analyserOutput{
+div.code-toolbar>pre#analyserOutput {
   border-radius: 10px !important;
 }

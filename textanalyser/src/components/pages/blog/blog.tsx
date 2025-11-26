@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { useParams } from "next/navigation";
-import { Client, Query, TablesDB } from "appwrite";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +12,11 @@ import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import rehypeRaw from "rehype-raw";
+import { MessageCircle } from "lucide-react";
+
+// UTILS
+import { fetchBlog } from "@/lib/blog/fetch";
+import Comments from "./comments";
 
 interface BlogDocument {
     $id: string;
@@ -43,16 +47,7 @@ export default function BlogPost() {
     React.useEffect(() => {
         if (!slug) return;
 
-        const client = new Client()
-            .setEndpoint("https://cloud.appwrite.io/v1")
-            .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID as string);
-
-        const databases = new TablesDB(client);
-        databases.listRows({
-            databaseId: process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID as string,
-            tableId: "6791ed5f0031bbd7569c",
-            queries: [Query.equal("slug", slug), Query.equal("is_published", true)]
-        }).then((response) => {
+        fetchBlog(slug).then((response) => {
             if (response.rows.length > 0) {
                 setBlog(response.rows[0] as unknown as BlogDocument);
             }
@@ -67,9 +62,10 @@ export default function BlogPost() {
     // Sanitize HTML content - remove div tags but keep content
     const sanitizeContent = (content: string): string => {
         return content
-            .replace(/<div[^>]*id="[^"]*"[^>]*>/g, "") // Remove opening div tags with id
-            .replace(/<div[^>]*>/g, "") // Remove other opening div tags
-            .replace(/<\/div>/g, "") // Remove closing div tags
+            .replace(/<div[^>]*id="[^"]*"[^>]*>/g, "")
+            .replace(/<div[^>]*class="[^"]*"[^>]*>/g, "")
+            .replace(/<div[^>]*>/g, "")
+            .replace(/<\/div>/g, "")
             .trim();
     };
 
@@ -121,6 +117,14 @@ export default function BlogPost() {
         );
     }
 
+    // Cusdis configuration (using NEXT_PUBLIC env vars is recommended)
+    const DISQUS_APP_ID = process.env.NEXT_PUBLIC_CUSDIS_APP_ID || "textanalyser";
+
+    const pageId = blog.$id; // unique id per post
+    const pageTitle = blog.title;
+    const pageUrl = typeof window !== "undefined" ? window.location.href : "";
+
+
     return (
         <div className="min-h-screen bg-linear-to-b from-white via-slate-50 to-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-colors duration-500 py-10 px-4">
             {/* Animated background */}
@@ -132,14 +136,14 @@ export default function BlogPost() {
                 />
             </div>
 
-            <div className="max-w-5xl mx-auto relative z-10">
+            <Card className="max-w-6xl mx-auto relative z-10">
                 <Link href="/blog" className="inline-flex items-center gap-2 mb-6">
                     <Button variant="ghost" size="sm">
                         ← Back to Blogs
                     </Button>
                 </Link>
 
-                <Card className="overflow-hidden w-full max-w-screen">
+                <div className="overflow-hidden w-full max-w-screen">
                     {/* Hero Image */}
                     {blog.poster_img_url && (
                         <div
@@ -152,7 +156,7 @@ export default function BlogPost() {
                                 fill
                                 className="object-contain"
                                 priority
-                                sizes="(max-width: 468px) 60vw, 500px"
+                                sizes="(max-width: 368px) 50vw, 400px"
                             />
                         </div>
                     )}
@@ -173,7 +177,7 @@ export default function BlogPost() {
                                         month: "long",
                                         day: "numeric",
                                     })}
-                                </Badge>
+                                </Badge>                       
                             </div>
 
                             {/* Authors */}
@@ -203,7 +207,7 @@ export default function BlogPost() {
                             )}
                         </div>
 
-                        {/* Markdown Content - Enhanced Renderer with Raw HTML Support */}
+                        {/* Markdown Content */}
                         <div className="prose prose-sky dark:prose-invert max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-a:text-sky-600 dark:prose-a:text-sky-400 prose-code:bg-slate-100 dark:prose-code:bg-slate-800 prose-pre:bg-slate-900 prose-img:rounded-lg prose-img:shadow-lg">
                             <ReactMarkdown
                                 rehypePlugins={[rehypeRaw, rehypeHighlight]}
@@ -297,7 +301,6 @@ export default function BlogPost() {
                                             {...props}
                                         />
                                     ),
-                                    // Handle div elements - render as styled sections
                                     div: ({ node, children, ...props }) => (
                                         <section
                                             className="my-8 p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700"
@@ -306,7 +309,6 @@ export default function BlogPost() {
                                             {children}
                                         </section>
                                     ),
-                                    // Handle hr elements
                                     hr: ({ node, ...props }) => (
                                         <hr
                                             className="my-6 border-slate-300 dark:border-slate-600"
@@ -318,11 +320,28 @@ export default function BlogPost() {
                                 {sanitizeContent(blog.content)}
                             </ReactMarkdown>
                         </div>
+
+                        {/* Comments Section Divider */}
+                        <div className="mt-12 mb-8">
+                            <div className="flex items-center gap-3">
+                                <MessageCircle className="w-5 h-5 text-sky-600 dark:text-sky-400" />
+                                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                                    Comments
+                                </h2>
+                            </div>
+                            <div className="mt-2 h-1 w-20 bg-linear-to-r from-sky-500 to-blue-500 rounded-full" />
+                        </div>
+                        {/* Cusdis Comments */}
+                        <Comments
+                            shortname={DISQUS_APP_ID}
+                            identifier={pageId}
+                            title={pageTitle}
+                            url={pageUrl}
+                        />
                     </div>
-                </Card>
+                </div>
+            </Card >
+        </div >
 
-
-            </div>
-        </div>
     );
 }

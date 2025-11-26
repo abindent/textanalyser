@@ -1,13 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { Client, TablesDB, Query } from "appwrite";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+
+// UTILS
+import { getDocuments } from "@/lib/blog/fetch";
+
 
 interface BlogDocument {
     $id: string;
@@ -69,37 +72,12 @@ export default function BlogPosts() {
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState("");
 
-    const getDocuments = async () => {
-        try {
-            const client = new Client()
-                .setEndpoint("https://fra.cloud.appwrite.io/v1")
-                .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID as string)
-
-            const databases = new TablesDB(client);
-
-            const response = await databases.listRows({
-                databaseId: process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID as string,
-                tableId: "6791ed5f0031bbd7569c",
-                queries: [
-                    Query.equal("is_published", true),
-                    Query.orderDesc("$createdAt"),
-                ],
-            });
-
-            return response.rows;
-        } catch (error) {
-            console.error("Appwrite Error:", error);
-            throw new Error("Failed to fetch blogs");
-        }
-    };
-
     // Then in your useEffect:
     React.useEffect(() => {
         const fetchBlogs = async () => {
             try {
                 setLoading(true);
                 const documents = await getDocuments();
-                console.log(documents)
                 setBlogs(documents as unknown as BlogDocument[]);
             } catch (error: any) {
                 setError(error.message || "Failed to load blogs");
