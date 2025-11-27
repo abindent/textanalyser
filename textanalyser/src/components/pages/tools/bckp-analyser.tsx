@@ -21,9 +21,9 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 /* Small helpers & icons */
-import { InfoIcon, TrendingUp, Brain, BarChart3, Globe } from "lucide-react";
+import { InfoIcon } from "lucide-react"; // project icons - replace if different
 
-/* Emoji Analysis Display */
+/* Emoji Analysis Display (shadcn / tailwind) */
 interface EmojiAnalysisProps {
     metadata: {
         totalEmojis?: number;
@@ -33,7 +33,6 @@ interface EmojiAnalysisProps {
         emojiDensity?: number;
     };
 }
-
 const EmojiAnalysisDisplay: React.FC<EmojiAnalysisProps> = ({ metadata }) => {
     if (!metadata?.totalEmojis) return null;
     return (
@@ -43,13 +42,13 @@ const EmojiAnalysisDisplay: React.FC<EmojiAnalysisProps> = ({ metadata }) => {
                 <div className="flex-1">
                     <div className="flex items-center justify-between">
                         <h4 className="text-lg font-semibold">Emoji Analysis</h4>
-                        <div className="text-sm text-slate-400">Density: <span className="font-medium text-amber-400">{(metadata. emojiDensity ??  0).toFixed(2)}%</span></div>
+                        <div className="text-sm text-slate-400">Density: <span className="font-medium text-amber-400">{(metadata.emojiDensity ?? 0).toFixed(2)}%</span></div>
                     </div>
 
                     <div className="mt-3 grid grid-cols-3 gap-2">
                         <div className="bg-white/3 rounded-md p-2 text-center">
                             <div className="text-xs text-slate-300">Total</div>
-                            <div className="text-lg font-semibold text-emerald-400">{metadata.totalEmojis ??  0}</div>
+                            <div className="text-lg font-semibold text-emerald-400">{metadata.totalEmojis ?? 0}</div>
                         </div>
                         <div className="bg-white/3 rounded-md p-2 text-center">
                             <div className="text-xs text-slate-300">Unique</div>
@@ -75,168 +74,9 @@ const EmojiAnalysisDisplay: React.FC<EmojiAnalysisProps> = ({ metadata }) => {
     );
 };
 
-/* Sentiment Analysis Display */
-interface SentimentAnalysisProps {
-    metadata?: {
-        score?: number;
-        positiveWordCount?: number;
-        negativeWordCount?: number;
-        totalWords?: number;
-        classification?: "positive" | "negative" | "neutral";
-    };
-}
-
-const SentimentAnalysisDisplay: React.FC<SentimentAnalysisProps> = ({ metadata }) => {
-    if (!metadata || !metadata.classification) return null;
-
-    const sentimentColors = {
-        positive: { bg: "from-green-500/20 to-emerald-500/20", border: "border-green-500/50", text: "text-green-400", icon: "🟢" },
-        negative: { bg: "from-red-500/20 to-pink-500/20", border: "border-red-500/50", text: "text-red-400", icon: "🔴" },
-        neutral: { bg: "from-yellow-500/20 to-amber-500/20", border: "border-yellow-500/50", text: "text-yellow-400", icon: "🟡" },
-    };
-
-    const sentiment = sentimentColors[metadata.classification];
-
-    return (
-        <Card className={`p-4 bg-linear-to-br ${sentiment.bg} border-${sentiment.border}`}>
-            <div className="flex items-start gap-3">
-                <div className="text-2xl">{sentiment.icon}</div>
-                <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                        <h4 className="text-lg font-semibold">Sentiment Analysis</h4>
-                        <div className={`text-sm font-bold ${sentiment.text}`}>{metadata.classification. toUpperCase()}</div>
-                    </div>
-
-                    <div className="mt-3 space-y-2">
-                        <div className="flex items-center justify-between text-sm">
-                            <span className="text-slate-300">Score:</span>
-                            <span className={`font-semibold ${sentiment.text}`}>{(metadata.score ?? 0).toFixed(3)}</span>
-                        </div>
-                        <div className="w-full bg-slate-700 rounded-full h-2">
-                            <div
-                                className={`h-2 rounded-full transition-all bg-linear-to-r ${sentiment.bg}`}
-                                style={{ width: `${Math.abs(metadata.score ?? 0) * 100}%` }}
-                            ></div>
-                        </div>
-                    </div>
-
-                    <div className="mt-3 grid grid-cols-3 gap-2">
-                        <div className="bg-white/3 rounded-md p-2 text-center">
-                            <div className="text-xs text-slate-300">Positive</div>
-                            <div className="text-lg font-semibold text-green-400">{metadata.positiveWordCount ?? 0}</div>
-                        </div>
-                        <div className="bg-white/3 rounded-md p-2 text-center">
-                            <div className="text-xs text-slate-300">Negative</div>
-                            <div className="text-lg font-semibold text-red-400">{metadata.negativeWordCount ?? 0}</div>
-                        </div>
-                        <div className="bg-white/3 rounded-md p-2 text-center">
-                            <div className="text-xs text-slate-300">Total Words</div>
-                            <div className="text-lg font-semibold text-blue-400">{metadata.totalWords ?? 0}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </Card>
-    );
-};
-
-/* Readability Analysis Display */
-interface ReadabilityAnalysisProps {
-    metadata?: {
-        readabilityScore?: number;
-        gradeLevel?: number;
-        complexity?: string;
-        avgWordsPerSentence?: number;
-        avgSyllablesPerWord?: number;
-    };
-}
-
-const ReadabilityAnalysisDisplay: React.FC<ReadabilityAnalysisProps> = ({ metadata }) => {
-    if (!metadata || !metadata. readabilityScore) return null;
-
-    return (
-        <Card className="p-4 bg-linear-to-br from-purple-500/20 to-pink-500/20 border-purple-500/50">
-            <div className="flex items-start gap-3">
-                <div className="text-2xl">📊</div>
-                <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                        <h4 className="text-lg font-semibold">Readability Metrics</h4>
-                        <div className="text-sm text-slate-400">Grade: <span className="font-medium text-purple-400">{metadata.gradeLevel?. toFixed(1)}</span></div>
-                    </div>
-
-                    <div className="mt-3 grid grid-cols-2 gap-2">
-                        <div className="bg-white/3 rounded-md p-2">
-                            <div className="text-xs text-slate-300">Flesch Score</div>
-                            <div className="text-lg font-semibold text-purple-400">{metadata.readabilityScore. toFixed(1)}</div>
-                        </div>
-                        <div className="bg-white/3 rounded-md p-2">
-                            <div className="text-xs text-slate-300">Complexity</div>
-                            <div className="text-lg font-semibold text-pink-400 capitalize">{metadata.complexity}</div>
-                        </div>
-                        <div className="bg-white/3 rounded-md p-2">
-                            <div className="text-xs text-slate-300">Words/Sentence</div>
-                            <div className="text-lg font-semibold text-indigo-400">{metadata.avgWordsPerSentence?. toFixed(1)}</div>
-                        </div>
-                        <div className="bg-white/3 rounded-md p-2">
-                            <div className="text-xs text-slate-300">Syllables/Word</div>
-                            <div className="text-lg font-semibold text-cyan-400">{metadata.avgSyllablesPerWord?.toFixed(2)}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </Card>
-    );
-};
-
-/* Language Detection Display */
-interface LanguageDetectionProps {
-    metadata?: {
-        detectedLanguage?: string;
-        confidence?: number;
-        scores?: Record<string, number>;
-    };
-}
-
-const LanguageDetectionDisplay: React.FC<LanguageDetectionProps> = ({ metadata }) => {
-    if (!metadata || !metadata.detectedLanguage) return null;
-
-    return (
-        <Card className="p-4 bg-linear-to-br from-cyan-500/20 to-blue-500/20 border-cyan-500/50">
-            <div className="flex items-start gap-3">
-                <div className="text-2xl">🌐</div>
-                <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                        <h4 className="text-lg font-semibold">Language Detection</h4>
-                        <div className="text-sm text-slate-400">Confidence: <span className="font-medium text-cyan-400">{((metadata.confidence ?? 0) * 100).toFixed(1)}%</span></div>
-                    </div>
-
-                    <div className="mt-3">
-                        <div className="inline-block px-3 py-1 rounded-full bg-cyan-500/30 text-cyan-300 font-semibold text-sm capitalize">
-                            {metadata.detectedLanguage}
-                        </div>
-                    </div>
-
-                    {metadata.scores && Object.keys(metadata.scores).length > 0 && (
-                        <div className="mt-3">
-                            <div className="text-xs text-slate-400 mb-2">Language Scores</div>
-                            <div className="space-y-1">
-                                {Object.entries(metadata.scores).slice(0, 4).map(([lang, score]) => (
-                                    <div key={lang} className="flex items-center justify-between text-xs">
-                                        <span className="capitalize text-slate-300">{lang}:</span>
-                                        <span className="font-medium text-slate-200">{(score * 100).toFixed(1)}%</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </Card>
-    );
-};
-
 /* MAIN COMPONENT */
 export default function AnalyserPage() {
+    // Tabs state (shadcn tabs use string values)
     const [tabValue, setTabValue] = React.useState<string>("basic");
 
     const initialResult: any = {
@@ -264,12 +104,11 @@ export default function AnalyserPage() {
     };
 
     const [examString, setExamString] = React.useState<string>("Hello World");
-    const [analysis, setAnalysis] = React. useState<any>(initialResult);
+    const [analysis, setAnalysis] = React.useState<any>(initialResult);
     const [typingTest, setTypingTest] = React.useState<any>({ startTime: null, endTime: null, wpm: 0 });
-    const [readTime, setReadTime] = React. useState<string>("Not Calculated");
-    const [compareText, setCompareText] = React.useState<string>("");
-    const [showCompare, setShowCompare] = React.useState<boolean>(false);
+    const [readTime, setReadTime] = React.useState<string>("Not Calculated");
 
+    // Data options
     interface Data {
         removealpha: boolean;
         removenum: boolean;
@@ -293,14 +132,9 @@ export default function AnalyserPage() {
         extractEmail: boolean;
         extractHashTag: boolean;
         extractPhoneNo: boolean;
-        analyzeSentiment: boolean;
-        summarizeText: boolean;
-        calculateReadability: boolean;
-        detectLanguage: boolean;
-        compareTexts: boolean;
     }
 
-    const [data, setData] = React. useState<Data>({
+    const [data, setData] = React.useState<Data>({
         removealpha: false,
         removenum: false,
         removepunc: false,
@@ -323,11 +157,6 @@ export default function AnalyserPage() {
         extractEmail: false,
         extractHashTag: false,
         extractPhoneNo: false,
-        analyzeSentiment: false,
-        summarizeText: false,
-        calculateReadability: false,
-        detectLanguage: false,
-        compareTexts: false,
     });
 
     const enabledCount = Object.values(data).filter(Boolean).length;
@@ -362,18 +191,12 @@ export default function AnalyserPage() {
             lowercaps: { label: "Lowercase", name: "lowercaps", help: "Convert text to lowercase" },
             reverseText: { label: "Reverse Text", name: "reverseText", help: "Reverse the characters in the text" },
         },
-        analysis: {
-            analyzeSentiment: { label: "Analyze Sentiment", name: "analyzeSentiment", help: "Detect sentiment (positive/negative/neutral)", icon: <Brain className="w-4 h-4" /> },
-            summarizeText: { label: "Summarize Text", name: "summarizeText", help: "Extract key sentences from text", icon: <TrendingUp className="w-4 h-4" /> },
-            calculateReadability: { label: "Calculate Readability", name: "calculateReadability", help: "Flesch-Kincaid readability scores", icon: <BarChart3 className="w-4 h-4" /> },
-            detectLanguage: { label: "Detect Language", name: "detectLanguage", help: "Identify the language of the text", icon: <Globe className="w-4 h-4" /> },
-            compareTexts: { label: "Compare Texts", name: "compareTexts", help: "Compare current text with another text", icon: null },
-        },
     };
 
+    // Read time (same as before)
     const calculateReadTime = (text: string): string => {
         const wordsPerMinute = 200;
-        const wordCount = text.trim().length ?  text.trim().split(/\s+/).length : 0;
+        const wordCount = text.trim().length ? text.trim().split(/\s+/).length : 0;
         const minutes = Math.floor(wordCount / wordsPerMinute);
         const seconds = Math.floor((wordCount % wordsPerMinute) / (wordsPerMinute / 60));
         if (minutes === 0 && seconds === 0) return "Less than a second";
@@ -382,14 +205,16 @@ export default function AnalyserPage() {
         return `${minutes} min ${seconds} sec`;
     };
 
+    // Typing stats
     const calculateTypingStats = (input: string) => {
         if (!typingTest.startTime || input.length === 0) return { wpm: 0 };
-        const elapsedTime = (typingTest.endTime!  - typingTest.startTime!) / 60000;
+        const elapsedTime = (typingTest.endTime! - typingTest.startTime!) / 60000;
         if (elapsedTime < 0.05) return 0;
         const wpm = Math.round(input.length / 5 / elapsedTime);
         return { wpm: isFinite(wpm) ? wpm : 0 };
     };
 
+    // handlers
     const typingTestHandler = (input: string) => {
         if (!typingTest.startTime) {
             setTypingTest((prev: any) => ({ ...prev, startTime: Date.now() }));
@@ -408,30 +233,31 @@ export default function AnalyserPage() {
         setReadTime(calculateReadTime(inputText));
     };
 
+    // operation handler for shadcn switch
     const operationHandler = (name: string, checked: boolean) => {
         setData((prevData) => {
             if (name === "extractUrls" && checked) {
+                // when extractUrls enabled, turn off others
                 const newState: any = {};
-                Object.keys(prevData). forEach((k) => (newState[k] = k === "extractUrls"));
+                Object.keys(prevData).forEach((k) => (newState[k] = k === "extractUrls"));
                 return newState;
             }
             return { ...prevData, [name]: checked };
         });
     };
 
-    const renderSwitchRow = (item: { label: string; name: string; help?: string; icon?: any }) => {
+    const renderSwitchRow = (item: { label: string; name: string; help?: string }) => {
         const name = item.name;
         const checked = (data as any)[name] || false;
         return (
             <div key={name} className="flex items-center justify-between gap-3 p-2 rounded-md hover:bg-white/2">
                 <div className="flex items-center gap-2">
-                    {item.icon && <span className="text-slate-400">{item.icon}</span>}
                     <div className="text-sm dark:text-slate-200">{item.label}</div>
                     {item.help && (
                         <Popover>
                             <PopoverTrigger asChild>
                                 <button className="p-1 rounded hover:bg-white/5 cursor-pointer" aria-label="info">
-                                    <InfoIcon className="w-4 h-4" />
+                                    <InfoIcon />
                                 </button>
                             </PopoverTrigger>
                             <PopoverContent className="w-[220px]">
@@ -446,16 +272,16 @@ export default function AnalyserPage() {
     };
 
     const Examine = async () => {
-        const AnalyserEngine = new Tools. Analyser(examString, {
+        const AnalyserEngine = new Tools.Analyser(examString, {
             [Tools.Operations.RemoveAlphabets]: data.removealpha,
             [Tools.Operations.RemoveNumbers]: data.removenum,
             [Tools.Operations.RemovePunctuations]: data.removepunc,
             [Tools.Operations.RemoveSpecialChars]: data.removespecialchar,
-            [Tools.Operations. ConvertToUppercase]: data.fullcaps,
-            [Tools. Operations.ConvertToTitleCase]: data.titlecaps,
-            [Tools.Operations. ConvertToLowercase]: data.lowercaps,
+            [Tools.Operations.ConvertToUppercase]: data.fullcaps,
+            [Tools.Operations.ConvertToTitleCase]: data.titlecaps,
+            [Tools.Operations.ConvertToLowercase]: data.lowercaps,
             [Tools.Operations.RemoveExtraSpaces]: data.extraspaceremover,
-            [Tools.Operations. RemoveNewlines]: data.newlineremover,
+            [Tools.Operations.RemoveNewlines]: data.newlineremover,
             [Tools.Operations.ExtractUrls]: data.extractUrls,
             [Tools.Operations.CountCharacters]: data.charcount,
             [Tools.Operations.CountAlphabets]: data.alphacount,
@@ -465,17 +291,12 @@ export default function AnalyserPage() {
             [Tools.Operations.CountSentences]: data.sentencecount,
             [Tools.Operations.ReverseText]: data.reverseText,
             [Tools.Operations.ExtractMentions]: data.extractMentions,
-            [Tools. Operations.ExtractEmails]: data.extractEmail,
+            [Tools.Operations.ExtractEmails]: data.extractEmail,
             [Tools.Operations.ExtractHashtags]: data.extractHashTag,
             [Tools.Operations.ExtractPhoneNumbers]: data.extractPhoneNo,
-            [Tools.Operations. AnalyzeSentiment]: data.analyzeSentiment,
-            [Tools. Operations.SummarizeText]: data.summarizeText ?  { sentenceCount: 3 } : false,
-            [Tools.Operations. CalculateReadability]: data.calculateReadability,
-            [Tools. Operations.DetectLanguage]: data.detectLanguage,
-            [Tools.Operations.CompareTexts]: data.compareTexts ?  { compareWith: compareText } : false,
         } as any);
 
-        // Custom emoji operation
+        // custom emoji operation
         try {
             await AnalyserEngine.addCustomOperation(
                 "extractEmojis",
@@ -508,7 +329,7 @@ export default function AnalyserPage() {
                             uniqueEmojiCount: uniqueEmojis.length,
                             emojiCategories: {
                                 nature: emojiCategories.nature.length,
-                                objects: emojiCategories.objects. length,
+                                objects: emojiCategories.objects.length,
                                 symbols: emojiCategories.symbols.length,
                             },
                             emojiDensity: (emojis.length / (text.length || 1)) * 100,
@@ -519,7 +340,8 @@ export default function AnalyserPage() {
             );
         } catch (err) {
             try {
-                await (AnalyserEngine as any). addCustomOperation(
+                // fallback signature
+                await (AnalyserEngine as any).addCustomOperation(
                     "extractEmojis",
                     "Extracted Emojis",
                     (text: string) => text,
@@ -530,16 +352,16 @@ export default function AnalyserPage() {
             }
         }
 
-        const result = await AnalyserEngine. main();
+        const result = await AnalyserEngine.main();
 
         const completeResult = {
-            ... result,
+            ...result,
             metadata: {
                 counts: {
-                    characterCount: result.metadata?. counts?.characterCount || 0,
+                    characterCount: result.metadata?.counts?.characterCount || 0,
                     alphabetCount: result.metadata?.counts?.alphabetCount || 0,
                     numericCount: result.metadata?.counts?.numericCount || 0,
-                    wordCount: result.metadata?.counts?. wordCount || 0,
+                    wordCount: result.metadata?.counts?.wordCount || 0,
                     sentenceCount: result.metadata?.counts?.sentenceCount || 0,
                 },
                 urls: result.metadata?.urls || [],
@@ -549,11 +371,6 @@ export default function AnalyserPage() {
                 mentions: result.metadata?.mentions || [],
                 custom: result.metadata?.custom,
             },
-            sentiment: (result as any).sentiment,
-            summary: (result as any).summary,
-            readability: (result as any).readability,
-            languageDetection: (result as any).languageDetection,
-            textComparison: (result as any).textComparison,
         };
 
         try {
@@ -567,7 +384,7 @@ export default function AnalyserPage() {
 
     React.useEffect(() => {
         Prism.highlightAll();
-    }, [analysis. output]);
+    }, [analysis.output]);
 
     return (
         <div className="px-6 py-10 max-w-7xl mx-auto">
@@ -582,7 +399,7 @@ export default function AnalyserPage() {
                         <DialogContent className="sm:max-w-[480px]">
                             <DialogHeader>
                                 <DialogTitle>Export Results</DialogTitle>
-                                <DialogDescription>Copy or download the analysis output. </DialogDescription>
+                                <DialogDescription>Copy or download the analysis output.</DialogDescription>
                             </DialogHeader>
                             <div className="mt-2"> 
                                 <pre className="language-c line-numbers" id="analyserOutput">
@@ -590,7 +407,7 @@ export default function AnalyserPage() {
                                 </pre>
                             </div>
                             <DialogFooter>
-                                <Button onClick={() => { navigator.clipboard?. writeText(analysis.output || ""); }} className="mr-2">Copy</Button>
+                                <Button onClick={() => { navigator.clipboard?.writeText(analysis.output || ""); }} className="mr-2">Copy</Button>
                                 <DialogClose asChild>
                                     <Button variant="secondary" className="bg-red-600 hover:bg-red-500 text-white">Close</Button>
                                 </DialogClose>
@@ -610,19 +427,6 @@ export default function AnalyserPage() {
                         placeholder="Type or paste your text here..."
                     />
 
-                    {/* Show compare text input if compare operation is enabled */}
-                    {data.compareTexts && (
-                        <div className="space-y-2">
-                            <label className="text-sm font-semibold">Compare with Text:</label>
-                            <textarea
-                                value={compareText}
-                                onChange={(e) => setCompareText(e.target.value)}
-                                className="w-full min-h-24 p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow shadow-sm"
-                                placeholder="Enter text to compare with..."
-                            />
-                        </div>
-                    )}
-
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800">
@@ -631,7 +435,7 @@ export default function AnalyserPage() {
                             </div>
                             <div className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800">
                                 <div className="text-xs text-slate-500">Typing speed</div>
-                                <div className="font-medium">{typingTest. wpm ??  0} wpm</div>
+                                <div className="font-medium">{typingTest.wpm ?? 0} wpm</div>
                             </div>
                         </div>
 
@@ -645,7 +449,7 @@ export default function AnalyserPage() {
                         <section className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-xl font-semibold">Analysis Results</h3>
-                                <div className="text-sm text-slate-400">exec: {analysis.executionTime ??  0} ms</div>
+                                <div className="text-sm text-slate-400">exec: {analysis.executionTime ?? 0} ms</div>
                             </div>
 
                             <Card className="p-2">
@@ -657,7 +461,7 @@ export default function AnalyserPage() {
                             </Card>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                {analysis.builtInOperations?. length > 0 && (
+                                {analysis.builtInOperations?.length > 0 && (
                                     <Card className="p-4">
                                         <h4 className="font-semibold mb-2">Built-in Operations</h4>
                                         <ul className="list-disc ml-5 text-sm">
@@ -675,104 +479,44 @@ export default function AnalyserPage() {
                                     </Card>
                                 )}
 
-                                {/* Sentiment Analysis */}
-                                {analysis.sentiment && (
-                                    <SentimentAnalysisDisplay metadata={analysis.sentiment} />
-                                )}
-
-                                {/* Readability Analysis */}
-                                {analysis.readability && (
-                                    <ReadabilityAnalysisDisplay metadata={analysis.readability} />
-                                )}
-
-                                {/* Language Detection */}
-                                {analysis.languageDetection && (
-                                    <LanguageDetectionDisplay metadata={analysis.languageDetection} />
-                                )}
-
-                                {/* Text Summary */}
-                                {analysis. summary && (
-                                    <Card className="p-4 md:col-span-2">
-                                        <h4 className="font-semibold mb-2">Summary</h4>
-                                        <p className="text-sm text-slate-300 leading-relaxed">{analysis.summary}</p>
-                                    </Card>
-                                )}
-
-                                {/* Text Comparison Results */}
-                                {analysis. textComparison && (
-                                    <Card className="p-4 md:col-span-2">
-                                        <h4 className="font-semibold mb-3">Comparison Results</h4>
-                                        <div className="space-y-2 text-sm">
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-slate-300">Similarity:</span>
-                                                <span className="font-semibold text-green-400">{analysis. textComparison.similarity.toFixed(2)}%</span>
-                                            </div>
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-slate-300">Edit Distance:</span>
-                                                <span className="font-semibold text-yellow-400">{analysis.textComparison.editDistance}</span>
-                                            </div>
-                                            {analysis.textComparison.wordDifference && (
-                                                <div className="grid grid-cols-3 gap-2 mt-2">
-                                                    <div className="bg-green-500/20 p-2 rounded text-center">
-                                                        <div className="text-xs text-slate-400">Added</div>
-                                                        <div className="font-semibold text-green-400">{analysis.textComparison.wordDifference. addedCount}</div>
-                                                    </div>
-                                                    <div className="bg-red-500/20 p-2 rounded text-center">
-                                                        <div className="text-xs text-slate-400">Removed</div>
-                                                        <div className="font-semibold text-red-400">{analysis.textComparison.wordDifference.removedCount}</div>
-                                                    </div>
-                                                    <div className="bg-blue-500/20 p-2 rounded text-center">
-                                                        <div className="text-xs text-slate-400">Unchanged</div>
-                                                        <div className="font-semibold text-blue-400">{analysis.textComparison.wordDifference.unchangedCount}</div>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </Card>
-                                )}
-
-                                {/* URLs */}
-                                {analysis. metadata?.urls?. length > 0 && (
+                                {/* Extracted metadata cards */}
+                                {analysis.metadata?.urls?.length > 0 && (
                                     <Card className="p-4">
                                         <h4 className="font-semibold">URLs</h4>
                                         <pre className="whitespace-pre-wrap text-sm">{JSON.stringify(analysis.metadata.urls)}</pre>
                                     </Card>
                                 )}
 
-                                {/* Mentions */}
-                                {analysis. metadata?.mentions?.length > 0 && (
+                                {analysis.metadata?.mentions?.length > 0 && (
                                     <Card className="p-4">
                                         <h4 className="font-semibold">Mentions</h4>
                                         {analysis.metadata.mentions.map((m: string, i: number) => <div key={i} className="text-sm">👤 {m}</div>)}
                                     </Card>
                                 )}
 
-                                {/* Emails */}
-                                {analysis. metadata?.emails?.length > 0 && (
+                                {analysis.metadata?.emails?.length > 0 && (
                                     <Card className="p-4">
                                         <h4 className="font-semibold">Emails</h4>
-                                        {analysis.metadata.emails. map((em: string, i: number) => <div key={i} className="text-sm">✉ {em}</div>)}
+                                        {analysis.metadata.emails.map((em: string, i: number) => <div key={i} className="text-sm">✉ {em}</div>)}
                                     </Card>
                                 )}
 
-                                {/* Phone Numbers */}
-                                {analysis. metadata?.phoneNumbers?.length > 0 && (
+                                {analysis.metadata?.phoneNumbers?.length > 0 && (
                                     <Card className="p-4">
                                         <h4 className="font-semibold">Phone Numbers</h4>
                                         {analysis.metadata.phoneNumbers.map((ph: string, i: number) => <div key={i} className="text-sm">📲 {ph}</div>)}
                                     </Card>
                                 )}
 
-                                {/* Hashtags */}
                                 {analysis.metadata?.hashtags?.length > 0 && (
                                     <Card className="p-4">
                                         <h4 className="font-semibold">Hashtags</h4>
-                                        {analysis. metadata.hashtags.map((h: string, i: number) => <div key={i} className="text-sm italic text-blue-800 dark:text-blue-500 hover:underline hover:cursor-pointer">{h}</div>)}
+                                        {analysis.metadata.hashtags.map((h: string, i: number) => <div key={i} className="text-sm italic text-blue-800 dark:text-blue-500 hover:underline hover:cursor-pointer">{h}</div>)}
                                     </Card>
                                 )}
 
-                                {/* Emoji Analysis */}
-                                {analysis. metadata?.custom?.extractEmojis &&
+                                {/* Emoji card if present */}
+                                {analysis.metadata?.custom?.extractEmojis &&
                                     Object.keys(analysis.metadata.custom.extractEmojis || {}).length > 0 && (
                                         <EmojiAnalysisDisplay metadata={analysis.metadata.custom.extractEmojis} />
                                     )}
@@ -782,19 +526,19 @@ export default function AnalyserPage() {
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
                                 <Card className="p-4">
                                     <div className="text-xs text-slate-400">Characters</div>
-                                    <div className="text-2xl font-semibold">{analysis.metadata?.counts?.characterCount ??  0}</div>
+                                    <div className="text-2xl font-semibold">{analysis.metadata?.counts?.characterCount ?? 0}</div>
                                 </Card>
                                 <Card className="p-4">
                                     <div className="text-xs text-slate-400">Alphabet</div>
-                                    <div className="text-2xl font-semibold">{analysis. metadata?.counts?.alphabetCount ??  0}</div>
+                                    <div className="text-2xl font-semibold">{analysis.metadata?.counts?.alphabetCount ?? 0}</div>
                                 </Card>
                                 <Card className="p-4">
                                     <div className="text-xs text-slate-400">Numbers</div>
-                                    <div className="text-2xl font-semibold">{analysis. metadata?.counts?.numericCount ?? 0}</div>
+                                    <div className="text-2xl font-semibold">{analysis.metadata?.counts?.numericCount ?? 0}</div>
                                 </Card>
                                 <Card className="p-4">
                                     <div className="text-xs text-slate-400">Words</div>
-                                    <div className="text-2xl font-semibold">{analysis. metadata?.counts?.wordCount ?? 0}</div>
+                                    <div className="text-2xl font-semibold">{analysis.metadata?.counts?.wordCount ?? 0}</div>
                                 </Card>
                             </div>
                         </section>
@@ -814,30 +558,23 @@ export default function AnalyserPage() {
                                 <TabsTrigger className="cursor-pointer" value="basic">Basic</TabsTrigger>
                                 <TabsTrigger className="cursor-pointer" value="count">Count</TabsTrigger>
                                 <TabsTrigger className="cursor-pointer" value="transform">Transform</TabsTrigger>
-                                <TabsTrigger className="cursor-pointer" value="analysis">Analysis</TabsTrigger>
                             </TabsList>
 
                             <TabsContent value="basic" className="space-y-1">
                                 <div className="flex flex-col">
-                                    {Object.values(FormatData. basicoperations).map((it: any) => renderSwitchRow(it))}
+                                    {Object.values(FormatData.basicoperations).map((it: any) => renderSwitchRow(it))}
                                 </div>
                             </TabsContent>
 
                             <TabsContent value="count" className="space-y-1">
                                 <div className="flex flex-col">
-                                    {Object. values(FormatData.countchar).map((it: any) => renderSwitchRow(it))}
+                                    {Object.values(FormatData.countchar).map((it: any) => renderSwitchRow(it))}
                                 </div>
                             </TabsContent>
 
                             <TabsContent value="transform" className="space-y-1">
                                 <div className="flex flex-col">
                                     {Object.values(FormatData.changecap).map((it: any) => renderSwitchRow(it))}
-                                </div>
-                            </TabsContent>
-
-                            <TabsContent value="analysis" className="space-y-1">
-                                <div className="flex flex-col">
-                                    {Object.values(FormatData.analysis).map((it: any) => renderSwitchRow(it))}
                                 </div>
                             </TabsContent>
                         </Tabs>
@@ -848,8 +585,8 @@ export default function AnalyserPage() {
                         <div className="text-sm text-slate-500 space-y-2">
                             <div>URLs: <span className="font-medium">{(analysis.metadata?.urls || []).length}</span></div>
                             <div>Emails: <span className="font-medium">{(analysis.metadata?.emails || []).length}</span></div>
-                            <div>Mentions: <span className="font-medium">{(analysis.metadata?. mentions || []).length}</span></div>
-                            <div>Hashtags: <span className="font-medium">{(analysis.metadata?. hashtags || []).length}</span></div>
+                            <div>Mentions: <span className="font-medium">{(analysis.metadata?.mentions || []).length}</span></div>
+                            <div>Hashtags: <span className="font-medium">{(analysis.metadata?.hashtags || []).length}</span></div>
                         </div>
                     </Card>
 
@@ -858,7 +595,7 @@ export default function AnalyserPage() {
                         <div className="grid grid-cols-2 gap-2 text-sm">
                             <div>
                                 <div className="text-xs text-slate-400">Characters</div>
-                                <div className="font-medium">{analysis.metadata?. counts?.characterCount ?? 0}</div>
+                                <div className="font-medium">{analysis.metadata?.counts?.characterCount ?? 0}</div>
                             </div>
                             <div>
                                 <div className="text-xs text-slate-400">Alphabets</div>
@@ -870,13 +607,13 @@ export default function AnalyserPage() {
                             </div>
                             <div>
                                 <div className="text-xs text-slate-400">Words</div>
-                                <div className="font-medium">{analysis. metadata?.counts?.wordCount ?? 0}</div>
+                                <div className="font-medium">{analysis.metadata?.counts?.wordCount ?? 0}</div>
                             </div>
                             <div className="col-span-2 mt-2">
                                 <Separator />
                                 <div className="mt-2 flex items-center justify-between text-xs text-slate-400">
                                     <div>Exec time</div>
-                                    <div className="font-medium">{analysis. executionTime ?? 0} ms</div>
+                                    <div className="font-medium">{analysis.executionTime ?? 0} ms</div>
                                 </div>
                             </div>
                         </div>
