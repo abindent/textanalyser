@@ -21,7 +21,19 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 /* Small helpers & icons */
-import { InfoIcon, TrendingUp, Brain, BarChart3, Globe } from "lucide-react";
+import {
+    InfoIcon, TrendingUp, Brain, BarChart3, Globe, Type, Hash, KeySquare, AlignJustify, FileText, Link, AtSign, Phone, Smile, SquareStack, ClipboardList, Quote, ArrowUpAZ, ArrowDownAZ, CaseSensitive, Undo2, User2, Wand2, Calculator, Delete,
+    Loader2,
+    Download,
+    Copy
+} from "lucide-react";
+
+/* UTILITY FUNCTIONS */
+import { generateExportText, generateExportJSON, generateExportCSV } from "@/lib/analyser/export";
+
+/* AI */
+import { geminiSummarize, geminiAdvancedSentiment, geminiKeywordExtraction, geminiCustomPrompt } from "@/lib/analyser/ai/analyser";
+import MarkdownRenderer from "./markdown";
 
 /* Emoji Analysis Display */
 interface EmojiAnalysisProps {
@@ -43,13 +55,13 @@ const EmojiAnalysisDisplay: React.FC<EmojiAnalysisProps> = ({ metadata }) => {
                 <div className="flex-1">
                     <div className="flex items-center justify-between">
                         <h4 className="text-lg font-semibold">Emoji Analysis</h4>
-                        <div className="text-sm text-slate-400">Density: <span className="font-medium text-amber-400">{(metadata. emojiDensity ??  0).toFixed(2)}%</span></div>
+                        <div className="text-sm text-slate-400">Density: <span className="font-medium text-amber-400">{(metadata.emojiDensity ?? 0).toFixed(2)}%</span></div>
                     </div>
 
                     <div className="mt-3 grid grid-cols-3 gap-2">
                         <div className="bg-white/3 rounded-md p-2 text-center">
                             <div className="text-xs text-slate-300">Total</div>
-                            <div className="text-lg font-semibold text-emerald-400">{metadata.totalEmojis ??  0}</div>
+                            <div className="text-lg font-semibold text-emerald-400">{metadata.totalEmojis ?? 0}</div>
                         </div>
                         <div className="bg-white/3 rounded-md p-2 text-center">
                             <div className="text-xs text-slate-300">Unique</div>
@@ -104,7 +116,7 @@ const SentimentAnalysisDisplay: React.FC<SentimentAnalysisProps> = ({ metadata }
                 <div className="flex-1">
                     <div className="flex items-center justify-between">
                         <h4 className="text-lg font-semibold">Sentiment Analysis</h4>
-                        <div className={`text-sm font-bold ${sentiment.text}`}>{metadata.classification. toUpperCase()}</div>
+                        <div className={`text-sm font-bold ${sentiment.text}`}>{metadata.classification.toUpperCase()}</div>
                     </div>
 
                     <div className="mt-3 space-y-2">
@@ -152,7 +164,7 @@ interface ReadabilityAnalysisProps {
 }
 
 const ReadabilityAnalysisDisplay: React.FC<ReadabilityAnalysisProps> = ({ metadata }) => {
-    if (!metadata || !metadata. readabilityScore) return null;
+    if (!metadata || !metadata.readabilityScore) return null;
 
     return (
         <Card className="p-4 bg-linear-to-br from-purple-500/20 to-pink-500/20 border-purple-500/50">
@@ -161,13 +173,13 @@ const ReadabilityAnalysisDisplay: React.FC<ReadabilityAnalysisProps> = ({ metada
                 <div className="flex-1">
                     <div className="flex items-center justify-between">
                         <h4 className="text-lg font-semibold">Readability Metrics</h4>
-                        <div className="text-sm text-slate-400">Grade: <span className="font-medium text-purple-400">{metadata.gradeLevel?. toFixed(1)}</span></div>
+                        <div className="text-sm text-slate-400">Grade: <span className="font-medium text-purple-400">{metadata.gradeLevel?.toFixed(1)}</span></div>
                     </div>
 
                     <div className="mt-3 grid grid-cols-2 gap-2">
                         <div className="bg-white/3 rounded-md p-2">
                             <div className="text-xs text-slate-300">Flesch Score</div>
-                            <div className="text-lg font-semibold text-purple-400">{metadata.readabilityScore. toFixed(1)}</div>
+                            <div className="text-lg font-semibold text-purple-400">{metadata.readabilityScore.toFixed(1)}</div>
                         </div>
                         <div className="bg-white/3 rounded-md p-2">
                             <div className="text-xs text-slate-300">Complexity</div>
@@ -175,7 +187,7 @@ const ReadabilityAnalysisDisplay: React.FC<ReadabilityAnalysisProps> = ({ metada
                         </div>
                         <div className="bg-white/3 rounded-md p-2">
                             <div className="text-xs text-slate-300">Words/Sentence</div>
-                            <div className="text-lg font-semibold text-indigo-400">{metadata.avgWordsPerSentence?. toFixed(1)}</div>
+                            <div className="text-lg font-semibold text-indigo-400">{metadata.avgWordsPerSentence?.toFixed(1)}</div>
                         </div>
                         <div className="bg-white/3 rounded-md p-2">
                             <div className="text-xs text-slate-300">Syllables/Word</div>
@@ -264,11 +276,16 @@ export default function AnalyserPage() {
     };
 
     const [examString, setExamString] = React.useState<string>("Hello World");
-    const [analysis, setAnalysis] = React. useState<any>(initialResult);
+    const [analysis, setAnalysis] = React.useState<any>(initialResult);
     const [typingTest, setTypingTest] = React.useState<any>({ startTime: null, endTime: null, wpm: 0 });
-    const [readTime, setReadTime] = React. useState<string>("Not Calculated");
+    const [readTime, setReadTime] = React.useState<string>("Not Calculated");
     const [compareText, setCompareText] = React.useState<string>("");
-    const [showCompare, setShowCompare] = React.useState<boolean>(false);
+    const [customPrompt, setCustomPrompt] = React.useState<string>("");
+    const [customAIResult, setCustomAIResult] = React.useState<string>("");
+    const [showCustomPromptDialog, setShowCustomPromptDialog] =
+        React.useState<boolean>(false);
+    const [isLoadingCustomAI, setIsLoadingCustomAI] = React.useState(false);
+    const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
     interface Data {
         removealpha: boolean;
@@ -298,9 +315,13 @@ export default function AnalyserPage() {
         calculateReadability: boolean;
         detectLanguage: boolean;
         compareTexts: boolean;
+        useGeminiAi: boolean,
+        geminiSentiment: boolean,
+        geminiSummarization: boolean,
+        geminiKeywords: boolean,
     }
 
-    const [data, setData] = React. useState<Data>({
+    const [data, setData] = React.useState<Data>({
         removealpha: false,
         removenum: false,
         removepunc: false,
@@ -328,52 +349,210 @@ export default function AnalyserPage() {
         calculateReadability: false,
         detectLanguage: false,
         compareTexts: false,
+        useGeminiAi: false,
+        geminiSentiment: false,
+        geminiSummarization: false,
+        geminiKeywords: false,
     });
 
     const enabledCount = Object.values(data).filter(Boolean).length;
-    const isButtonDisabled = enabledCount === 0;
+    const isButtonDisabled = enabledCount === 0 && isLoading;
 
     const FormatData: any = {
         basicoperations: {
-            removealpha: { label: "Remove Alphabets", name: "removealpha", help: "Remove all alphabetical characters" },
-            removenum: { label: "Remove Numbers", name: "removenum", help: "Strip numeric characters" },
-            removepunc: { label: "Remove Punctuations", name: "removepunc", help: "Strip punctuation marks" },
-            removespecialchar: { label: "Remove Special Characters", name: "removespecialchar", help: "Keep only alphanumeric & common punctuation" },
-            newlineremover: { label: "Remove Extra Lines", name: "newlineremover", help: "Remove empty lines" },
-            extraspaceremover: { label: "Remove Extra Spaces", name: "extraspaceremover", help: "Collapse consecutive spaces" },
-            extractUrls: { label: "Extract URLs", name: "extractUrls", help: "Pull out http/https links (exclusive)" },
-            extractEmail: { label: "Extract Emails", name: "extractEmail", help: "Extract email-like tokens" },
-            extractPhone: { label: "Extract Phone Nos", name: "extractPhoneNo", help: "Extract phone number-like tokens" },
-            extractHasTag: { label: "Extract Hashtags", name: "extractHashTag", help: "Extract words starting with '#'" },
-            extractEmojis: { label: "Extract Emojis", name: "extractEmojis", help: "Detect and summarise emojis" },
-            extractMentions: { label: "Extract Mentions", name: "extractMentions", help: "Extract '@' mentions" },
+            removealpha: {
+                label: "Remove Alphabets",
+                name: "removealpha",
+                help: "Remove all alphabetical characters",
+                icon: <Type className="w-4 h-4" />
+            },
+            removenum: {
+                label: "Remove Numbers",
+                name: "removenum",
+                help: "Strip numeric characters",
+                icon: <Delete className="w-4 h-4" />
+            },
+            removepunc: {
+                label: "Remove Punctuations",
+                name: "removepunc",
+                help: "Strip punctuation marks",
+                icon: <Quote className="w-4 h-4" />
+            },
+            removespecialchar: {
+                label: "Remove Special Characters",
+                name: "removespecialchar",
+                help: "Keep only alphanumeric & common punctuation",
+                icon: <KeySquare className="w-4 h-4" />
+            },
+            newlineremover: {
+                label: "Remove Extra Lines",
+                name: "newlineremover",
+                help: "Remove empty lines",
+                icon: <AlignJustify className="w-4 h-4" />
+            },
+            extraspaceremover: {
+                label: "Remove Extra Spaces",
+                name: "extraspaceremover",
+                help: "Collapse consecutive spaces",
+                icon: <FileText className="w-4 h-4" />
+            },
+            extractUrls: {
+                label: "Extract URLs",
+                name: "extractUrls",
+                help: "Pull out http/https links (exclusive)",
+                icon: <Link className="w-4 h-4" />
+            },
+            extractEmail: {
+                label: "Extract Emails",
+                name: "extractEmail",
+                help: "Extract email-like tokens",
+                icon: <AtSign className="w-4 h-4" />
+            },
+            extractPhone: {
+                label: "Extract Phone Nos",
+                name: "extractPhoneNo",
+                help: "Extract phone number-like tokens",
+                icon: <Phone className="w-4 h-4" />
+            },
+            extractHasTag: {
+                label: "Extract Hashtags",
+                name: "extractHashTag",
+                help: "Extract words starting with '#'",
+                icon: <Hash className="w-4 h-4" />
+            },
+            extractEmojis: {
+                label: "Extract Emojis",
+                name: "extractEmojis",
+                help: "Detect and summarise emojis",
+                icon: <Smile className="w-4 h-4" />
+            },
+            extractMentions: {
+                label: "Extract Mentions",
+                name: "extractMentions",
+                help: "Extract '@' mentions",
+                icon: <User2 className="w-4 h-4" />
+            },
         },
         countchar: {
-            charcount: { label: "Count Characters", name: "charcount", help: "Count non-whitespace characters" },
-            alphacount: { label: "Count Alphabets", name: "alphacount", help: "Count alphabet letters" },
-            numcount: { label: "Count Numbers", name: "numcount", help: "Count numeric digits" },
-            alphanumericcount: { label: "Count Alphabets & Numbers", name: "alphanumericcount", help: "Count letters + digits" },
-            wordccount: { label: "Count Words", name: "wordcount", help: "Count word tokens" },
-            sentencecount: { label: "Count Sentences", name: "sentencecount", help: "Rudimentary sentence count" },
+            charcount: {
+                label: "Count Characters",
+                name: "charcount",
+                help: "Count non-whitespace characters",
+                icon: <SquareStack className="w-4 h-4" />
+            },
+            alphacount: {
+                label: "Count Alphabets",
+                name: "alphacount",
+                help: "Count alphabet letters",
+                icon: <Type className="w-4 h-4" />
+            },
+            numcount: {
+                label: "Count Numbers",
+                name: "numcount",
+                help: "Count numeric digits",
+                icon: <Calculator className="w-4 h-4" />
+            },
+            alphanumericcount: {
+                label: "Count Alphabets & Numbers",
+                name: "alphanumericcount",
+                help: "Count letters + digits",
+                icon: <ClipboardList className="w-4 h-4" />
+            },
+            wordccount: {
+                label: "Count Words",
+                name: "wordcount",
+                help: "Count word tokens",
+                icon: <FileText className="w-4 h-4" />
+            },
+            sentencecount: {
+                label: "Count Sentences",
+                name: "sentencecount",
+                help: "Rudimentary sentence count",
+                icon: <Quote className="w-4 h-4" />
+            },
         },
         changecap: {
-            fullcaps: { label: "Uppercase", name: "fullcaps", help: "Convert text to UPPERCASE" },
-            titlecaps: { label: "Title Case", name: "titlecaps", help: "Convert to Title Case (approx)" },
-            lowercaps: { label: "Lowercase", name: "lowercaps", help: "Convert text to lowercase" },
-            reverseText: { label: "Reverse Text", name: "reverseText", help: "Reverse the characters in the text" },
+            fullcaps: {
+                label: "Uppercase",
+                name: "fullcaps",
+                help: "Convert text to UPPERCASE",
+                icon: <ArrowUpAZ className="w-4 h-4" />
+            },
+            titlecaps: {
+                label: "Title Case",
+                name: "titlecaps",
+                help: "Convert to Title Case (approx)",
+                icon: <CaseSensitive className="w-4 h-4" />
+            },
+            lowercaps: {
+                label: "Lowercase",
+                name: "lowercaps",
+                help: "Convert text to lowercase",
+                icon: <ArrowDownAZ className="w-4 h-4" />
+            },
+            reverseText: {
+                label: "Reverse Text",
+                name: "reverseText",
+                help: "Reverse the characters in the text",
+                icon: <Undo2 className="w-4 h-4" />
+            },
         },
         analysis: {
-            analyzeSentiment: { label: "Analyze Sentiment", name: "analyzeSentiment", help: "Detect sentiment (positive/negative/neutral)", icon: <Brain className="w-4 h-4" /> },
-            summarizeText: { label: "Summarize Text", name: "summarizeText", help: "Extract key sentences from text", icon: <TrendingUp className="w-4 h-4" /> },
-            calculateReadability: { label: "Calculate Readability", name: "calculateReadability", help: "Flesch-Kincaid readability scores", icon: <BarChart3 className="w-4 h-4" /> },
-            detectLanguage: { label: "Detect Language", name: "detectLanguage", help: "Identify the language of the text", icon: <Globe className="w-4 h-4" /> },
-            compareTexts: { label: "Compare Texts", name: "compareTexts", help: "Compare current text with another text", icon: null },
+            analyzeSentiment: {
+                label: "Analyze Sentiment",
+                name: "analyzeSentiment",
+                help: "Detect sentiment (positive/negative/neutral)",
+                icon: <Brain className="w-4 h-4" />
+            },
+            summarizeText: {
+                label: "Summarize Text",
+                name: "summarizeText",
+                help: "Extract key sentences from text",
+                icon: <TrendingUp className="w-4 h-4" />
+            },
+            calculateReadability: {
+                label: "Calculate Readability",
+                name: "calculateReadability",
+                help: "Flesch-Kincaid readability scores",
+                icon: <BarChart3 className="w-4 h-4" />
+            },
+            detectLanguage: {
+                label: "Detect Language",
+                name: "detectLanguage",
+                help: "Identify the language of the text",
+                icon: <Globe className="w-4 h-4" />
+            },
+            compareTexts: {
+                label: "Compare Texts",
+                name: "compareTexts",
+                help: "Compare current text with another text",
+                icon: null
+            },
+        },
+        aiAdvanced: {
+            geminiSentiment: {
+                label: "Advanced Sentiment (AI)",
+                name: "geminiSentiment",
+                help: "Use Gemini AI for detailed sentiment analysis",
+                icon: <Brain className="w-4 h-4" />
+            },
+            geminiSummarization: {
+                label: "AI Summarization",
+                name: "geminiSummarization",
+                help: "Use Gemini AI to summarize the text",
+                icon: <TrendingUp className="w-4 h-4" />
+            },
+            geminiKeywords: {
+                label: "Extract Topics & Keywords",
+                name: "geminiKeywords",
+                help: "Use AI to extract key topics and keywords",
+                icon: <Hash className="w-4 h-4" />
+            },
         },
     };
-
     const calculateReadTime = (text: string): string => {
         const wordsPerMinute = 200;
-        const wordCount = text.trim().length ?  text.trim().split(/\s+/).length : 0;
+        const wordCount = text.trim().length ? text.trim().split(/\s+/).length : 0;
         const minutes = Math.floor(wordCount / wordsPerMinute);
         const seconds = Math.floor((wordCount % wordsPerMinute) / (wordsPerMinute / 60));
         if (minutes === 0 && seconds === 0) return "Less than a second";
@@ -384,7 +563,7 @@ export default function AnalyserPage() {
 
     const calculateTypingStats = (input: string) => {
         if (!typingTest.startTime || input.length === 0) return { wpm: 0 };
-        const elapsedTime = (typingTest.endTime!  - typingTest.startTime!) / 60000;
+        const elapsedTime = (typingTest.endTime! - typingTest.startTime!) / 60000;
         if (elapsedTime < 0.05) return 0;
         const wpm = Math.round(input.length / 5 / elapsedTime);
         return { wpm: isFinite(wpm) ? wpm : 0 };
@@ -412,7 +591,7 @@ export default function AnalyserPage() {
         setData((prevData) => {
             if (name === "extractUrls" && checked) {
                 const newState: any = {};
-                Object.keys(prevData). forEach((k) => (newState[k] = k === "extractUrls"));
+                Object.keys(prevData).forEach((k) => (newState[k] = k === "extractUrls"));
                 return newState;
             }
             return { ...prevData, [name]: checked };
@@ -446,16 +625,17 @@ export default function AnalyserPage() {
     };
 
     const Examine = async () => {
-        const AnalyserEngine = new Tools. Analyser(examString, {
+        setIsLoading(true);
+        const AnalyserEngine = new Tools.Analyser(examString, {
             [Tools.Operations.RemoveAlphabets]: data.removealpha,
             [Tools.Operations.RemoveNumbers]: data.removenum,
             [Tools.Operations.RemovePunctuations]: data.removepunc,
             [Tools.Operations.RemoveSpecialChars]: data.removespecialchar,
-            [Tools.Operations. ConvertToUppercase]: data.fullcaps,
-            [Tools. Operations.ConvertToTitleCase]: data.titlecaps,
-            [Tools.Operations. ConvertToLowercase]: data.lowercaps,
+            [Tools.Operations.ConvertToUppercase]: data.fullcaps,
+            [Tools.Operations.ConvertToTitleCase]: data.titlecaps,
+            [Tools.Operations.ConvertToLowercase]: data.lowercaps,
             [Tools.Operations.RemoveExtraSpaces]: data.extraspaceremover,
-            [Tools.Operations. RemoveNewlines]: data.newlineremover,
+            [Tools.Operations.RemoveNewlines]: data.newlineremover,
             [Tools.Operations.ExtractUrls]: data.extractUrls,
             [Tools.Operations.CountCharacters]: data.charcount,
             [Tools.Operations.CountAlphabets]: data.alphacount,
@@ -465,14 +645,14 @@ export default function AnalyserPage() {
             [Tools.Operations.CountSentences]: data.sentencecount,
             [Tools.Operations.ReverseText]: data.reverseText,
             [Tools.Operations.ExtractMentions]: data.extractMentions,
-            [Tools. Operations.ExtractEmails]: data.extractEmail,
+            [Tools.Operations.ExtractEmails]: data.extractEmail,
             [Tools.Operations.ExtractHashtags]: data.extractHashTag,
             [Tools.Operations.ExtractPhoneNumbers]: data.extractPhoneNo,
-            [Tools.Operations. AnalyzeSentiment]: data.analyzeSentiment,
-            [Tools. Operations.SummarizeText]: data.summarizeText ?  { sentenceCount: 3 } : false,
-            [Tools.Operations. CalculateReadability]: data.calculateReadability,
-            [Tools. Operations.DetectLanguage]: data.detectLanguage,
-            [Tools.Operations.CompareTexts]: data.compareTexts ?  { compareWith: compareText } : false,
+            [Tools.Operations.AnalyzeSentiment]: data.analyzeSentiment,
+            [Tools.Operations.SummarizeText]: data.summarizeText ? { sentenceCount: 3 } : false,
+            [Tools.Operations.CalculateReadability]: data.calculateReadability,
+            [Tools.Operations.DetectLanguage]: data.detectLanguage,
+            [Tools.Operations.CompareTexts]: data.compareTexts ? { compareWith: compareText } : false,
         } as any);
 
         // Custom emoji operation
@@ -508,7 +688,7 @@ export default function AnalyserPage() {
                             uniqueEmojiCount: uniqueEmojis.length,
                             emojiCategories: {
                                 nature: emojiCategories.nature.length,
-                                objects: emojiCategories.objects. length,
+                                objects: emojiCategories.objects.length,
                                 symbols: emojiCategories.symbols.length,
                             },
                             emojiDensity: (emojis.length / (text.length || 1)) * 100,
@@ -519,7 +699,7 @@ export default function AnalyserPage() {
             );
         } catch (err) {
             try {
-                await (AnalyserEngine as any). addCustomOperation(
+                await (AnalyserEngine as any).addCustomOperation(
                     "extractEmojis",
                     "Extracted Emojis",
                     (text: string) => text,
@@ -530,16 +710,50 @@ export default function AnalyserPage() {
             }
         }
 
-        const result = await AnalyserEngine. main();
+        const result = await AnalyserEngine.main();
+
+        // Gemini AI Processing
+        let geminiResults: any = {};
+
+        if (data.geminiSentiment) {
+            try {
+                geminiResults.sentiment = await geminiAdvancedSentiment(examString);
+            } catch (error) {
+                console.error("Gemini sentiment error:", error);
+                geminiResults.sentiment = {
+                    classification: "error",
+                    explanation: "Failed to analyze sentiment",
+                    confidence: 0
+                };
+            }
+        }
+
+        if (data.geminiSummarization) {
+            try {
+                geminiResults.summary = await geminiSummarize(examString);
+            } catch (error) {
+                console.error("Gemini summary error:", error);
+                geminiResults.summary = "Failed to generate summary";
+            }
+        }
+
+        if (data.geminiKeywords) {
+            try {
+                geminiResults.keywords = await geminiKeywordExtraction(examString);
+            } catch (error) {
+                console.error("Gemini keywords error:", error);
+                geminiResults.keywords = { keywords: [], topics: [] };
+            }
+        }
 
         const completeResult = {
-            ... result,
+            ...result,
             metadata: {
                 counts: {
-                    characterCount: result.metadata?. counts?.characterCount || 0,
+                    characterCount: result.metadata?.counts?.characterCount || 0,
                     alphabetCount: result.metadata?.counts?.alphabetCount || 0,
                     numericCount: result.metadata?.counts?.numericCount || 0,
-                    wordCount: result.metadata?.counts?. wordCount || 0,
+                    wordCount: result.metadata?.counts?.wordCount || 0,
                     sentenceCount: result.metadata?.counts?.sentenceCount || 0,
                 },
                 urls: result.metadata?.urls || [],
@@ -554,20 +768,23 @@ export default function AnalyserPage() {
             readability: (result as any).readability,
             languageDetection: (result as any).languageDetection,
             textComparison: (result as any).textComparison,
+            gemini: geminiResults,
         };
 
         try {
             setAnalysis(completeResult);
             setReadTime(calculateReadTime(result.output));
+            setTimeout(() => setIsLoading(false), 500);
         } catch (error) {
             console.error("Analysis failed:", error);
             setAnalysis((prev: any) => ({ ...prev, output: "Error occurred during analysis" }));
+            setIsLoading(false);
         }
     };
 
     React.useEffect(() => {
         Prism.highlightAll();
-    }, [analysis. output]);
+    }, [analysis.output]);
 
     return (
         <div className="px-6 py-10 max-w-7xl mx-auto">
@@ -577,22 +794,119 @@ export default function AnalyserPage() {
                     <Badge>{enabledCount}</Badge>
                     <Dialog>
                         <DialogTrigger asChild>
-                            <Button variant="ghost" className="px-3">Export</Button>
+                            <Button variant="ghost" className="px-3">
+                                <Download className="w-4 h-4 mr-2" />
+                                Export
+                            </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-[480px]">
+                        <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
                             <DialogHeader>
-                                <DialogTitle>Export Results</DialogTitle>
-                                <DialogDescription>Copy or download the analysis output. </DialogDescription>
+                                <DialogTitle>Export Analysis Results</DialogTitle>
+                                <DialogDescription>
+                                    Download your complete analysis report with all results, AI analyses, extracted data, and statistics.
+                                </DialogDescription>
                             </DialogHeader>
-                            <div className="mt-2"> 
-                                <pre className="language-c line-numbers" id="analyserOutput">
-                                    <code>{analysis.output || "No output"}</code>
-                                </pre>
+
+                            <div className="space-y-4">
+                                {/* Display Comprehensive Output */}
+                                <div>
+                                    <label className="text-sm font-semibold mb-2 block">Full Analysis Report</label>
+                                    <textarea
+                                        className="w-full h-64 p-3 bg-slate-900 text-white rounded-lg border border-slate-700 font-mono text-xs resize-none overflow-auto"
+                                        value={generateExportText(analysis, customAIResult)}
+                                        readOnly
+                                    />
+                                </div>
+
+                                {/* Format Selection */}
+                                <div>
+                                    <label className="text-sm font-semibold mb-2 block">Export Format</label>
+                                    <div className="flex gap-2 flex-wrap">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => {
+                                                const blob = new Blob([generateExportText(analysis, customAIResult)], {
+                                                    type: "text/plain;charset=utf-8",
+                                                });
+                                                const href = URL.createObjectURL(blob);
+                                                const anchor = document.createElement("a");
+                                                anchor.href = href;
+                                                anchor.download = `textanalyser-report-${new Date().toISOString().split('T')[0]}`;
+                                                anchor.click();
+                                                URL.revokeObjectURL(href);
+                                            }}
+                                        >
+                                            📄 TXT (Full Report)
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => {
+                                                const blob = new Blob([generateExportJSON(analysis, customAIResult)], {
+                                                    type: "application/json;charset=utf-8",
+                                                });
+                                                const href = URL.createObjectURL(blob);
+                                                const anchor = document.createElement("a");
+                                                anchor.href = href;
+                                                anchor.download = `textanalyser-report-${new Date().toISOString().split('T')[0]}`;
+                                                anchor.click();
+                                                URL.revokeObjectURL(href);
+                                            }}
+                                        >
+                                            { } JSON
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => {
+                                                const blob = new Blob([generateExportCSV(analysis, customAIResult)], {
+                                                    type: "text/csv;charset=utf-8",
+                                                });
+                                                const href = URL.createObjectURL(blob);
+                                                const anchor = document.createElement("a");
+                                                anchor.href = href;
+                                                anchor.download = `textanalyser-report-${new Date().toISOString().split('T')[0]}`;
+                                                anchor.click();
+                                                URL.revokeObjectURL(href);
+                                            }}
+                                        >
+                                            📊 CSV
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                {/* Quick Copy Actions */}
+                                <div className="bg-slate-800/50 p-3 rounded-lg">
+                                    <div className="text-sm font-semibold mb-2">Quick Actions</div>
+                                    <div className="flex gap-2 flex-wrap">
+                                        <Button
+                                            variant="secondary"
+                                            size="sm"
+                                            onClick={() => {
+                                                navigator.clipboard?.writeText(generateExportText(analysis, customAIResult));
+                                            }}
+                                        >
+                                            <Copy className="w-4 h-4 mr-2" />
+                                            Copy Full Report
+                                        </Button>
+                                        <Button
+                                            variant="secondary"
+                                            size="sm"
+                                            onClick={() => {
+                                                navigator.clipboard?.writeText(analysis.output || "");
+                                            }}
+                                        >
+                                            <Copy className="w-4 h-4 mr-2" />
+                                            Copy Output
+                                        </Button>
+                                    </div>
+                                </div>
                             </div>
+
                             <DialogFooter>
-                                <Button onClick={() => { navigator.clipboard?. writeText(analysis.output || ""); }} className="mr-2">Copy</Button>
                                 <DialogClose asChild>
-                                    <Button variant="secondary" className="bg-red-600 hover:bg-red-500 text-white">Close</Button>
+                                    <Button variant="secondary">Close</Button>
                                 </DialogClose>
                             </DialogFooter>
                         </DialogContent>
@@ -623,6 +937,158 @@ export default function AnalyserPage() {
                         </div>
                     )}
 
+                    {/* Custom AI Prompt Dialog */}
+                    <Dialog open={showCustomPromptDialog} onOpenChange={setShowCustomPromptDialog}>
+                        <DialogContent className="sm:max-w-[600px]">
+                            <DialogHeader>
+                                <DialogTitle className="flex items-center gap-2">
+                                    <Wand2 className="w-5 h-5" />
+                                    Custom AI Text Analysis
+                                </DialogTitle>
+                                <DialogDescription>
+                                    Enter any prompt or question for Gemini AI to analyze your text.  Be
+                                    specific about what you want to know or achieve.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <ScrollArea className="h-40 md:h-100">
+                                <div className="space-y-4 mt-4">
+                                    {/* Quick Templates */}
+                                    <div>
+                                        <label className="text-sm font-semibold mb-2 block">
+                                            Quick Templates
+                                        </label>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                            {[
+                                                {
+                                                    label: "Improve Writing",
+                                                    prompt:
+                                                        "Critique this text for grammar, clarity, and tone. Suggest 3 specific improvements.",
+                                                },
+                                                {
+                                                    label: "Extract Key Ideas",
+                                                    prompt:
+                                                        "List the 5 most important ideas or concepts in this text as bullet points.",
+                                                },
+                                                {
+                                                    label: "Analyze Tone",
+                                                    prompt:
+                                                        "Analyze the tone and emotional undertones in this text.  What audience is it best suited for?",
+                                                },
+                                                {
+                                                    label: "Generate Questions",
+                                                    prompt:
+                                                        "Generate 5 insightful discussion questions based on this text.",
+                                                },
+                                            ].map((template) => (
+                                                <Button
+                                                    key={template.label}
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => setCustomPrompt(template.prompt)}
+                                                    className="text-left h-auto"
+                                                >
+                                                    {template.label}
+                                                </Button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Custom Prompt Input */}
+                                    <div>
+                                        <label className="text-sm font-semibold mb-2 block">
+                                            Your Custom Prompt
+                                        </label>
+                                        <textarea
+                                            className="w-full min-h-32 p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                                            placeholder="Example: Summarize the main argument and list potential counterarguments..."
+                                            value={customPrompt}
+                                            onChange={(e) => setCustomPrompt(e.target.value)}
+                                        />
+                                        <div className="text-xs text-slate-500 mt-1">
+                                            {customPrompt.length} characters
+                                        </div>
+                                    </div>
+
+                                    {/* Custom AI Analysis Result */}
+                                    {customAIResult && (
+                                        <Card className="p-4 md:col-span-2 bg-linear-to-br from-indigo-500/20 to-purple-500/20 border-indigo-500/50 overflow-scroll">
+                                            <div className="flex items-start gap-3">
+                                                <div className="text-2xl">✨</div>
+                                                <div className="flex-1">
+                                                    <div className="flex items-center justify-between mb-3">
+                                                        <h4 className="text-lg font-semibold">Custom AI Analysis</h4>
+                                                    </div>
+                                                    <div className="bg-slate-900/50 rounded p-3 max-h-64 overflow-y-auto">
+                                                        <MarkdownRenderer content={customAIResult} />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    )}
+
+                                    {/* Loading State */}
+                                    {isLoadingCustomAI && (
+                                        <div className="flex items-center justify-center gap-2 p-4 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            <span className="text-sm text-slate-600 dark:text-slate-400">
+                                                Processing with AI...
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            </ScrollArea>
+
+                            <DialogFooter className="flex gap-2 justify-end mt-6">
+                                <Button
+                                    variant="secondary"
+                                    onClick={() => {
+                                        setCustomPrompt("");
+                                        setCustomAIResult("");
+                                    }}
+                                >
+                                    Clear
+                                </Button>
+                                <Button
+                                    disabled={isLoadingCustomAI || !customPrompt.trim() || !examString.trim()}
+                                    onClick={async () => {
+                                        setIsLoadingCustomAI(true);
+                                        try {
+                                            const response = await geminiCustomPrompt({
+                                                prompt: customPrompt,
+                                                text: examString,
+                                            });
+                                            setCustomAIResult(response);
+                                        } catch (error) {
+                                            setCustomAIResult(
+                                                `Error: ${error instanceof Error
+                                                    ? error.message
+                                                    : "Failed to process request"
+                                                }`
+                                            );
+                                        } finally {
+                                            setIsLoadingCustomAI(false);
+                                        }
+                                    }}
+                                >
+                                    {isLoadingCustomAI ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                            Processing...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Wand2 className="w-4 h-4 mr-2" />
+                                            Analyze with AI
+                                        </>
+                                    )}
+                                </Button>
+                                <DialogClose asChild>
+                                    <Button variant="ghost">Close</Button>
+                                </DialogClose>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800">
@@ -631,13 +1097,42 @@ export default function AnalyserPage() {
                             </div>
                             <div className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800">
                                 <div className="text-xs text-slate-500">Typing speed</div>
-                                <div className="font-medium">{typingTest. wpm ??  0} wpm</div>
+                                <div className="font-medium">{typingTest.wpm ?? 0} wpm</div>
                             </div>
                         </div>
 
                         <div className="flex items-center gap-2">
-                            <Button variant="outline" onClick={() => setExamString("")}>Clear</Button>
-                            <Button onClick={Examine} disabled={isButtonDisabled}>{isButtonDisabled ? "Enable an option" : "Analyse"}</Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => {
+                                    setExamString("Hello World");
+                                    setCustomPrompt("");
+                                    setCustomAIResult("");
+                                    setAnalysis("")
+                                }}
+                                disabled={isLoading}
+                            >
+                                Clear
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => setShowCustomPromptDialog(true)}
+                                title="Analyze text with custom AI prompt"
+                            >
+                                <Wand2 className="w-4 h-4 mr-2" />
+                                Custom AI
+                            </Button>
+                            <Button
+                                onClick={Examine}
+                                disabled={isButtonDisabled || isLoading}
+                            >
+                                {isLoading ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                        Analysing...
+                                    </>
+                                ) : isButtonDisabled ? "Enable an option" : "Analyse"}
+                            </Button>
                         </div>
                     </div>
 
@@ -645,19 +1140,18 @@ export default function AnalyserPage() {
                         <section className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-xl font-semibold">Analysis Results</h3>
-                                <div className="text-sm text-slate-400">exec: {analysis.executionTime ??  0} ms</div>
+                                <div className="text-sm text-slate-400">exec: {analysis.executionTime ?? 0} ms</div>
                             </div>
 
                             <Card className="p-2">
-                                <ScrollArea className="h-40 overflow-hidden">
-                                    <pre className="language-c line-numbers p-4 bg-slate-900 text-white">
+                                <div className="h-40 overflow-auto">
+                                    <pre className="language-c line-numbers p-4 bg-slate-900 text-white min-w-max">
                                         <code>{analysis.output}</code>
                                     </pre>
-                                </ScrollArea>
+                                </div>
                             </Card>
-
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                {analysis.builtInOperations?. length > 0 && (
+                                {analysis.builtInOperations?.length > 0 && (
                                     <Card className="p-4">
                                         <h4 className="font-semibold mb-2">Built-in Operations</h4>
                                         <ul className="list-disc ml-5 text-sm">
@@ -679,6 +1173,104 @@ export default function AnalyserPage() {
                                 {analysis.sentiment && (
                                     <SentimentAnalysisDisplay metadata={analysis.sentiment} />
                                 )}
+                                {/* Gemini AI Advanced Sentiment */}
+                                {analysis.gemini?.sentiment && (
+                                    <Card className="p-4 md:col-span-2 bg-linear-to-br from-indigo-500/20 to-purple-500/20 border-indigo-500/50">
+                                        <div className="flex items-start gap-3">
+                                            <div className="text-2xl">🤖</div>
+                                            <div className="flex-1">
+                                                <div className="flex items-center justify-between">
+                                                    <h4 className="text-lg font-semibold">Gemini AI Sentiment Analysis</h4>
+                                                    <Badge variant="outline" className="capitalize">
+                                                        {analysis.gemini.sentiment.classification}
+                                                    </Badge>
+                                                </div>
+                                                <p className="text-sm text-slate-300 mt-2">{analysis.gemini.sentiment.explanation}</p>
+                                                <div className="mt-2 text-xs text-slate-400">
+                                                    Confidence: <span className="font-medium text-indigo-400">
+                                                        {(analysis.gemini.sentiment.confidence * 100).toFixed(1)}%
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Card>
+                                )}
+
+                                {/* Gemini AI Summary */}
+                                {analysis.gemini?.summary && (
+                                    <Card className="p-4 md:col-span-2 bg-linear-to-br from-green-500/20 to-emerald-500/20 border-green-500/50">
+                                        <div className="flex items-start gap-3">
+                                            <div className="text-2xl">✨</div>
+                                            <div className="flex-1">
+                                                <h4 className="text-lg font-semibold mb-2">AI-Generated Summary</h4>
+                                                <p className="text-sm text-slate-300 leading-relaxed">{analysis.gemini.summary}</p>
+                                            </div>
+                                        </div>
+                                    </Card>
+                                )}
+                                {/* Custom AI Analysis Result */}
+                                {customAIResult && (
+                                    <Card className="p-4 md:col-span-2 bg-linear-to-br from-indigo-500/20 to-purple-500/20 border-indigo-500/50">
+                                        <div className="flex items-start gap-3">
+                                            <div className="text-2xl">✨</div>
+                                            <div className="flex-1">
+                                                <div className="flex items-center justify-between">
+                                                    <h4 className="text-lg font-semibold">Custom AI Analysis</h4>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() => setShowCustomPromptDialog(true)}
+                                                    >
+                                                        Edit
+                                                    </Button>
+                                                </div>
+                                                <div className="mt-2 p-3 bg-slate-900/50 rounded text-sm text-slate-300 max-h-48 overflow-y-auto whitespace-pre-wrap">
+                                                    {customAIResult}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Card>
+                                )}
+
+                                {/* Gemini AI Keywords & Topics */}
+                                {analysis.gemini?.keywords && (
+                                    analysis.gemini.keywords.keywords.length > 0 || analysis.gemini.keywords.topics.length > 0
+                                ) && (
+                                        <Card className="p-4 md:col-span-2 bg-linear-to-br from-cyan-500/20 to-blue-500/20 border-cyan-500/50">
+                                            <div className="flex items-start gap-3">
+                                                <div className="text-2xl">🎯</div>
+                                                <div className="flex-1">
+                                                    <h4 className="text-lg font-semibold mb-3">AI Topics & Keywords</h4>
+
+                                                    {analysis.gemini.keywords.topics.length > 0 && (
+                                                        <div className="mb-3">
+                                                            <div className="text-xs text-slate-400 mb-2">Topics</div>
+                                                            <div className="flex flex-wrap gap-2">
+                                                                {analysis.gemini.keywords.topics.map((topic: string, i: number) => (
+                                                                    <Badge key={i} variant="secondary" className="bg-cyan-500/30">
+                                                                        {topic}
+                                                                    </Badge>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {analysis.gemini.keywords.keywords.length > 0 && (
+                                                        <div>
+                                                            <div className="text-xs text-slate-400 mb-2">Keywords</div>
+                                                            <div className="flex flex-wrap gap-2">
+                                                                {analysis.gemini.keywords.keywords.map((keyword: string, i: number) => (
+                                                                    <Badge key={i} variant="outline">
+                                                                        {keyword}
+                                                                    </Badge>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    )}
 
                                 {/* Readability Analysis */}
                                 {analysis.readability && (
@@ -691,7 +1283,7 @@ export default function AnalyserPage() {
                                 )}
 
                                 {/* Text Summary */}
-                                {analysis. summary && (
+                                {analysis.summary && (
                                     <Card className="p-4 md:col-span-2">
                                         <h4 className="font-semibold mb-2">Summary</h4>
                                         <p className="text-sm text-slate-300 leading-relaxed">{analysis.summary}</p>
@@ -699,13 +1291,13 @@ export default function AnalyserPage() {
                                 )}
 
                                 {/* Text Comparison Results */}
-                                {analysis. textComparison && (
+                                {analysis.textComparison && (
                                     <Card className="p-4 md:col-span-2">
                                         <h4 className="font-semibold mb-3">Comparison Results</h4>
                                         <div className="space-y-2 text-sm">
                                             <div className="flex items-center justify-between">
                                                 <span className="text-slate-300">Similarity:</span>
-                                                <span className="font-semibold text-green-400">{analysis. textComparison.similarity.toFixed(2)}%</span>
+                                                <span className="font-semibold text-green-400">{analysis.textComparison.similarity.toFixed(2)}%</span>
                                             </div>
                                             <div className="flex items-center justify-between">
                                                 <span className="text-slate-300">Edit Distance:</span>
@@ -715,7 +1307,7 @@ export default function AnalyserPage() {
                                                 <div className="grid grid-cols-3 gap-2 mt-2">
                                                     <div className="bg-green-500/20 p-2 rounded text-center">
                                                         <div className="text-xs text-slate-400">Added</div>
-                                                        <div className="font-semibold text-green-400">{analysis.textComparison.wordDifference. addedCount}</div>
+                                                        <div className="font-semibold text-green-400">{analysis.textComparison.wordDifference.addedCount}</div>
                                                     </div>
                                                     <div className="bg-red-500/20 p-2 rounded text-center">
                                                         <div className="text-xs text-slate-400">Removed</div>
@@ -732,7 +1324,7 @@ export default function AnalyserPage() {
                                 )}
 
                                 {/* URLs */}
-                                {analysis. metadata?.urls?. length > 0 && (
+                                {analysis.metadata?.urls?.length > 0 && (
                                     <Card className="p-4">
                                         <h4 className="font-semibold">URLs</h4>
                                         <pre className="whitespace-pre-wrap text-sm">{JSON.stringify(analysis.metadata.urls)}</pre>
@@ -740,7 +1332,7 @@ export default function AnalyserPage() {
                                 )}
 
                                 {/* Mentions */}
-                                {analysis. metadata?.mentions?.length > 0 && (
+                                {analysis.metadata?.mentions?.length > 0 && (
                                     <Card className="p-4">
                                         <h4 className="font-semibold">Mentions</h4>
                                         {analysis.metadata.mentions.map((m: string, i: number) => <div key={i} className="text-sm">👤 {m}</div>)}
@@ -748,15 +1340,15 @@ export default function AnalyserPage() {
                                 )}
 
                                 {/* Emails */}
-                                {analysis. metadata?.emails?.length > 0 && (
+                                {analysis.metadata?.emails?.length > 0 && (
                                     <Card className="p-4">
                                         <h4 className="font-semibold">Emails</h4>
-                                        {analysis.metadata.emails. map((em: string, i: number) => <div key={i} className="text-sm">✉ {em}</div>)}
+                                        {analysis.metadata.emails.map((em: string, i: number) => <div key={i} className="text-sm">✉ {em}</div>)}
                                     </Card>
                                 )}
 
                                 {/* Phone Numbers */}
-                                {analysis. metadata?.phoneNumbers?.length > 0 && (
+                                {analysis.metadata?.phoneNumbers?.length > 0 && (
                                     <Card className="p-4">
                                         <h4 className="font-semibold">Phone Numbers</h4>
                                         {analysis.metadata.phoneNumbers.map((ph: string, i: number) => <div key={i} className="text-sm">📲 {ph}</div>)}
@@ -767,12 +1359,12 @@ export default function AnalyserPage() {
                                 {analysis.metadata?.hashtags?.length > 0 && (
                                     <Card className="p-4">
                                         <h4 className="font-semibold">Hashtags</h4>
-                                        {analysis. metadata.hashtags.map((h: string, i: number) => <div key={i} className="text-sm italic text-blue-800 dark:text-blue-500 hover:underline hover:cursor-pointer">{h}</div>)}
+                                        {analysis.metadata.hashtags.map((h: string, i: number) => <div key={i} className="text-sm italic text-blue-800 dark:text-blue-500 hover:underline hover:cursor-pointer">{h}</div>)}
                                     </Card>
                                 )}
 
                                 {/* Emoji Analysis */}
-                                {analysis. metadata?.custom?.extractEmojis &&
+                                {analysis.metadata?.custom?.extractEmojis &&
                                     Object.keys(analysis.metadata.custom.extractEmojis || {}).length > 0 && (
                                         <EmojiAnalysisDisplay metadata={analysis.metadata.custom.extractEmojis} />
                                     )}
@@ -782,24 +1374,25 @@ export default function AnalyserPage() {
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
                                 <Card className="p-4">
                                     <div className="text-xs text-slate-400">Characters</div>
-                                    <div className="text-2xl font-semibold">{analysis.metadata?.counts?.characterCount ??  0}</div>
+                                    <div className="text-2xl font-semibold">{analysis.metadata?.counts?.characterCount ?? 0}</div>
                                 </Card>
                                 <Card className="p-4">
                                     <div className="text-xs text-slate-400">Alphabet</div>
-                                    <div className="text-2xl font-semibold">{analysis. metadata?.counts?.alphabetCount ??  0}</div>
+                                    <div className="text-2xl font-semibold">{analysis.metadata?.counts?.alphabetCount ?? 0}</div>
                                 </Card>
                                 <Card className="p-4">
                                     <div className="text-xs text-slate-400">Numbers</div>
-                                    <div className="text-2xl font-semibold">{analysis. metadata?.counts?.numericCount ?? 0}</div>
+                                    <div className="text-2xl font-semibold">{analysis.metadata?.counts?.numericCount ?? 0}</div>
                                 </Card>
                                 <Card className="p-4">
                                     <div className="text-xs text-slate-400">Words</div>
-                                    <div className="text-2xl font-semibold">{analysis. metadata?.counts?.wordCount ?? 0}</div>
+                                    <div className="text-2xl font-semibold">{analysis.metadata?.counts?.wordCount ?? 0}</div>
                                 </Card>
                             </div>
                         </section>
                     )}
                 </main>
+
 
                 {/* Right column - Sidebar with Tabs / Switches / Stats */}
                 <aside className="space-y-4">
@@ -815,31 +1408,40 @@ export default function AnalyserPage() {
                                 <TabsTrigger className="cursor-pointer" value="count">Count</TabsTrigger>
                                 <TabsTrigger className="cursor-pointer" value="transform">Transform</TabsTrigger>
                                 <TabsTrigger className="cursor-pointer" value="analysis">Analysis</TabsTrigger>
+                                <TabsTrigger className="cursor-pointer" value="ai">🤖 AI</TabsTrigger>
                             </TabsList>
 
-                            <TabsContent value="basic" className="space-y-1">
-                                <div className="flex flex-col">
-                                    {Object.values(FormatData. basicoperations).map((it: any) => renderSwitchRow(it))}
-                                </div>
-                            </TabsContent>
+                            <ScrollArea className="h-50 md:h-full">
 
-                            <TabsContent value="count" className="space-y-1">
-                                <div className="flex flex-col">
-                                    {Object. values(FormatData.countchar).map((it: any) => renderSwitchRow(it))}
-                                </div>
-                            </TabsContent>
+                                <TabsContent value="basic" className="space-y-1">
+                                    <div className="flex flex-col">
+                                        {Object.values(FormatData.basicoperations).map((it: any) => renderSwitchRow(it))}
+                                    </div>
+                                </TabsContent>
 
-                            <TabsContent value="transform" className="space-y-1">
-                                <div className="flex flex-col">
-                                    {Object.values(FormatData.changecap).map((it: any) => renderSwitchRow(it))}
-                                </div>
-                            </TabsContent>
+                                <TabsContent value="count" className="space-y-1">
+                                    <div className="flex flex-col">
+                                        {Object.values(FormatData.countchar).map((it: any) => renderSwitchRow(it))}
+                                    </div>
+                                </TabsContent>
 
-                            <TabsContent value="analysis" className="space-y-1">
-                                <div className="flex flex-col">
-                                    {Object.values(FormatData.analysis).map((it: any) => renderSwitchRow(it))}
-                                </div>
-                            </TabsContent>
+                                <TabsContent value="transform" className="space-y-1">
+                                    <div className="flex flex-col">
+                                        {Object.values(FormatData.changecap).map((it: any) => renderSwitchRow(it))}
+                                    </div>
+                                </TabsContent>
+
+                                <TabsContent value="analysis" className="space-y-1">
+                                    <div className="flex flex-col">
+                                        {Object.values(FormatData.analysis).map((it: any) => renderSwitchRow(it))}
+                                    </div>
+                                </TabsContent>
+                                <TabsContent value="ai" className="space-y-1">
+                                    <div className="flex flex-col">
+                                        {Object.values(FormatData.aiAdvanced).map((it: any) => renderSwitchRow(it))}
+                                    </div>
+                                </TabsContent>
+                            </ScrollArea>
                         </Tabs>
                     </Card>
 
@@ -848,8 +1450,8 @@ export default function AnalyserPage() {
                         <div className="text-sm text-slate-500 space-y-2">
                             <div>URLs: <span className="font-medium">{(analysis.metadata?.urls || []).length}</span></div>
                             <div>Emails: <span className="font-medium">{(analysis.metadata?.emails || []).length}</span></div>
-                            <div>Mentions: <span className="font-medium">{(analysis.metadata?. mentions || []).length}</span></div>
-                            <div>Hashtags: <span className="font-medium">{(analysis.metadata?. hashtags || []).length}</span></div>
+                            <div>Mentions: <span className="font-medium">{(analysis.metadata?.mentions || []).length}</span></div>
+                            <div>Hashtags: <span className="font-medium">{(analysis.metadata?.hashtags || []).length}</span></div>
                         </div>
                     </Card>
 
@@ -858,7 +1460,7 @@ export default function AnalyserPage() {
                         <div className="grid grid-cols-2 gap-2 text-sm">
                             <div>
                                 <div className="text-xs text-slate-400">Characters</div>
-                                <div className="font-medium">{analysis.metadata?. counts?.characterCount ?? 0}</div>
+                                <div className="font-medium">{analysis.metadata?.counts?.characterCount ?? 0}</div>
                             </div>
                             <div>
                                 <div className="text-xs text-slate-400">Alphabets</div>
@@ -870,13 +1472,13 @@ export default function AnalyserPage() {
                             </div>
                             <div>
                                 <div className="text-xs text-slate-400">Words</div>
-                                <div className="font-medium">{analysis. metadata?.counts?.wordCount ?? 0}</div>
+                                <div className="font-medium">{analysis.metadata?.counts?.wordCount ?? 0}</div>
                             </div>
                             <div className="col-span-2 mt-2">
                                 <Separator />
                                 <div className="mt-2 flex items-center justify-between text-xs text-slate-400">
                                     <div>Exec time</div>
-                                    <div className="font-medium">{analysis. executionTime ?? 0} ms</div>
+                                    <div className="font-medium">{analysis.executionTime ?? 0} ms</div>
                                 </div>
                             </div>
                         </div>

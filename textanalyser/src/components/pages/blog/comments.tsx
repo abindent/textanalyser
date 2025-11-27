@@ -25,7 +25,7 @@ export default function DisqusEmbed({
       title = "",
       url = typeof window !== "undefined" ? window.location.href : "",
       language = "en_US",
-      height = "600px",
+      height = "700px",
 }: DisqusEmbedProps) {
       const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
@@ -89,8 +89,8 @@ export default function DisqusEmbed({
             <div className="relative w-full">
                   {/* Header */}
                   <div className="flex items-center gap-3 px-6 py-4 border-b rounded-t-xl transition-all duration-300 dark:bg-linear-to-r dark:from-slate-800 dark:to-slate-900 dark:border-slate-700 bg-linear-to-r from-slate-50 to-slate-100 border-slate-200">                
-                        <div className="p-2 rounded-lg shadow-sm transition-transform duration-300 hover:scale-110 hover:rotate-3 dark:bg-slate-700 bg-white">
-                              <MessageSquare className={`w-5 h-5 dark:text-indigo-400' : 'text-indigo-600'}`} />
+                        <div className="cursor-pointer p-2 rounded-lg shadow-sm transition-transform duration-300 hover:scale-110 hover:rotate-3 dark:bg-slate-700 bg-white">
+                              <MessageSquare className="w-5 h-5 dark:text-indigo-400 text-indigo-600" />
                         </div>
                         <div>
                               <h3 className="text-lg font-semibold dark:text-slate-100 text-slate-800">
@@ -119,9 +119,6 @@ export default function DisqusEmbed({
                               className="transition-opacity duration-500"
                         />
                   </div>
-
-                  {/* Decorative Bottom Border */}
-                  <div className="h-1 w-full bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-b-xl"></div>
             </div>
       );
 }
