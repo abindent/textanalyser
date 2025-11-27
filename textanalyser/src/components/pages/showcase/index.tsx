@@ -134,7 +134,7 @@ export default function Showcase() {
             <p className="text-sm text-slate-600 dark:text-slate-400">
               Explore the full source code on{" "}
               <a
-                href="https://github.com/TrailingXtreme/textanalyser"
+                href="https://github.com/abindent/textanalyser"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
