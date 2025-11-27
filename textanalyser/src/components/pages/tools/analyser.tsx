@@ -813,7 +813,7 @@ export default function AnalyserPage() {
                                     <label className="text-sm font-semibold mb-2 block">Full Analysis Report</label>
                                     <textarea
                                         className="w-full h-64 p-3 bg-slate-900 text-white rounded-lg border border-slate-700 font-mono text-xs resize-none overflow-auto"
-                                        value={generateExportText(analysis, customAIResult)}
+                                        value={generateExportText(examString, analysis, customAIResult)}
                                         readOnly
                                     />
                                 </div>

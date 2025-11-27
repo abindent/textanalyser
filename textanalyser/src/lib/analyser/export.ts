@@ -1,7 +1,7 @@
 /**
  * Generate comprehensive text export with all analysis results
  */
-export function generateExportText(analysis: any, customAIResult?: string): string {
+export function generateExportText(input_text: string, analysis: any, customAIResult?: string): string {
   const lines: string[] = [];
 
   lines.push("╔════════════════════════════════════════════════════════════════╗");
@@ -10,6 +10,13 @@ export function generateExportText(analysis: any, customAIResult?: string): stri
   lines.push("");
   lines.push(`Generated: ${new Date().toLocaleString()}`);
   lines. push(`Report ID: ${new Date().toISOString().split('T')[0]}-${Math.random().toString(36).substr(2, 9)}`);
+  lines.push("");
+
+  // === ANALYSIS INPUT ===
+  lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  lines.push("📋 ANALYSIS INPUT");
+  lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  lines.push(input_text || "Hello World");
   lines.push("");
 
   // === ANALYSIS OUTPUT ===
