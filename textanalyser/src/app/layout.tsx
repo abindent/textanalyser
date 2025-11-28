@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
-// CSS FILE CONFIG
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Layout from "@/components/layout/layout";
 
-// FONTS
-import { GeistSans } from "geist/font/sans";
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
 
-// FONTAWESOME
-import { config } from "@fortawesome/fontawesome-svg-core";
-import "@fortawesome/fontawesome-svg-core/styles.css";
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 // PRISM
 import "prismjs/themes/prism-okaidia.css";
@@ -15,22 +19,12 @@ import "prismjs/plugins/toolbar/prism-toolbar.css";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import "prismjs/plugins/autolinker/prism-autolinker.css";
 
-// FONTAWESOME CONFIG
-config.autoAddCss = false;
+import "highlight.js/styles/github-dark.css";
 
-// NEXTJS MATERIAL UI APP ROUTER VERSION
-import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
-
-// LAYOUT IMPORT
-import Layout from "@/layout/layout";
 
 export const metadata: Metadata = {
   title: "TextAnalyser",
-  description:
-    "Just wanna to analyse your text? Come here and start analyzing.",
-  verification: {
-    google: "RxEp4MDwAJu9fHlP-U2MIdzjSqTIi7eCyyF7kj8oAnc",
-  },
+  description: "Advanced text analysis and styling tool",
 };
 
 export default function RootLayout({
@@ -39,14 +33,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={GeistSans.className}>
-      <head>
-        <meta name="viewport" content="initial-scale=1, width=device-width" />
-      </head>
-      <body>
-        <AppRouterCacheProvider>
-          <Layout>{children}</Layout>
-        </AppRouterCacheProvider>
+    <html lang="en" suppressHydrationWarning suppressContentEditableWarning>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <Layout>
+          {children}
+        </Layout>
       </body>
     </html>
   );

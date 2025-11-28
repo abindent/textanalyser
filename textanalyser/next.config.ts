@@ -1,12 +1,20 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["*"],
-  experimental: {
-    esmExternals: true,
+  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        port: '',
+      },
+    ],
   },
-  eslint: {
-    ignoreDuringBuilds: true,
+  experimental: {
+    serverActions: {
+      allowedOrigins: ['localhost:3000', process.env.CODESPACE_NAME],
+    }
   },
 };
 
