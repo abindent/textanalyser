@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     serverActions: {
-      allowedOrigins: ['localhost:3000', process.env.CODESPACE_NAME],
+      allowedOrigins: ['localhost:3000', process.env.CODESPACE_NAME as string],
     }
   },
 };
