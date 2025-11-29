@@ -51,7 +51,7 @@ export default function Intro() {
           <div style={{ position: "relative", width: "100%", paddingTop: "56.25%" }}>
             {/* Light theme image */}
             <Image
-              src="/resources/light/txt-analyser.png"
+              src="/resources/light/text-analyser.png"
               alt="Text analyser light"
               fill
               priority
@@ -63,7 +63,7 @@ export default function Intro() {
 
             {/* Dark theme image */}
             <Image
-              src="/resources/dark/txt-analyser.png"
+              src="/resources/dark/text-analyser.png"
               alt="Text analyser dark"
               fill
               priority

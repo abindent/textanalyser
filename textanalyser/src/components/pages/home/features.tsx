@@ -9,16 +9,16 @@ export default function Features() {
       icon: <SquarePen />,
       title: "Text Analyser",
       description: "Here you can analyse your texts.",
-      imageLight: "/resources/light/txt-analyser.png",
-      imageDark: "/resources/dark/txt-analyser.png",
+      imageLight: "/resources/light/text-analyser.png",
+      imageDark: "/resources/dark/text-analyser.png",
     },
     {
       icon: <EditIcon />,
       title: "Styler (Fancy Font)",
       description:
         "This utility adds different fancy characters to crazify (beautify) your text.",
-      imageLight: "/resources/light/fontgen.png",
-      imageDark: "/resources/dark/fontgen.png",
+      imageLight: "/resources/light/font-generation.png",
+      imageDark: "/resources/dark/font-generation.png",
     },
   ];
   const [selectedItemIndex, setSelectedItemIndex] = React.useState(0);
