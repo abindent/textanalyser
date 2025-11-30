@@ -117,10 +117,10 @@ export default function BlogPost() {
         );
     }
 
-    // Cusdis configuration (using NEXT_PUBLIC env vars is recommended)
-    const DISQUS_APP_ID = process.env.NEXT_PUBLIC_CUSDIS_APP_ID || "textanalyser";
+    // Comments configuration
+    const DISQUS_APP_ID = "textanalyser";
 
-    const pageId = blog.$id; // unique id per post
+    const pageId = blog.$id;
     const pageTitle = blog.title;
     const pageUrl = typeof window !== "undefined" ? window.location.href : "";
 
