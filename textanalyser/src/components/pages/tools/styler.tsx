@@ -352,14 +352,14 @@ const StylerPage: React.FC = () => {
                     onClick={loadMore}
                     className={cn(
                       "inline-flex items-center gap-2 px-6 py-2 rounded-lg font-semibold transition-all transform hover:scale-105 active:scale-95",
-                      fancyTexts.length >= 100
+                      fancyTexts.length >= 200
                         ? "bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed"
                         : "bg-linear-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl"
                     )}
-                    disabled={fancyTexts.length >= 100}
+                    disabled={fancyTexts.length >= 200}
                   >
                     <Sparkles className="w-4 h-4" />
-                    {fancyTexts.length >= 100
+                    {fancyTexts.length >= 200
                       ? "Limit Reached"
                       : `Load ${OUTPUT_BATCH_SIZE} More`}
                   </Button>
