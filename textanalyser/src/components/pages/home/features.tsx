@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import Image from "next/image";
-import { SquarePen, EditIcon } from "lucide-react";
+import { SquarePen, Edit } from "lucide-react";
 
 export default function Features() {
   const items = [
@@ -13,7 +13,7 @@ export default function Features() {
       imageDark: "/resources/dark/text-analyser.png",
     },
     {
-      icon: <EditIcon />,
+      icon: <Edit />,
       title: "Styler (Fancy Font)",
       description:
         "This utility adds different fancy characters to crazify (beautify) your text.",
@@ -45,10 +45,10 @@ export default function Features() {
               <button
                 key={index}
                 onClick={() => handleItemClick(index)}
-                className={`cursor-pointer px-3 py-1 rounded-full border ${
+                className={`cursor-pointer px-3 py-1 rounded-full border transition-colors ${
                   selectedItemIndex === index
                     ? "bg-sky-600 text-white border-sky-600"
-                    : "bg-transparent text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700"
+                    : "bg-transparent text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:border-sky-400"
                 }`}
               >
                 {title}
@@ -57,19 +57,26 @@ export default function Features() {
           </div>
 
           {/* Mobile preview (visible on small screens) */}
-          <div className="mt-4 md:hidden bg-transparent rounded-lg overflow-hidden border">
-            <div className="h-44 bg-center bg-no-repeat bg-contain">
-              <div className="relative w-full h-44">
+          <div className="mt-4 md:hidden bg-transparent rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+            <div className="relative w-full">
+              {/* Light theme image */}
+              <div className="block dark:hidden">
                 <Image
-                  src={
-                    typeof window !== "undefined" &&
-                    document.documentElement.classList.contains("dark")
-                      ? selectedFeature.imageDark
-                      : selectedFeature.imageLight
-                  }
+                  src={selectedFeature.imageLight}
                   alt={selectedFeature.title}
-                  fill
-                  className="object-contain"
+                  width={800}
+                  height={600}
+                  className="w-full h-auto"
+                />
+              </div>
+              {/* Dark theme image */}
+              <div className="hidden dark:block">
+                <Image
+                  src={selectedFeature.imageDark}
+                  alt={selectedFeature.title}
+                  width={800}
+                  height={600}
+                  className="w-full h-auto"
                 />
               </div>
             </div>
@@ -87,10 +94,10 @@ export default function Features() {
               <button
                 key={index}
                 onClick={() => handleItemClick(index)}
-                className={`cursor-pointer flex gap-4 items-center p-4 rounded-lg border ${
+                className={`cursor-pointer flex gap-4 items-center p-4 rounded-lg border transition-all ${
                   selectedItemIndex === index
                     ? "bg-slate-50/30 dark:bg-slate-700/60 border-sky-500"
-                    : "bg-transparent border-slate-200 dark:border-slate-800"
+                    : "bg-transparent border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
                 }`}
               >
                 <div
@@ -111,20 +118,29 @@ export default function Features() {
           </div>
         </div>
 
+        {/* Desktop preview */}
         <div className="hidden md:flex items-center justify-center">
-          <div className="w-full h-80 bg-white/5 rounded-lg border overflow-hidden relative pointer-events-none">
-            <Image
-              src={selectedFeature.imageLight}
-              alt={selectedFeature.title}
-              fill
-              className="object-contain block dark:hidden"
-            />
-            <Image
-              src={selectedFeature.imageDark}
-              alt={selectedFeature.title}
-              fill
-              className="object-contain hidden dark:block"
-            />
+          <div className="w-full rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden shadow-lg">
+            {/* Light theme image */}
+            <div className="block dark:hidden">
+              <Image
+                src={selectedFeature.imageLight}
+                alt={selectedFeature.title}
+                width={1200}
+                height={800}
+                className="w-full h-auto"
+              />
+            </div>
+            {/* Dark theme image */}
+            <div className="hidden dark:block">
+              <Image
+                src={selectedFeature.imageDark}
+                alt={selectedFeature.title}
+                width={1200}
+                height={800}
+                className="w-full h-auto"
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -18,7 +18,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 /* Small helpers & icons */
 import {
@@ -939,19 +939,20 @@ export default function AnalyserPage() {
 
                     {/* Custom AI Prompt Dialog */}
                     <Dialog open={showCustomPromptDialog} onOpenChange={setShowCustomPromptDialog}>
-                        <DialogContent className="sm:max-w-[600px]">
-                            <DialogHeader>
-                                <DialogTitle className="flex items-center gap-2">
-                                    <Wand2 className="w-5 h-5" />
+                        <DialogContent className="max-w-[89vw] sm:max-w-[580px] max-h-[85vh] p-0 flex flex-col">
+                            <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 border-b">
+                                <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                                    <Wand2 className="w-5 h-5 flex-shrink-0" />
                                     Custom AI Text Analysis
                                 </DialogTitle>
-                                <DialogDescription>
-                                    Enter any prompt or question for Gemini AI to analyze your text.  Be
+                                <DialogDescription className="text-sm">
+                                    Enter any prompt or question for Gemini AI to analyze your text. Be
                                     specific about what you want to know or achieve.
                                 </DialogDescription>
                             </DialogHeader>
-                            <ScrollArea className="h-40 md:h-100">
-                                <div className="space-y-4 mt-4">
+
+                            <ScrollArea type="always" className="h-30 md:h-80">
+                                <div className="space-y-4 pr-3">
                                     {/* Quick Templates */}
                                     <div>
                                         <label className="text-sm font-semibold mb-2 block">
@@ -972,7 +973,7 @@ export default function AnalyserPage() {
                                                 {
                                                     label: "Analyze Tone",
                                                     prompt:
-                                                        "Analyze the tone and emotional undertones in this text.  What audience is it best suited for?",
+                                                        "Analyze the tone and emotional undertones in this text. What audience is it best suited for?",
                                                 },
                                                 {
                                                     label: "Generate Questions",
@@ -985,7 +986,7 @@ export default function AnalyserPage() {
                                                     variant="outline"
                                                     size="sm"
                                                     onClick={() => setCustomPrompt(template.prompt)}
-                                                    className="text-left h-auto"
+                                                    className="text-left h-auto py-2 px-3 justify-start"
                                                 >
                                                     {template.label}
                                                 </Button>
@@ -999,26 +1000,26 @@ export default function AnalyserPage() {
                                             Your Custom Prompt
                                         </label>
                                         <textarea
-                                            className="w-full min-h-32 p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                                            className="w-full min-h-[120px] p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-sm"
                                             placeholder="Example: Summarize the main argument and list potential counterarguments..."
                                             value={customPrompt}
                                             onChange={(e) => setCustomPrompt(e.target.value)}
                                         />
-                                        <div className="text-xs text-slate-500 mt-1">
+                                        <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                             {customPrompt.length} characters
                                         </div>
                                     </div>
 
                                     {/* Custom AI Analysis Result */}
                                     {customAIResult && (
-                                        <Card className="p-4 md:col-span-2 bg-linear-to-br from-indigo-500/20 to-purple-500/20 border-indigo-500/50 overflow-scroll">
+                                        <Card className="p-4 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border-indigo-500/50">
                                             <div className="flex items-start gap-3">
-                                                <div className="text-2xl">✨</div>
-                                                <div className="flex-1">
-                                                    <div className="flex items-center justify-between mb-3">
-                                                        <h4 className="text-lg font-semibold">Custom AI Analysis</h4>
-                                                    </div>
-                                                    <div className="bg-slate-900/50 rounded p-3 max-h-64 overflow-y-auto">
+                                                <div className="text-2xl flex-shrink-0">✨</div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="text-base sm:text-lg font-semibold mb-3">
+                                                        Custom AI Analysis
+                                                    </h4>
+                                                    <div className="bg-slate-900/50 rounded p-3 max-h-[300px] overflow-y-auto">
                                                         <MarkdownRenderer content={customAIResult} />
                                                     </div>
                                                 </div>
@@ -1038,17 +1039,20 @@ export default function AnalyserPage() {
                                 </div>
                             </ScrollArea>
 
-                            <DialogFooter className="flex gap-2 justify-end mt-6">
+                            <DialogFooter className="px-4 sm:px-6 py-3 sm:py-4 border-t flex-row flex-wrap sm:flex-nowrap gap-2">
                                 <Button
                                     variant="secondary"
+                                    size="sm"
                                     onClick={() => {
                                         setCustomPrompt("");
                                         setCustomAIResult("");
                                     }}
+                                    className="flex-1 sm:flex-none"
                                 >
                                     Clear
                                 </Button>
                                 <Button
+                                    size="sm"
                                     disabled={isLoadingCustomAI || !customPrompt.trim() || !examString.trim()}
                                     onClick={async () => {
                                         setIsLoadingCustomAI(true);
@@ -1069,6 +1073,7 @@ export default function AnalyserPage() {
                                             setIsLoadingCustomAI(false);
                                         }
                                     }}
+                                    className="flex-1 sm:flex-none"
                                 >
                                     {isLoadingCustomAI ? (
                                         <>
@@ -1083,55 +1088,69 @@ export default function AnalyserPage() {
                                     )}
                                 </Button>
                                 <DialogClose asChild>
-                                    <Button variant="ghost">Close</Button>
+                                    <Button variant="ghost" size="sm" className="flex-1 sm:flex-none">
+                                        Close
+                                    </Button>
                                 </DialogClose>
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
-
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800">
-                                <div className="text-xs text-slate-500">Read time</div>
-                                <div className="font-medium">{readTime}</div>
+                    <div className="space-y-4">
+                        {/* Stats section */}
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                            <div className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 flex-shrink-0">
+                                <div className="text-xs text-slate-500 dark:text-slate-400">Read time</div>
+                                <div className="font-medium text-sm sm:text-base">{readTime}</div>
                             </div>
-                            <div className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800">
-                                <div className="text-xs text-slate-500">Typing speed</div>
-                                <div className="font-medium">{typingTest.wpm ?? 0} wpm</div>
+                            <div className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 flex-shrink-0">
+                                <div className="text-xs text-slate-500 dark:text-slate-400">Typing speed</div>
+                                <div className="font-medium text-sm sm:text-base">{typingTest.wpm ?? 0} wpm</div>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        {/* Buttons section */}
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                             <Button
                                 variant="outline"
+                                size="sm"
                                 onClick={() => {
-                                    setExamString("Hello World");
+                                    setExamString("");
                                     setCustomPrompt("");
                                     setCustomAIResult("");
-                                    setAnalysis("")
+                                    setAnalysis("");
                                 }}
                                 disabled={isLoading}
+                                className="flex-shrink-0"
                             >
                                 Clear
                             </Button>
                             <Button
                                 variant="outline"
+                                size="sm"
                                 onClick={() => setShowCustomPromptDialog(true)}
                                 title="Analyze text with custom AI prompt"
+                                disabled={isLoading}
+                                className="flex-shrink-0"
                             >
-                                <Wand2 className="w-4 h-4 mr-2" />
+                                <Wand2 className="w-4 h-4 mr-1.5" />
                                 Custom AI
                             </Button>
                             <Button
+                                size="sm"
                                 onClick={Examine}
                                 disabled={isButtonDisabled || isLoading}
+                                className="flex-shrink-0 w-full sm:w-auto sm:ml-auto"
                             >
                                 {isLoading ? (
                                     <>
-                                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                        <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
                                         Analysing...
                                     </>
-                                ) : isButtonDisabled ? "Enable an option" : "Analyse"}
+                                ) : isButtonDisabled ? (
+                                    "Enable an option"
+                                ) : (
+                                    "Analyse"
+                                )}
                             </Button>
                         </div>
                     </div>
@@ -1403,15 +1422,18 @@ export default function AnalyserPage() {
                         </div>
 
                         <Tabs value={tabValue} onValueChange={(v: string) => setTabValue(v)}>
-                            <TabsList className="mb-3">
+                           <ScrollArea type="always">
+                             <ScrollBar orientation="horizontal" />
+                             <TabsList className="mb-3">
                                 <TabsTrigger className="cursor-pointer" value="basic">Basic</TabsTrigger>
                                 <TabsTrigger className="cursor-pointer" value="count">Count</TabsTrigger>
                                 <TabsTrigger className="cursor-pointer" value="transform">Transform</TabsTrigger>
                                 <TabsTrigger className="cursor-pointer" value="analysis">Analysis</TabsTrigger>
                                 <TabsTrigger className="cursor-pointer" value="ai">🤖 AI</TabsTrigger>
                             </TabsList>
+                           </ScrollArea>
 
-                            <ScrollArea className="h-50 md:h-full">
+                            <ScrollArea type="always" className="h-50 md:h-full">
 
                                 <TabsContent value="basic" className="space-y-1">
                                     <div className="flex flex-col">
