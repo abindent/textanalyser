@@ -1,14 +1,13 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
+
 import Prism from "prismjs";
 import "prismjs/components/prism-c";
 import "prismjs/plugins/toolbar/prism-toolbar";
 import "prismjs/plugins/line-numbers/prism-line-numbers";
 import "prismjs/plugins/autolinker/prism-autolinker";
-import "prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard";
-
-import { Tools } from "textanalysis-tool";
 
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -22,13 +21,14 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 /* Small helpers & icons */
 import {
-    InfoIcon, TrendingUp, Brain, BarChart3, Globe, Type, Hash, KeySquare, AlignJustify, FileText, Link, AtSign, Phone, Smile, SquareStack, ClipboardList, Quote, ArrowUpAZ, ArrowDownAZ, CaseSensitive, Undo2, User2, Wand2, Calculator, Delete,
+    InfoIcon, TrendingUp, Brain, BarChart3, Globe, Type, Hash, KeySquare, AlignJustify, FileText, Link as LinkIcon, AtSign, Phone, Smile, SquareStack, ClipboardList, Quote, ArrowUpAZ, ArrowDownAZ, CaseSensitive, Undo2, User2, Wand2, Calculator, Delete,
     Loader2,
     Download,
     Copy
 } from "lucide-react";
 
 /* UTILITY FUNCTIONS */
+import { Analyse } from "@/lib/analyser/analyse";
 import { generateExportText, generateExportJSON, generateExportCSV } from "@/lib/analyser/export";
 
 /* AI */
@@ -157,6 +157,7 @@ interface ReadabilityAnalysisProps {
     metadata?: {
         readabilityScore?: number;
         gradeLevel?: number;
+        smogIndex?: number; // Add this
         complexity?: string;
         avgWordsPerSentence?: number;
         avgSyllablesPerWord?: number;
@@ -164,7 +165,7 @@ interface ReadabilityAnalysisProps {
 }
 
 const ReadabilityAnalysisDisplay: React.FC<ReadabilityAnalysisProps> = ({ metadata }) => {
-    if (!metadata || !metadata.readabilityScore) return null;
+    if (!metadata) return null;
 
     return (
         <Card className="p-4 bg-linear-to-br from-purple-500/20 to-pink-500/20 border-purple-500/50">
@@ -176,21 +177,29 @@ const ReadabilityAnalysisDisplay: React.FC<ReadabilityAnalysisProps> = ({ metada
                         <div className="text-sm text-slate-400">Grade: <span className="font-medium text-purple-400">{metadata.gradeLevel?.toFixed(1)}</span></div>
                     </div>
 
-                    <div className="mt-3 grid grid-cols-2 gap-2">
+                    <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
                         <div className="bg-white/3 rounded-md p-2">
                             <div className="text-xs text-slate-300">Flesch Score</div>
-                            <div className="text-lg font-semibold text-purple-400">{metadata.readabilityScore.toFixed(1)}</div>
+                            <div className="text-lg font-semibold text-purple-400">{metadata.readabilityScore?.toFixed(1)}</div>
+                        </div>
+                        <div className="bg-white/3 rounded-md p-2">
+                            <div className="text-xs text-slate-300">Grade Level</div>
+                            <div className="text-lg font-semibold text-purple-400">{metadata.gradeLevel?.toFixed(1)}</div>
+                        </div>
+                        <div className="bg-white/3 rounded-md p-2">
+                            <div className="text-xs text-slate-300">SMOG Index</div>
+                            <div className="text-lg font-semibold text-purple-300">{metadata.smogIndex?.toFixed(1)}</div>
                         </div>
                         <div className="bg-white/3 rounded-md p-2">
                             <div className="text-xs text-slate-300">Complexity</div>
                             <div className="text-lg font-semibold text-pink-400 capitalize">{metadata.complexity}</div>
                         </div>
                         <div className="bg-white/3 rounded-md p-2">
-                            <div className="text-xs text-slate-300">Words/Sentence</div>
+                            <div className="text-xs text-slate-300">Words/Sent</div>
                             <div className="text-lg font-semibold text-indigo-400">{metadata.avgWordsPerSentence?.toFixed(1)}</div>
                         </div>
                         <div className="bg-white/3 rounded-md p-2">
-                            <div className="text-xs text-slate-300">Syllables/Word</div>
+                            <div className="text-xs text-slate-300">Syl/Word</div>
                             <div className="text-lg font-semibold text-cyan-400">{metadata.avgSyllablesPerWord?.toFixed(2)}</div>
                         </div>
                     </div>
@@ -311,10 +320,10 @@ export default function AnalyserPage() {
         extractHashTag: boolean;
         extractPhoneNo: boolean;
         analyzeSentiment: boolean;
-        summarizeText: boolean;
         calculateReadability: boolean;
         detectLanguage: boolean;
         compareTexts: boolean;
+        extractKeywords: boolean;
         useGeminiAi: boolean,
         geminiSentiment: boolean,
         geminiSummarization: boolean,
@@ -345,10 +354,10 @@ export default function AnalyserPage() {
         extractHashTag: false,
         extractPhoneNo: false,
         analyzeSentiment: false,
-        summarizeText: false,
         calculateReadability: false,
         detectLanguage: false,
         compareTexts: false,
+        extractKeywords: false,
         useGeminiAi: false,
         geminiSentiment: false,
         geminiSummarization: false,
@@ -400,7 +409,7 @@ export default function AnalyserPage() {
                 label: "Extract URLs",
                 name: "extractUrls",
                 help: "Pull out http/https links (exclusive)",
-                icon: <Link className="w-4 h-4" />
+                icon: <LinkIcon className="w-4 h-4" />
             },
             extractEmail: {
                 label: "Extract Emails",
@@ -504,12 +513,6 @@ export default function AnalyserPage() {
                 help: "Detect sentiment (positive/negative/neutral)",
                 icon: <Brain className="w-4 h-4" />
             },
-            summarizeText: {
-                label: "Summarize Text",
-                name: "summarizeText",
-                help: "Extract key sentences from text",
-                icon: <TrendingUp className="w-4 h-4" />
-            },
             calculateReadability: {
                 label: "Calculate Readability",
                 name: "calculateReadability",
@@ -527,6 +530,12 @@ export default function AnalyserPage() {
                 name: "compareTexts",
                 help: "Compare current text with another text",
                 icon: null
+            },
+            extractKeywords: {
+                label: "Extract Keywords (Local)",
+                name: "extractKeywords",
+                help: "Extract top keywords using TF-IDF (Statistical)",
+                icon: <Hash className="w-4 h-4" />
             },
         },
         aiAdvanced: {
@@ -589,11 +598,6 @@ export default function AnalyserPage() {
 
     const operationHandler = (name: string, checked: boolean) => {
         setData((prevData) => {
-            if (name === "extractUrls" && checked) {
-                const newState: any = {};
-                Object.keys(prevData).forEach((k) => (newState[k] = k === "extractUrls"));
-                return newState;
-            }
             return { ...prevData, [name]: checked };
         });
     };
@@ -626,91 +630,7 @@ export default function AnalyserPage() {
 
     const Examine = async () => {
         setIsLoading(true);
-        const AnalyserEngine = new Tools.Analyser(examString, {
-            [Tools.Operations.RemoveAlphabets]: data.removealpha,
-            [Tools.Operations.RemoveNumbers]: data.removenum,
-            [Tools.Operations.RemovePunctuations]: data.removepunc,
-            [Tools.Operations.RemoveSpecialChars]: data.removespecialchar,
-            [Tools.Operations.ConvertToUppercase]: data.fullcaps,
-            [Tools.Operations.ConvertToTitleCase]: data.titlecaps,
-            [Tools.Operations.ConvertToLowercase]: data.lowercaps,
-            [Tools.Operations.RemoveExtraSpaces]: data.extraspaceremover,
-            [Tools.Operations.RemoveNewlines]: data.newlineremover,
-            [Tools.Operations.ExtractUrls]: data.extractUrls,
-            [Tools.Operations.CountCharacters]: data.charcount,
-            [Tools.Operations.CountAlphabets]: data.alphacount,
-            [Tools.Operations.CountNumbers]: data.numcount,
-            [Tools.Operations.CountAlphanumeric]: data.alphanumericcount,
-            [Tools.Operations.CountWords]: data.wordcount,
-            [Tools.Operations.CountSentences]: data.sentencecount,
-            [Tools.Operations.ReverseText]: data.reverseText,
-            [Tools.Operations.ExtractMentions]: data.extractMentions,
-            [Tools.Operations.ExtractEmails]: data.extractEmail,
-            [Tools.Operations.ExtractHashtags]: data.extractHashTag,
-            [Tools.Operations.ExtractPhoneNumbers]: data.extractPhoneNo,
-            [Tools.Operations.AnalyzeSentiment]: data.analyzeSentiment,
-            [Tools.Operations.SummarizeText]: data.summarizeText ? { sentenceCount: 3 } : false,
-            [Tools.Operations.CalculateReadability]: data.calculateReadability,
-            [Tools.Operations.DetectLanguage]: data.detectLanguage,
-            [Tools.Operations.CompareTexts]: data.compareTexts ? { compareWith: compareText } : false,
-        } as any);
-
-        // Custom emoji operation
-        try {
-            await AnalyserEngine.addCustomOperation(
-                "extractEmojis",
-                "Extracted Emojis",
-                {
-                    operation: (text: string) => {
-                        const emojiRegex =
-                            /[\u{1F300}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
-                        const emojis = text.match(emojiRegex) || [];
-                        return text;
-                    },
-                    metadata: { analysisType: "emoji-detection" },
-                    metadataExtractor: (text: string) => {
-                        const emojiRegex =
-                            /[\u{1F300}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
-                        const emojis = text.match(emojiRegex) || [];
-                        const uniqueEmojis = [...new Set(emojis)];
-                        const emojiCategories = {
-                            nature: emojis.filter((emoji) =>
-                                /[\u{1F300}-\u{1F5FF}\u{1F900}-\u{1F9FF}]/u.test(emoji)
-                            ),
-                            objects: emojis.filter((emoji) =>
-                                /[\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}]/u.test(emoji)
-                            ),
-                            symbols: emojis.filter((emoji) => /[\u{2600}-\u{26FF}]/u.test(emoji)),
-                        };
-                        return {
-                            totalEmojis: emojis.length,
-                            uniqueEmojis,
-                            uniqueEmojiCount: uniqueEmojis.length,
-                            emojiCategories: {
-                                nature: emojiCategories.nature.length,
-                                objects: emojiCategories.objects.length,
-                                symbols: emojiCategories.symbols.length,
-                            },
-                            emojiDensity: (emojis.length / (text.length || 1)) * 100,
-                        };
-                    },
-                    isEnabled: data.extractEmojis,
-                } as any
-            );
-        } catch (err) {
-            try {
-                await (AnalyserEngine as any).addCustomOperation(
-                    "extractEmojis",
-                    "Extracted Emojis",
-                    (text: string) => text,
-                    data.extractEmojis
-                );
-            } catch (e) {
-                // ignore
-            }
-        }
-
-        const result = await AnalyserEngine.main();
+        const result = await Analyse(examString, compareText, data);
         console.log(JSON.stringify(result.metadata))
 
         // Gemini AI Processing
@@ -762,13 +682,13 @@ export default function AnalyserPage() {
                 phoneNumbers: result.metadata?.phoneNumbers || [],
                 hashtags: result.metadata?.hashtags || [],
                 mentions: result.metadata?.mentions || [],
+                keywords: result.metadata?.keywords || [],
+                sentiment: result.metadata?.sentiment,
+                readability: result.metadata?.readability,
+                languageDetection: result.metadata?.languageDetection,
+                textComparison: result.metadata?.textComparison,
                 custom: result.metadata?.custom,
             },
-            sentiment: (result as any).sentiment,
-            summary: (result as any).summary,
-            readability: result.readability,
-            languageDetection: (result as any).languageDetection,
-            textComparison: (result as any).textComparison,
             gemini: geminiResults,
         };
 
@@ -943,7 +863,7 @@ export default function AnalyserPage() {
                         <DialogContent className="max-w-[89vw] sm:max-w-[580px] max-h-[85vh] p-0 flex flex-col">
                             <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 border-b">
                                 <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                                    <Wand2 className="w-5 h-5 flex-shrink-0" />
+                                    <Wand2 className="w-5 h-5 shrink-0" />
                                     Custom AI Text Analysis
                                 </DialogTitle>
                                 <DialogDescription className="text-sm">
@@ -1013,9 +933,9 @@ export default function AnalyserPage() {
 
                                     {/* Custom AI Analysis Result */}
                                     {customAIResult && (
-                                        <Card className="p-4 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border-indigo-500/50">
+                                        <Card className="p-4 bg-linear-to-br from-indigo-500/20 to-purple-500/20 border-indigo-500/50">
                                             <div className="flex items-start gap-3">
-                                                <div className="text-2xl flex-shrink-0">✨</div>
+                                                <div className="text-2xl shrink-0">✨</div>
                                                 <div className="flex-1 min-w-0">
                                                     <h4 className="text-base sm:text-lg font-semibold mb-3">
                                                         Custom AI Analysis
@@ -1099,11 +1019,11 @@ export default function AnalyserPage() {
                     <div className="space-y-4">
                         {/* Stats section */}
                         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                            <div className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 flex-shrink-0">
+                            <div className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0">
                                 <div className="text-xs text-slate-500 dark:text-slate-400">Read time</div>
                                 <div className="font-medium text-sm sm:text-base">{readTime}</div>
                             </div>
-                            <div className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 flex-shrink-0">
+                            <div className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0">
                                 <div className="text-xs text-slate-500 dark:text-slate-400">Typing speed</div>
                                 <div className="font-medium text-sm sm:text-base">{typingTest.wpm ?? 0} wpm</div>
                             </div>
@@ -1121,7 +1041,7 @@ export default function AnalyserPage() {
                                     setAnalysis("");
                                 }}
                                 disabled={isLoading}
-                                className="flex-shrink-0"
+                                className="shrink-0"
                             >
                                 Clear
                             </Button>
@@ -1131,7 +1051,7 @@ export default function AnalyserPage() {
                                 onClick={() => setShowCustomPromptDialog(true)}
                                 title="Analyze text with custom AI prompt"
                                 disabled={isLoading}
-                                className="flex-shrink-0"
+                                className="shrink-0"
                             >
                                 <Wand2 className="w-4 h-4 mr-1.5" />
                                 Custom AI
@@ -1140,7 +1060,7 @@ export default function AnalyserPage() {
                                 size="sm"
                                 onClick={Examine}
                                 disabled={isButtonDisabled || isLoading}
-                                className="flex-shrink-0 w-full sm:w-auto sm:ml-auto"
+                                className="shrink-0 w-full sm:w-auto sm:ml-auto"
                             >
                                 {isLoading ? (
                                     <>
@@ -1190,8 +1110,8 @@ export default function AnalyserPage() {
                                 )}
 
                                 {/* Sentiment Analysis */}
-                                {analysis.sentiment && (
-                                    <SentimentAnalysisDisplay metadata={analysis.sentiment} />
+                                {analysis.metadata.sentiment && (
+                                    <SentimentAnalysisDisplay metadata={analysis.metadata.sentiment} />
                                 )}
                                 {/* Gemini AI Advanced Sentiment */}
                                 {analysis.gemini?.sentiment && (
@@ -1228,7 +1148,27 @@ export default function AnalyserPage() {
                                         </div>
                                     </Card>
                                 )}
-
+                                {/* Local TF-IDF Keywords */}
+                                {analysis.metadata?.keywords?.length > 0 && (
+                                    <Card className="p-4 md:col-span-2 bg-linear-to-br from-slate-700/50 to-slate-800/50">
+                                        <div className="flex items-start gap-3">
+                                            <div className="text-2xl">🔑</div>
+                                            <div className="flex-1">
+                                                <h4 className="text-lg font-semibold mb-3">Extracted Keywords (TF-IDF)</h4>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {analysis.metadata.keywords.map((keyword: string, i: number) => (
+                                                        <Badge key={i} variant="secondary" className="bg-slate-700 hover:bg-slate-600">
+                                                            {keyword}
+                                                        </Badge>
+                                                    ))}
+                                                </div>
+                                                <div className="text-xs text-slate-400 mt-2">
+                                                    * Statistical extraction based on term frequency and document relevance.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Card>
+                                )}
                                 {/* Gemini AI Keywords & Topics */}
                                 {analysis.gemini?.keywords && (
                                     analysis.gemini.keywords.keywords.length > 0 || analysis.gemini.keywords.topics.length > 0
@@ -1270,49 +1210,42 @@ export default function AnalyserPage() {
                                     )}
 
                                 {/* Readability Analysis */}
-                                {analysis.readability && (
-                                    <ReadabilityAnalysisDisplay metadata={analysis.readability} />
+                                {analysis.metadata.readability && (
+                                    <ReadabilityAnalysisDisplay metadata={analysis.metadata.readability} />
                                 )}
 
                                 {/* Language Detection */}
-                                {analysis.languageDetection && (
-                                    <LanguageDetectionDisplay metadata={analysis.languageDetection} />
+                                {analysis.metadata.languageDetection && (
+                                    <LanguageDetectionDisplay metadata={analysis.metadata.languageDetection} />
                                 )}
 
-                                {/* Text Summary */}
-                                {analysis.summary && (
-                                    <Card className="p-4 md:col-span-2">
-                                        <h4 className="font-semibold mb-2">Summary</h4>
-                                        <p className="text-sm text-slate-300 leading-relaxed">{analysis.summary}</p>
-                                    </Card>
-                                )}
 
                                 {/* Text Comparison Results */}
-                                {analysis.textComparison && (
+                                {analysis.metadata.textComparison && (
                                     <Card className="p-4 md:col-span-2">
                                         <h4 className="font-semibold mb-3">Comparison Results</h4>
                                         <div className="space-y-2 text-sm">
                                             <div className="flex items-center justify-between">
                                                 <span className="text-slate-300">Similarity:</span>
-                                                <span className="font-semibold text-green-400">{analysis.textComparison.similarity.toFixed(2)}%</span>
+                                                <span className="font-semibold text-green-400">{analysis.metadata.textComparison.similarity.toFixed(2)}%</span>
                                             </div>
                                             <div className="flex items-center justify-between">
                                                 <span className="text-slate-300">Edit Distance:</span>
-                                                <span className="font-semibold text-yellow-400">{analysis.textComparison.editDistance}</span>
+                                                <span className="font-semibold text-yellow-400">{analysis.metadata.textComparison.editDistance}</span>
                                             </div>
-                                            {analysis.textComparison.wordDifference && (
+                                            {analysis.metadata.textComparison.wordDifference && (
                                                 <div className="grid grid-cols-3 gap-2 mt-2">
                                                     <div className="bg-green-500/20 p-2 rounded text-center">
                                                         <div className="text-xs text-slate-400">Added</div>
-                                                        <div className="font-semibold text-green-400">{analysis.textComparison.wordDifference.addedCount}</div>
+                                                        <div className="font-semibold text-green-400">{analysis.metadata.textComparison.wordDifference.addedCount}</div>
                                                     </div>
                                                     <div className="bg-red-500/20 p-2 rounded text-center">
                                                         <div className="text-xs text-slate-400">Removed</div>
-                                                        <div className="font-semibold text-red-400">{analysis.textComparison.wordDifference.removedCount}</div>
+                                                        <div className="font-semibold text-red-400">{analysis.metadata.textComparison.wordDifference.removedCount}</div>
                                                     </div>
                                                     <div className="bg-blue-500/20 p-2 rounded text-center">
                                                         <div className="text-xs text-slate-400">Unchanged</div>
-                                                        <div className="font-semibold text-blue-400">{analysis.textComparison.wordDifference.unchangedCount}</div>
+                                                        <div className="font-semibold text-blue-400">{analysis.metadata.textComparison.wordDifference.unchangedCount}</div>
                                                     </div>
                                                 </div>
                                             )}
@@ -1323,8 +1256,21 @@ export default function AnalyserPage() {
                                 {/* URLs */}
                                 {analysis.metadata?.urls?.length > 0 && (
                                     <Card className="p-4">
-                                        <h4 className="font-semibold">URLs</h4>
-                                        <pre className="whitespace-pre-wrap text-sm">{JSON.stringify(analysis.metadata.urls)}</pre>
+                                        <h4 className="font-semibold mb-3">URLs</h4>
+                                        <div className="space-y-2">
+                                            {analysis.metadata.urls.map((url: string, index: number) => (
+                                                <div key={index} className="flex items-start gap-2">
+                                                    <span className="text-muted-foreground text-sm">•</span>
+                                                    <Link
+                                                        href={url}
+                                                        target="_blank"
+                                                        className="text-sm text-blue-600 hover:text-blue-800 hover:underline break-all"
+                                                    >
+                                                        {url}
+                                                    </Link>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </Card>
                                 )}
 
@@ -1340,7 +1286,7 @@ export default function AnalyserPage() {
                                 {analysis.metadata?.emails?.length > 0 && (
                                     <Card className="p-4">
                                         <h4 className="font-semibold">Emails</h4>
-                                        {analysis.metadata.emails.map((em: string, i: number) => <div key={i} className="text-sm">✉ {em}</div>)}
+                                        {analysis.metadata.emails.map((em: string, i: number) => <Link href={`mailto:${em}`} key={i} className="text-sm text-blue-700">✉ {em}</Link>)}
                                     </Card>
                                 )}
 
