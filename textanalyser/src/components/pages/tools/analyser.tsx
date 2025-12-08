@@ -711,6 +711,7 @@ export default function AnalyserPage() {
         }
 
         const result = await AnalyserEngine.main();
+        console.log(JSON.stringify(result.metadata))
 
         // Gemini AI Processing
         let geminiResults: any = {};
@@ -765,7 +766,7 @@ export default function AnalyserPage() {
             },
             sentiment: (result as any).sentiment,
             summary: (result as any).summary,
-            readability: (result as any).readability,
+            readability: result.readability,
             languageDetection: (result as any).languageDetection,
             textComparison: (result as any).textComparison,
             gemini: geminiResults,
@@ -1227,29 +1228,6 @@ export default function AnalyserPage() {
                                         </div>
                                     </Card>
                                 )}
-                                {/* Custom AI Analysis Result */}
-                                {customAIResult && (
-                                    <Card className="p-4 md:col-span-2 bg-linear-to-br from-indigo-500/20 to-purple-500/20 border-indigo-500/50">
-                                        <div className="flex items-start gap-3">
-                                            <div className="text-2xl">✨</div>
-                                            <div className="flex-1">
-                                                <div className="flex items-center justify-between">
-                                                    <h4 className="text-lg font-semibold">Custom AI Analysis</h4>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        onClick={() => setShowCustomPromptDialog(true)}
-                                                    >
-                                                        Edit
-                                                    </Button>
-                                                </div>
-                                                <div className="mt-2 p-3 bg-slate-900/50 rounded text-sm text-slate-300 max-h-48 overflow-y-auto whitespace-pre-wrap">
-                                                    {customAIResult}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </Card>
-                                )}
 
                                 {/* Gemini AI Keywords & Topics */}
                                 {analysis.gemini?.keywords && (
@@ -1410,6 +1388,30 @@ export default function AnalyserPage() {
                             </div>
                         </section>
                     )}
+                    {/* Custom AI Analysis Result */}
+                    {customAIResult && (
+                        <Card className="p-4 md:col-span-2 bg-linear-to-br from-indigo-500/20 to-purple-500/20 border-indigo-500/50">
+                            <div className="flex items-start gap-3">
+                                <div className="text-2xl">✨</div>
+                                <div className="flex-1">
+                                    <div className="flex items-center justify-between">
+                                        <h4 className="text-lg font-semibold">Custom AI Analysis</h4>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => setShowCustomPromptDialog(true)}
+                                        >
+                                            Edit
+                                        </Button>
+                                    </div>
+                                    <div className="mt-2 p-3 bg-slate-900/50 rounded text-sm text-slate-300 max-h-48 overflow-y-auto whitespace-pre-wrap">
+                                        <MarkdownRenderer content={customAIResult} />
+                                    </div>
+                                </div>
+                            </div>
+                        </Card>
+                    )}
+
                 </main>
 
 
@@ -1422,16 +1424,16 @@ export default function AnalyserPage() {
                         </div>
 
                         <Tabs value={tabValue} onValueChange={(v: string) => setTabValue(v)}>
-                           <ScrollArea type="always">
-                             <ScrollBar orientation="horizontal" />
-                             <TabsList className="mb-3">
-                                <TabsTrigger className="cursor-pointer" value="basic">Basic</TabsTrigger>
-                                <TabsTrigger className="cursor-pointer" value="count">Count</TabsTrigger>
-                                <TabsTrigger className="cursor-pointer" value="transform">Transform</TabsTrigger>
-                                <TabsTrigger className="cursor-pointer" value="analysis">Analysis</TabsTrigger>
-                                <TabsTrigger className="cursor-pointer" value="ai">🤖 AI</TabsTrigger>
-                            </TabsList>
-                           </ScrollArea>
+                            <ScrollArea type="always">
+                                <ScrollBar orientation="horizontal" />
+                                <TabsList className="mb-3">
+                                    <TabsTrigger className="cursor-pointer" value="basic">Basic</TabsTrigger>
+                                    <TabsTrigger className="cursor-pointer" value="count">Count</TabsTrigger>
+                                    <TabsTrigger className="cursor-pointer" value="transform">Transform</TabsTrigger>
+                                    <TabsTrigger className="cursor-pointer" value="analysis">Analysis</TabsTrigger>
+                                    <TabsTrigger className="cursor-pointer" value="ai">🤖 AI</TabsTrigger>
+                                </TabsList>
+                            </ScrollArea>
 
                             <ScrollArea type="always" className="h-50 md:h-full">
 
