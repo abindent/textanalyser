@@ -365,7 +365,7 @@ export default function AnalyserPage() {
     });
 
     const enabledCount = Object.values(data).filter(Boolean).length;
-    const isButtonDisabled = enabledCount === 0 && isLoading;
+    const isButtonDisabled = enabledCount === 0;
 
     const FormatData: any = {
         basicoperations: {
@@ -631,8 +631,6 @@ export default function AnalyserPage() {
     const Examine = async () => {
         setIsLoading(true);
         const result = await Analyse(examString, compareText, data);
-        console.log(JSON.stringify(result.metadata))
-
         // Gemini AI Processing
         let geminiResults: any = {};
 
@@ -1315,22 +1313,26 @@ export default function AnalyserPage() {
 
                             {/* Summary stats */}
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
-                                <Card className="p-4">
+                                {data.charcount && (<Card className="p-4">
                                     <div className="text-xs text-slate-400">Characters</div>
                                     <div className="text-2xl font-semibold">{analysis.metadata?.counts?.characterCount ?? 0}</div>
-                                </Card>
-                                <Card className="p-4">
+                                </Card>)}
+                                {data.alphacount && (<Card className="p-4">
                                     <div className="text-xs text-slate-400">Alphabet</div>
                                     <div className="text-2xl font-semibold">{analysis.metadata?.counts?.alphabetCount ?? 0}</div>
-                                </Card>
-                                <Card className="p-4">
+                                </Card>)}
+                                {data.numcount && (<Card className="p-4">
                                     <div className="text-xs text-slate-400">Numbers</div>
                                     <div className="text-2xl font-semibold">{analysis.metadata?.counts?.numericCount ?? 0}</div>
-                                </Card>
-                                <Card className="p-4">
+                                </Card>)}
+                                {data.wordcount && (<Card className="p-4">
                                     <div className="text-xs text-slate-400">Words</div>
                                     <div className="text-2xl font-semibold">{analysis.metadata?.counts?.wordCount ?? 0}</div>
-                                </Card>
+                                </Card>)}
+                                {data.sentencecount && (<Card className="p-4">
+                                    <div className="text-xs text-slate-400">Words</div>
+                                    <div className="text-2xl font-semibold">{analysis.metadata?.counts?.sentenceCount ?? 0}</div>
+                                </Card>)}
                             </div>
                         </section>
                     )}
@@ -1422,35 +1424,6 @@ export default function AnalyserPage() {
                             <div>Emails: <span className="font-medium">{(analysis.metadata?.emails || []).length}</span></div>
                             <div>Mentions: <span className="font-medium">{(analysis.metadata?.mentions || []).length}</span></div>
                             <div>Hashtags: <span className="font-medium">{(analysis.metadata?.hashtags || []).length}</span></div>
-                        </div>
-                    </Card>
-
-                    <Card className="p-4">
-                        <h4 className="font-semibold mb-3">Summary</h4>
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                            <div>
-                                <div className="text-xs text-slate-400">Characters</div>
-                                <div className="font-medium">{analysis.metadata?.counts?.characterCount ?? 0}</div>
-                            </div>
-                            <div>
-                                <div className="text-xs text-slate-400">Alphabets</div>
-                                <div className="font-medium">{analysis.metadata?.counts?.alphabetCount ?? 0}</div>
-                            </div>
-                            <div>
-                                <div className="text-xs text-slate-400">Numbers</div>
-                                <div className="font-medium">{analysis.metadata?.counts?.numericCount ?? 0}</div>
-                            </div>
-                            <div>
-                                <div className="text-xs text-slate-400">Words</div>
-                                <div className="font-medium">{analysis.metadata?.counts?.wordCount ?? 0}</div>
-                            </div>
-                            <div className="col-span-2 mt-2">
-                                <Separator />
-                                <div className="mt-2 flex items-center justify-between text-xs text-slate-400">
-                                    <div>Exec time</div>
-                                    <div className="font-medium">{analysis.executionTime ?? 0} ms</div>
-                                </div>
-                            </div>
                         </div>
                     </Card>
                 </aside>

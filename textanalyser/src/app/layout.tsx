@@ -15,10 +15,11 @@ const geistMono = Geist_Mono({
 
 // PRISM
 import "prismjs/themes/prism-okaidia.css";
-import "prismjs/plugins/toolbar/prism-toolbar.css";
+import "prismjs/plugins/toolbar/prism-toolbar.min.css";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import "prismjs/plugins/autolinker/prism-autolinker.css";
 
+// Highlight
 import "highlight.js/styles/github-dark.css";
 
 

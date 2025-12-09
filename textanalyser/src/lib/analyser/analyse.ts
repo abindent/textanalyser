@@ -214,6 +214,5 @@ export async function Analyse(
     }
   }
   const result = await AnalyserEngine.main();
-  console.log(result)
   return result;
 }

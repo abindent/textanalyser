@@ -3,7 +3,7 @@
 import PRISMLoader from "@/lib/prismwrapper";
 import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
-import { Code2, Zap, Type } from "lucide-react";
+import { Code2, Type } from "lucide-react";
 
 export default function Showcase() {
   return (
