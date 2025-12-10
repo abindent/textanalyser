@@ -46,14 +46,14 @@
     "rehype-raw": "^7.0.0",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
-    "textanalysis-tool": "^1.1.3",
+    "textanalysis-tool": "^1.1.4",
     "zod": "^4.1.13"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.17",
     "@types/esrever": "^0.2.3",
     "@types/jquery": "^3.5.33",
-    "@types/node": "^24.10.2",
+    "@types/node": "^24.10.3",
     "@types/prismjs": "^1.26.5",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",

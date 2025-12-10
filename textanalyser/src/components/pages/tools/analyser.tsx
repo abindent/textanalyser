@@ -1317,11 +1317,11 @@ export default function AnalyserPage() {
                                     <div className="text-xs text-slate-400">Characters</div>
                                     <div className="text-2xl font-semibold">{analysis.metadata?.counts?.characterCount ?? 0}</div>
                                 </Card>)}
-                                {data.alphacount && (<Card className="p-4">
+                                {data.alphacount || data.alphanumericcount && (<Card className="p-4">
                                     <div className="text-xs text-slate-400">Alphabet</div>
                                     <div className="text-2xl font-semibold">{analysis.metadata?.counts?.alphabetCount ?? 0}</div>
                                 </Card>)}
-                                {data.numcount && (<Card className="p-4">
+                                {data.numcount || data.alphanumericcount && (<Card className="p-4">
                                     <div className="text-xs text-slate-400">Numbers</div>
                                     <div className="text-2xl font-semibold">{analysis.metadata?.counts?.numericCount ?? 0}</div>
                                 </Card>)}
@@ -1330,7 +1330,7 @@ export default function AnalyserPage() {
                                     <div className="text-2xl font-semibold">{analysis.metadata?.counts?.wordCount ?? 0}</div>
                                 </Card>)}
                                 {data.sentencecount && (<Card className="p-4">
-                                    <div className="text-xs text-slate-400">Words</div>
+                                    <div className="text-xs text-slate-400">Sentences</div>
                                     <div className="text-2xl font-semibold">{analysis.metadata?.counts?.sentenceCount ?? 0}</div>
                                 </Card>)}
                             </div>
