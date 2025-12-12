@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { useTheme } from 'next-themes'
 import { Moon, Sun, Monitor } from 'lucide-react'

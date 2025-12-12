@@ -42,7 +42,7 @@ export default function Showcase() {
                 <span className="text-xs font-medium text-slate-300">analyser.ts</span>
               </div>
               <div className="overflow-x-auto">
-                <pre className="line-numbers p-4 text-sm" data-src="/showcase/scripts/analyser.ts"></pre>
+                <pre className="line-numbers p-4 text-sm" data-src="https://raw.githubusercontent.com/abindent/textanalysis-tool/refs/heads/master/src/tools.ts"></pre>
               </div>
             </Card>
           </section>
@@ -64,7 +64,7 @@ export default function Showcase() {
                 <span className="text-xs font-medium text-slate-300">extensions.ts</span>
               </div>
               <div className="overflow-x-auto">
-                <pre className="line-numbers p-4 text-sm" data-src="/showcase/scripts/extensions.ts"></pre>
+                <pre className="line-numbers p-4 text-sm" data-src="https://raw.githubusercontent.com/abindent/textanalysis-tool/refs/heads/master/src/extensions.ts"></pre>
               </div>
             </Card>
           </section>

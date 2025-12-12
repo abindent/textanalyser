@@ -1,14 +1,17 @@
 "use client";
 
+// ESSENTIALS
 import * as React from "react";
 import Link from "next/link";
 
+// PRISM
 import Prism from "prismjs";
 import "prismjs/components/prism-c";
 import "prismjs/plugins/toolbar/prism-toolbar";
 import "prismjs/plugins/line-numbers/prism-line-numbers";
 import "prismjs/plugins/autolinker/prism-autolinker";
 
+// COMPONENTS
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
@@ -16,10 +19,10 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 
-/* Small helpers & icons */
+// Small helpers & icons
 import {
     InfoIcon, TrendingUp, Brain, BarChart3, Globe, Type, Hash, KeySquare, AlignJustify, FileText, Link as LinkIcon, AtSign, Phone, Smile, SquareStack, ClipboardList, Quote, ArrowUpAZ, ArrowDownAZ, CaseSensitive, Undo2, User2, Wand2, Calculator, Delete,
     Loader2,
@@ -27,7 +30,7 @@ import {
     Copy
 } from "lucide-react";
 
-/* UTILITY FUNCTIONS */
+// UTILITY FUNCTIONS
 import { Analyse } from "@/lib/analyser/analyse";
 import { generateExportText, generateExportJSON, generateExportCSV } from "@/lib/analyser/export";
 
@@ -617,7 +620,7 @@ export default function AnalyserPage() {
                                     <InfoIcon className="w-4 h-4" />
                                 </button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-[220px]">
+                            <PopoverContent className="w-55">
                                 <div className="text-sm dark:text-slate-400">{item.help}</div>
                             </PopoverContent>
                         </Popover>
@@ -638,6 +641,7 @@ export default function AnalyserPage() {
             try {
                 geminiResults.sentiment = await geminiAdvancedSentiment(examString);
             } catch (error) {
+                toast.error("Failed to analyze sentiment")
                 console.error("Gemini sentiment error:", error);
                 geminiResults.sentiment = {
                     classification: "error",
@@ -651,6 +655,7 @@ export default function AnalyserPage() {
             try {
                 geminiResults.summary = await geminiSummarize(examString);
             } catch (error) {
+                toast.error("Failed to generate summary")
                 console.error("Gemini summary error:", error);
                 geminiResults.summary = "Failed to generate summary";
             }
@@ -660,6 +665,7 @@ export default function AnalyserPage() {
             try {
                 geminiResults.keywords = await geminiKeywordExtraction(examString);
             } catch (error) {
+                toast.error("Some error occured while using AI")
                 console.error("Gemini keywords error:", error);
                 geminiResults.keywords = { keywords: [], topics: [] };
             }
@@ -693,11 +699,31 @@ export default function AnalyserPage() {
         try {
             setAnalysis(completeResult);
             setReadTime(calculateReadTime(result.output));
-            setTimeout(() => setIsLoading(false), 500);
+            setTimeout(() => {
+                setIsLoading(false);
+                // Scroll to the output card after analysis completes
+                const outputCard = document.getElementById('main_output');
+                if (outputCard) {
+                    outputCard.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'end'
+                    });
+                }
+            }, 500);
+            toast.success("Successfully analysed given string");
         } catch (error) {
             console.error("Analysis failed:", error);
             setAnalysis((prev: any) => ({ ...prev, output: "Error occurred during analysis" }));
             setIsLoading(false);
+            // Scroll to the output card after analysis completes
+            const outputCard = document.getElementById('main_output');
+            if (outputCard) {
+                outputCard.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'end'
+                });
+            }
+            toast.error("Failed to analyse given string.");
         }
     };
 
@@ -718,7 +744,7 @@ export default function AnalyserPage() {
                                 Export
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+                        <DialogContent className="sm:max-w-175-h-[80vh] overflow-y-auto">
                             <DialogHeader>
                                 <DialogTitle>Export Analysis Results</DialogTitle>
                                 <DialogDescription>
@@ -858,7 +884,7 @@ export default function AnalyserPage() {
 
                     {/* Custom AI Prompt Dialog */}
                     <Dialog open={showCustomPromptDialog} onOpenChange={setShowCustomPromptDialog}>
-                        <DialogContent className="max-w-[89vw] sm:max-w-[580px] max-h-[85vh] p-0 flex flex-col">
+                        <DialogContent className="max-w-[89vw] sm:max-w-145 max-h-[85vh] p-0 flex flex-col">
                             <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 border-b">
                                 <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
                                     <Wand2 className="w-5 h-5 shrink-0" />
@@ -919,7 +945,7 @@ export default function AnalyserPage() {
                                             Your Custom Prompt
                                         </label>
                                         <textarea
-                                            className="w-full min-h-[120px] p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-sm"
+                                            className="w-full min-h-30 p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-sm"
                                             placeholder="Example: Summarize the main argument and list potential counterarguments..."
                                             value={customPrompt}
                                             onChange={(e) => setCustomPrompt(e.target.value)}
@@ -931,14 +957,14 @@ export default function AnalyserPage() {
 
                                     {/* Custom AI Analysis Result */}
                                     {customAIResult && (
-                                        <Card className="p-4 bg-linear-to-br from-indigo-500/20 to-purple-500/20 border-indigo-500/50">
+                                        <Card className="p-4 bg-linear-to-br from-indigo-500/20 to-purple-500/20 border-indigo-500/50" id="custom_ai_output">
                                             <div className="flex items-start gap-3">
                                                 <div className="text-2xl shrink-0">✨</div>
                                                 <div className="flex-1 min-w-0">
                                                     <h4 className="text-base sm:text-lg font-semibold mb-3">
                                                         Custom AI Analysis
                                                     </h4>
-                                                    <div className="bg-slate-900/50 rounded p-3 max-h-[300px] overflow-y-auto">
+                                                    <div className="bg-slate-900/50 rounded p-3 max-h-75 overflow-y-auto">
                                                         <MarkdownRenderer content={customAIResult} />
                                                     </div>
                                                 </div>
@@ -981,13 +1007,28 @@ export default function AnalyserPage() {
                                                 text: examString,
                                             });
                                             setCustomAIResult(response);
+                                            // Scroll to the output card after generation completes
+                                            const outputCard = document.getElementById('custom_ai_output');
+                                            outputCard?.scrollIntoView({
+                                                behavior: 'smooth',
+                                                block: 'end'
+                                            });
+
+                                            toast.success("🌟 Generated AI Results")
                                         } catch (error) {
+                                            toast.error("Failed to process request")
                                             setCustomAIResult(
                                                 `Error: ${error instanceof Error
                                                     ? error.message
                                                     : "Failed to process request"
                                                 }`
                                             );
+                                            // Scroll to the output card after generation completes
+                                            const outputCard = document.getElementById('custom_ai_output');
+                                            outputCard?.scrollIntoView({
+                                                behavior: 'smooth',
+                                                block: 'end'
+                                            });
                                         } finally {
                                             setIsLoadingCustomAI(false);
                                         }
@@ -1084,7 +1125,7 @@ export default function AnalyserPage() {
                             <Card className="p-2">
                                 <div className="h-40 overflow-auto">
                                     <pre className="language-c line-numbers p-4 bg-slate-900 text-white min-w-max">
-                                        <code>{analysis.output}</code>
+                                        <code id="main_output">{analysis.output}</code>
                                     </pre>
                                 </div>
                             </Card>
@@ -1359,7 +1400,6 @@ export default function AnalyserPage() {
                             </div>
                         </Card>
                     )}
-
                 </main>
 
 
@@ -1367,48 +1407,48 @@ export default function AnalyserPage() {
                 <aside className="space-y-4">
                     <Card className="p-4">
                         <div className="flex items-center justify-between mb-3">
-                            <h4 className="font-semibold">Operations</h4>
+                            <h4 className="font-semibold text-sm sm:text-base">Operations</h4>
                             <div className="text-xs text-slate-400">Enabled <Badge>{enabledCount}</Badge></div>
                         </div>
 
                         <Tabs value={tabValue} onValueChange={(v: string) => setTabValue(v)}>
-                            <ScrollArea type="always">
+                            <ScrollArea type="always" className="w-full">
                                 <ScrollBar orientation="horizontal" />
-                                <TabsList className="mb-3">
-                                    <TabsTrigger className="cursor-pointer" value="basic">Basic</TabsTrigger>
-                                    <TabsTrigger className="cursor-pointer" value="count">Count</TabsTrigger>
-                                    <TabsTrigger className="cursor-pointer" value="transform">Transform</TabsTrigger>
-                                    <TabsTrigger className="cursor-pointer" value="analysis">Analysis</TabsTrigger>
-                                    <TabsTrigger className="cursor-pointer" value="ai">🤖 AI</TabsTrigger>
+                                <TabsList className="mb-3 w-full sm:w-auto inline-flex">
+                                    <TabsTrigger className="cursor-pointer text-xs sm:text-sm px-2 sm:px-3" value="basic">Basic</TabsTrigger>
+                                    <TabsTrigger className="cursor-pointer text-xs sm:text-sm px-2 sm:px-3" value="count">Count</TabsTrigger>
+                                    <TabsTrigger className="cursor-pointer text-xs sm:text-sm px-2 sm:px-3" value="transform">Transform</TabsTrigger>
+                                    <TabsTrigger className="cursor-pointer text-xs sm:text-sm px-2 sm:px-3" value="analysis">Analysis</TabsTrigger>
+                                    <TabsTrigger className="cursor-pointer text-xs sm:text-sm px-2 sm:px-3" value="ai">🤖 AI</TabsTrigger>
                                 </TabsList>
                             </ScrollArea>
 
                             <ScrollArea type="always" className="h-50 md:h-full">
-
-                                <TabsContent value="basic" className="space-y-1">
+                                <TabsContent value="basic" className="space-y-1 pr-3">
                                     <div className="flex flex-col">
                                         {Object.values(FormatData.basicoperations).map((it: any) => renderSwitchRow(it))}
                                     </div>
                                 </TabsContent>
 
-                                <TabsContent value="count" className="space-y-1">
+                                <TabsContent value="count" className="space-y-1 pr-3">
                                     <div className="flex flex-col">
                                         {Object.values(FormatData.countchar).map((it: any) => renderSwitchRow(it))}
                                     </div>
                                 </TabsContent>
 
-                                <TabsContent value="transform" className="space-y-1">
+                                <TabsContent value="transform" className="space-y-1 pr-3">
                                     <div className="flex flex-col">
                                         {Object.values(FormatData.changecap).map((it: any) => renderSwitchRow(it))}
                                     </div>
                                 </TabsContent>
 
-                                <TabsContent value="analysis" className="space-y-1">
+                                <TabsContent value="analysis" className="space-y-1 pr-3">
                                     <div className="flex flex-col">
                                         {Object.values(FormatData.analysis).map((it: any) => renderSwitchRow(it))}
                                     </div>
                                 </TabsContent>
-                                <TabsContent value="ai" className="space-y-1">
+
+                                <TabsContent value="ai" className="space-y-1 pr-3">
                                     <div className="flex flex-col">
                                         {Object.values(FormatData.aiAdvanced).map((it: any) => renderSwitchRow(it))}
                                     </div>
@@ -1418,15 +1458,28 @@ export default function AnalyserPage() {
                     </Card>
 
                     <Card className="p-4">
-                        <h4 className="font-semibold mb-3">Extracted Data</h4>
-                        <div className="text-sm text-slate-500 space-y-2">
-                            <div>URLs: <span className="font-medium">{(analysis.metadata?.urls || []).length}</span></div>
-                            <div>Emails: <span className="font-medium">{(analysis.metadata?.emails || []).length}</span></div>
-                            <div>Mentions: <span className="font-medium">{(analysis.metadata?.mentions || []).length}</span></div>
-                            <div>Hashtags: <span className="font-medium">{(analysis.metadata?.hashtags || []).length}</span></div>
+                        <h4 className="font-semibold mb-3 text-sm sm:text-base">Extracted Data</h4>
+                        <div className="text-xs sm:text-sm text-slate-500 space-y-2">
+                            <div className="flex justify-between items-center">
+                                <span>URLs:</span>
+                                <span className="font-medium">{(analysis.metadata?.urls || []).length}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span>Emails:</span>
+                                <span className="font-medium">{(analysis.metadata?.emails || []).length}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span>Mentions:</span>
+                                <span className="font-medium">{(analysis.metadata?.mentions || []).length}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span>Hashtags:</span>
+                                <span className="font-medium">{(analysis.metadata?.hashtags || []).length}</span>
+                            </div>
                         </div>
                     </Card>
                 </aside>
+
             </div>
         </div>
     );
