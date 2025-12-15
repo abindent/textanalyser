@@ -128,16 +128,16 @@ export function generateExportText(
       "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
     );
     lines.push(
-      `Detected Language: ${analysis.metadata.languageDetection.detectedLanguage || "Unknown"}`,
+      `Detected Language: ${analysis.metadata.languageDetection.languageName || "Unknown"}`,
     );
     lines.push(
-      `Confidence: ${((analysis.metadata.languageDetection.confidence || 0) * 100).toFixed(1)}%`,
+      `Confidence: ${(analysis.metadata.languageDetection.confidence || 0).toFixed(1)}%`,
     );
     if (analysis.metadata.languageDetection.scores) {
       lines.push("\nLanguage Scores:");
       Object.entries(analysis.metadata.languageDetection.scores).forEach(
         ([lang, score]: any) => {
-          lines.push(`  ${lang}:  ${(score * 100).toFixed(1)}%`);
+          lines.push(`  ${lang}:  ${score.toFixed(1)}%`);
         },
       );
     }
@@ -503,18 +503,18 @@ export function generateExportCSV(
     rows.push(["🌐 LANGUAGE DETECTION"]);
     rows.push([
       "Detected Language",
-      analysis.metadata.languageDetection.detectedLanguage || "Unknown",
+      analysis.metadata.languageDetection.languageName || "Unknown",
     ]);
     rows.push([
       "Confidence",
-      ((analysis.metadata.languageDetection.confidence || 0) * 100).toFixed(1) +
+      (analysis.metadata.languageDetection.confidence || 0).toFixed(1) +
         "%",
     ]);
     if (analysis.metadata.languageDetection.scores) {
       rows.push(["\nLanguage Scores:"]);
       Object.entries(analysis.metadata.languageDetection.scores).forEach(
         ([lang, score]: any) => {
-          rows.push([lang, , (score * 100).toFixed(1) + "%"]);
+          rows.push([lang, , score.toFixed(1) + "%"]);
         },
       );
     }

@@ -1,6 +1,6 @@
 "use server";
 
-import { Tools } from "textanalysis-tool";
+import { Analyser, Operations, AnalyserResult } from "textanalysis-tool";
 
 /**
  * @interface Data
@@ -86,7 +86,7 @@ interface Data {
  * @param {string} [compareText=""] - Optional secondary text for comparison operations
  * @param {Data} data - Configuration object specifying which analysis operations to perform
  * 
- * @returns {Promise<Tools.AnalyserResult>} A promise that resolves to the complete analysis results
+ * @returns {Promise<AnalyserResult>} A promise that resolves to the complete analysis results
  * containing all requested transformations, extractions, and analytical data
  * 
  * @throws {Error} May throw errors if the analysis engine encounters invalid input or configuration
@@ -123,39 +123,41 @@ export async function Analyse(
   input: string,
   compareText: string = "",
   data: Data,
-): Promise<Tools.AnalyserResult> {
-  const AnalyserEngine = new Tools.Analyser(input, {
-    [Tools.Operations.RemoveAlphabets]: data.removealpha,
-    [Tools.Operations.RemoveNumbers]: data.removenum,
-    [Tools.Operations.RemovePunctuations]: data.removepunc,
-    [Tools.Operations.RemoveSpecialChars]: data.removespecialchar,
-    [Tools.Operations.ConvertToUppercase]: data.fullcaps,
-    [Tools.Operations.ConvertToTitleCase]: data.titlecaps,
-    [Tools.Operations.ConvertToLowercase]: data.lowercaps,
-    [Tools.Operations.RemoveExtraSpaces]: data.extraspaceremover,
-    [Tools.Operations.RemoveNewlines]: data.newlineremover,
-    [Tools.Operations.ExtractUrls]: data.extractUrls,
-    [Tools.Operations.CountCharacters]: data.charcount,
-    [Tools.Operations.CountAlphabets]: data.alphacount,
-    [Tools.Operations.CountNumbers]: data.numcount,
-    [Tools.Operations.CountAlphanumeric]: data.alphanumericcount,
-    [Tools.Operations.CountWords]: data.wordcount,
-    [Tools.Operations.CountSentences]: data.sentencecount,
-    [Tools.Operations.ReverseText]: data.reverseText,
-    [Tools.Operations.ExtractMentions]: data.extractMentions,
-    [Tools.Operations.ExtractEmails]: data.extractEmail,
-    [Tools.Operations.ExtractHashtags]: data.extractHashTag,
-    [Tools.Operations.ExtractPhoneNumbers]: data.extractPhoneNo,
-    [Tools.Operations.AnalyzeSentiment]: data.analyzeSentiment,
-    [Tools.Operations.CalculateReadability]: data.calculateReadability,
-    [Tools.Operations.DetectLanguage]: data.detectLanguage,
-    [Tools.Operations.CompareTexts]: data.compareTexts
+): Promise<AnalyserResult> {
+  const AnalyserEngine = new Analyser(input, {
+    [Operations.RemoveAlphabets]: data.removealpha,
+    [Operations.RemoveNumbers]: data.removenum,
+    [Operations.RemovePunctuations]: data.removepunc,
+    [Operations.RemoveSpecialChars]: data.removespecialchar,
+    [Operations.ConvertToUppercase]: data.fullcaps,
+    [Operations.ConvertToTitleCase]: data.titlecaps,
+    [Operations.ConvertToLowercase]: data.lowercaps,
+    [Operations.RemoveExtraSpaces]: data.extraspaceremover,
+    [Operations.RemoveNewlines]: data.newlineremover,
+    [Operations.ExtractUrls]: data.extractUrls,
+    [Operations.CountCharacters]: data.charcount,
+    [Operations.CountAlphabets]: data.alphacount,
+    [Operations.CountNumbers]: data.numcount,
+    [Operations.CountAlphanumeric]: data.alphanumericcount,
+    [Operations.CountWords]: data.wordcount,
+    [Operations.CountSentences]: data.sentencecount,
+    [Operations.ReverseText]: data.reverseText,
+    [Operations.ExtractMentions]: data.extractMentions,
+    [Operations.ExtractEmails]: data.extractEmail,
+    [Operations.ExtractHashtags]: data.extractHashTag,
+    [Operations.ExtractPhoneNumbers]: data.extractPhoneNo,
+    [Operations.AnalyzeSentiment]: data.analyzeSentiment,
+    [Operations.CalculateReadability]: data.calculateReadability,
+    [Operations.DetectLanguage]: data.detectLanguage,
+    [Operations.CompareTexts]: data.compareTexts
       ? { compareWith: compareText }
       : false,
-    [Tools.Operations.ExtractKeywords]: data.extractKeywords
+    [Operations.ExtractKeywords]: data.extractKeywords
       ? { topN: 10 }
       : false,
-  } as any);
+  } as any, {
+    blacklist: ["sco"]
+  });
 
   // Custom emoji operation
   try {

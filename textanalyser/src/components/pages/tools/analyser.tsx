@@ -18,7 +18,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardFooter } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 
@@ -215,14 +215,21 @@ const ReadabilityAnalysisDisplay: React.FC<ReadabilityAnalysisProps> = ({ metada
 /* Language Detection Display */
 interface LanguageDetectionProps {
     metadata?: {
-        detectedLanguage?: string;
-        confidence?: number;
-        scores?: Record<string, number>;
-    };
+        detectedLanguage: string;
+        languageName: string;
+        confidence: number;
+        scores: Record<string, number>;
+        alternativeLanguages: Array<{
+            language: string;
+            languageName: string;
+            confidence: number;
+        }>;
+    }
 }
 
 const LanguageDetectionDisplay: React.FC<LanguageDetectionProps> = ({ metadata }) => {
     if (!metadata || !metadata.detectedLanguage) return null;
+    console.log(metadata)
 
     return (
         <Card className="p-4 bg-linear-to-br from-cyan-500/20 to-blue-500/20 border-cyan-500/50">
@@ -231,12 +238,12 @@ const LanguageDetectionDisplay: React.FC<LanguageDetectionProps> = ({ metadata }
                 <div className="flex-1">
                     <div className="flex items-center justify-between">
                         <h4 className="text-lg font-semibold">Language Detection</h4>
-                        <div className="text-sm text-slate-400">Confidence: <span className="font-medium text-cyan-400">{((metadata.confidence ?? 0) * 100).toFixed(1)}%</span></div>
+                        <div className="text-sm text-slate-400">Confidence: <span className="font-medium text-cyan-400">{(metadata.confidence ?? 0).toFixed(1)}%</span></div>
                     </div>
 
                     <div className="mt-3">
                         <div className="inline-block px-3 py-1 rounded-full bg-cyan-500/30 text-cyan-300 font-semibold text-sm capitalize">
-                            {metadata.detectedLanguage}
+                            {metadata.languageName}
                         </div>
                     </div>
 
@@ -247,7 +254,7 @@ const LanguageDetectionDisplay: React.FC<LanguageDetectionProps> = ({ metadata }
                                 {Object.entries(metadata.scores).slice(0, 4).map(([lang, score]) => (
                                     <div key={lang} className="flex items-center justify-between text-xs">
                                         <span className="capitalize text-slate-300">{lang}:</span>
-                                        <span className="font-medium text-slate-200">{(score * 100).toFixed(1)}%</span>
+                                        <span className="font-medium text-slate-200">{score.toFixed(1)}%</span>
                                     </div>
                                 ))}
                             </div>
@@ -255,6 +262,14 @@ const LanguageDetectionDisplay: React.FC<LanguageDetectionProps> = ({ metadata }
                     )}
                 </div>
             </div>
+            <CardFooter>
+                <span className="text-xs text-muted-foreground italic flex items-center gap-1.5">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    The results above are not fully accurate.
+                </span>
+            </CardFooter>
         </Card>
     );
 };
