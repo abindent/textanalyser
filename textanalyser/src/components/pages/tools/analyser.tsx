@@ -412,9 +412,9 @@ export default function AnalyserPage() {
                 icon: <KeySquare className="w-4 h-4" />
             },
             newlineremover: {
-                label: "Remove Extra Lines",
+                label: "Remove Blank Lines",
                 name: "newlineremover",
-                help: "Remove empty lines",
+                help: "Remove Blank lines",
                 icon: <AlignJustify className="w-4 h-4" />
             },
             extraspaceremover: {
