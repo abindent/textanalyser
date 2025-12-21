@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { Separator } from '@/components/ui/separator'
-import { Github, Linkedin, MessageCircle } from 'lucide-react'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
@@ -139,7 +138,7 @@ export default function Footer() {
 
           {/* Copyright */}
           <div className="text-sm text-slate-600 dark:text-slate-400 text-center">
-            <p>&copy; {currentYear} TextAnalyser. Crafted with passion by Sinchan Maitra</p>
+            <p>&copy; {currentYear} TextAnalyser. Crafted with passion by AbindentXtreme</p>
           </div>
         </div>
       </div>
